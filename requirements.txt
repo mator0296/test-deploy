@@ -1,10 +1,13 @@
 aniso8601==7.0.0
 asgiref==3.3.1
+black==19.3b0
 Django==3.1.4
+flake8==3.8.4
 graphene==2.1.8
 graphene-django==2.13.0
 graphql-core==2.3.2
 graphql-relay==2.0.1
+isort==5.6.4
 promise==2.3
 pytz==2020.4
 Rx==1.6.1
