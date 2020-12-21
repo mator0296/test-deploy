@@ -1,9 +1,6 @@
 *.pyc
 /venv/
-<<<<<<< HEAD
 .env
-=======
 *__pycache__
 .vscode
 db.sqlite3
->>>>>>> origin/main
