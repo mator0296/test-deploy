@@ -70,7 +70,7 @@ class CustomerRegister(ModelMutation):
 
     class Meta:
         description = "Register a new user."
-        exclude = ["password"]
+        exclude = ["password", "postal_code"]
         model = models.User
 
     @classmethod
