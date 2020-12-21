@@ -4,9 +4,10 @@ from functools import partial
 from django.db.models.query import QuerySet
 from graphene.relay import PageInfo
 from graphene_django.fields import DjangoConnectionField
-from graphql.error import GraphQLError
 from graphql_relay.connection.arrayconnection import connection_from_list_slice
 from promise import Promise
+
+from graphql.error import GraphQLError
 
 
 class PrefetchingConnectionField(DjangoConnectionField):

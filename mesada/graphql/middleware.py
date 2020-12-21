@@ -37,7 +37,7 @@ def jwt_middleware(get_response):
     """
     # Disable warnings for django-graphene-jwt
     graphene_settings.MIDDLEWARE.append(JSONWebTokenMiddleware)
-    jwt_middleware_inst = JSONWebTokenMiddleware()
+    # jwt_middleware_inst = JSONWebTokenMiddleware()
     graphene_settings.MIDDLEWARE.remove(JSONWebTokenMiddleware)
 
     def middleware(request):
