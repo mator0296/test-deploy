@@ -514,11 +514,11 @@ class CreateToken(ObtainJSONWebToken):
     def mutate(cls, root, info, **kwargs):
         try:
             result = super().mutate(root, info, **kwargs)
-        except JSONWebTokenError as e:
+        except JSONWebTokenError:
             message = pgettext_lazy(
                 "CreateToken Error", "Please, enter valid credentials"
             )
-            return CreateToken(errors=[Error(message=message)])
+            return CreateToken(errors=[Error(message=message)], token="")
         else:
             return result
 
