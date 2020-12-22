@@ -1,4 +1,6 @@
 branch-defaults:
+  SOL-33:
+    environment: mesada-test-provitional
   default:
     environment: mesada-test-provitional
     group_suffix: null
