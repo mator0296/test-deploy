@@ -5,6 +5,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator 
 from django.db import models
 from django.db.models import Q
 from django.forms.models import model_to_dict
@@ -147,6 +148,28 @@ class UserManager(BaseUserManager):
         return self.get_queryset().filter(is_staff=True)
 
 
+class Recipient(models.Model):
+
+    first_name = models.CharField(max_length=256, blank=False)
+    last_name = models.CharField(max_length=256, blank=False)
+    alias = models.CharField(max_length=256, blank=True)
+    email = models.EmailField(unique=True)
+    clabe = models.CharField(max_length=18,validators=[
+        RegexValidator(
+            regex='\d{18}',
+            message='Clabe must have 18 digits',
+            code='invalid_clabe'
+        ),
+    ])
+    bank_name = models.CharField(max_length=256, blank=False)
+
+    class Meta:
+        ordering = ("first_name", "last_name", "alias")
+
+    def __str__(self):
+        return "%s %s" % (self.first_name, self.last_name)
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     phone = PossiblePhoneNumberField(blank=True, default="")
@@ -193,26 +216,3 @@ class User(AbstractBaseUser, PermissionsMixin):
             if first_name or last_name:
                 return ("%s %s" % (first_name, last_name)).strip()
         return self.email
-
-
-class Recipient(models.Model):
-
-    first_name = models.CharField(max_length=256, blank=False)
-    last_name = models.CharField(max_length=256, blank=False)
-    alias = models.CharField(max_length=256, blank=True)
-    email = models.EmailField(unique=True)
-    clabe = models.CharField(validators=[
-        RegexValidator(
-            regex='\d{18}',
-            message='Clabe must have 18 digits',
-            code='invalid_clabe'
-        ),
-    ])
-    bank_name = models.CharField(max_length=256, blank=False)
-
-    class Meta:
-        ordering = ("first_name", "last_name", "alias")
-
-    def __str__(self):
-        return "%s %s" % (self.first_name, self.last_name)
-
