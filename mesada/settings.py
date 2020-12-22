@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "corsheaders",
     "mesada.account",
+    "mesada.payment",
 ]
 
 MIDDLEWARE = [
@@ -94,9 +95,7 @@ WSGI_APPLICATION = "mesada.wsgi.application"
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': env.db('DATABASE_URL')
-}
+DATABASES = {"default": env.db("DATABASE_URL")}
 
 
 # Password validation
