@@ -164,7 +164,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         Address, related_name="+", null=True, blank=True, on_delete=models.SET_NULL
     )
     utm_tracking = models.CharField(max_length=300, blank=True, null=True)
-
+    recipients = models.ForeignKey(
+        Recipient, null=True, blank=True, on_delete=models.SET_NULL
+    )
     USERNAME_FIELD = "email"
 
     objects = UserManager()
@@ -191,7 +193,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             if first_name or last_name:
                 return ("%s %s" % (first_name, last_name)).strip()
         return self.email
-        
+
 
 class Recipient(models.Model):
 
@@ -199,14 +201,17 @@ class Recipient(models.Model):
     last_name = models.CharField(max_length=256, blank=False)
     alias = models.CharField(max_length=256, blank=True)
     email = models.EmailField(unique=True)
-    clabe = models.CharField(max_length=18)
+    clabe = models.CharField(validators=[
+        RegexValidator(
+            regex='\d{18}',
+            message='Clabe must have 18 digits',
+            code='invalid_clabe'
+        ),
+    ])
     bank_name = models.CharField(max_length=256, blank=False)
-    client_recipient = models.ForeignKey(
-        User, blank=False, related_name="client_recipient", on_delete=models.PROTECT
-    )
 
     class Meta:
-        ordering = ("first_name", "last_name")
+        ordering = ("first_name", "last_name", "alias")
 
     def __str__(self):
         return "%s %s" % (self.first_name, self.last_name)
