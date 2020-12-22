@@ -35,6 +35,9 @@ Rx==1.6.1
 singledispatch==3.4.0.3
 six==1.15.0
 sqlparse==0.4.1
+Unidecode==1.1.1
+psycopg2==2.8.6
+django-environ==0.4.5
 sympy==1.7.1
 toml==0.10.2
 Unidecode==1.1.1
