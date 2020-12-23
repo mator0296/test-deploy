@@ -10,6 +10,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from graphql_jwt.decorators import staff_member_required
 from graphql_jwt.exceptions import PermissionDenied
 from graphql_jwt.shortcuts import get_token
+from twilio.base.exceptions import TwilioRestException
 
 from graphql.error import GraphQLError
 
@@ -21,6 +22,7 @@ from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload
 from ..core.utils import get_user_instance
+from .enums import EnumStatus
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
 
 ADDRESS_FIELD = "billing_address"
@@ -664,7 +666,7 @@ class AddressDelete(ModelDeleteMutation):
 
 
 class ValidatePhoneNumber(BaseMutation):
-    status = graphene.String()
+    status = graphene.Field(EnumStatus)
 
     class Arguments:
         phone = graphene.String(description="Phone Number", required=True)
@@ -677,7 +679,17 @@ class ValidatePhoneNumber(BaseMutation):
         pass
 
     @classmethod
-    def perform_mutation(cls, _root, info, **data):
-        phone = data.get("phone")
-        response = send_token(phone)
-        return ValidatePhoneNumber()
+    def perform_mutation(cls, _root, info, phone):
+        obj = ValidatePhoneNumber()
+
+        try:
+            response = send_token(phone)
+            if response.status == "pending" and not response.valid:
+                status = 1
+        except TwilioRestException as e:
+            # e contains the error sent by Twilio
+            # when it is not possible to send the validation
+            status = 2
+
+        setattr(obj, "status", status)
+        return obj

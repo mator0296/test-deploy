@@ -1,17 +1,14 @@
-import environ
-
+from django.conf import settings
 from twilio.rest import Client as ClientTwilio
 
-
-env = environ.Env()
+client = ClientTwilio(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
 
 def send_token(phone):
-    account_sid = env("TWILIO_ACCOUNT_SID")
-    auth_token = env("TWILIO_AUTH_TOKEN")
-    service = env("TWILIO_SERVICE")
-    client = ClientTwilio(account_sid, auth_token)
-    verify = client.verify.services(service).verifications.create(
-        to=phone, channel="sms"
-    )
-    return verify
+    return client.verify.services(
+        settings.TWILIO_VERIFICATION_SID
+    ).verifications.create(to=phone, channel="sms")
+
+
+def check_token(token):
+    pass

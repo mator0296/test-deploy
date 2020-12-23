@@ -94,9 +94,7 @@ WSGI_APPLICATION = "mesada.wsgi.application"
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': env.db('DATABASE_URL')
-}
+DATABASES = {"default": env.db("DATABASE_URL")}
 
 
 # Password validation
@@ -147,3 +145,8 @@ GRAPHENE = {
 }
 
 CACHES = {"default": django_cache_url.config()}
+
+# Verify Twilio
+TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
+TWILIO_VERIFICATION_SID = os.environ.get("TWILIO_SERVICE")
