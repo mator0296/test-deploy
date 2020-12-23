@@ -15,6 +15,7 @@ from graphql.error import GraphQLError
 
 from ...account import models
 from ...core.permissions import get_permissions
+from ...core.twilio import send_token
 from ..account.types import Address, AddressInput, User
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
@@ -660,3 +661,23 @@ class AddressDelete(ModelDeleteMutation):
 
         response.user = user
         return response
+
+
+class ValidatePhoneNumber(BaseMutation):
+    status = graphene.String()
+
+    class Arguments:
+        phone = graphene.String(description="Phone Number", required=True)
+
+    class Meta:
+        description = "Send a token to validate the phone number"
+
+    @classmethod
+    def clean_input(cls, info, instance, data):
+        pass
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        phone = data.get("phone")
+        response = send_token(phone)
+        return ValidatePhoneNumber()
