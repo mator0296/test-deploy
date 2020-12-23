@@ -22,7 +22,7 @@ from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload
 from ..core.utils import get_user_instance
-from .enums import EnumStatus
+from .enums import ValidatePhoneStatus
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
 
 ADDRESS_FIELD = "billing_address"
@@ -666,7 +666,7 @@ class AddressDelete(ModelDeleteMutation):
 
 
 class ValidatePhoneNumber(BaseMutation):
-    status = graphene.Field(EnumStatus)
+    status = graphene.Field(ValidatePhoneStatus)
 
     class Arguments:
         phone = graphene.String(description="Phone Number", required=True)

@@ -9,7 +9,7 @@ class StaffMemberStatus(graphene.Enum):
     DEACTIVATED = "deactivated"
 
 
-class EnumStatus(graphene.Enum):
+class ValidatePhoneStatus(graphene.Enum):
     proceed = 1
     rejected = 2
     approved = 3
