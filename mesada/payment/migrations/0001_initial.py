@@ -7,30 +7,37 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='paymentMethods',
+            name="paymentMethods",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type_method', models.CharField(max_length=50)),
-                ('exp_month', models.IntegerField()),
-                ('exp_year', models.IntegerField()),
-                ('last_digits', models.CharField(max_length=4)),
-                ('verification_cvv', models.CharField(max_length=3)),
-                ('phonenumber', models.CharField(max_length=15)),
-                ('email', models.EmailField(max_length=254)),
-                ('name', models.CharField(max_length=100)),
-                ('address_line_1', models.CharField(max_length=200)),
-                ('address_line_2', models.CharField(max_length=200)),
-                ('postal_code', models.CharField(max_length=10)),
-                ('city', models.CharField(max_length=100)),
-                ('district', models.CharField(max_length=100)),
-                ('country_code', models.CharField(max_length=4)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("type_method", models.CharField(max_length=50)),
+                ("exp_month", models.IntegerField()),
+                ("exp_year", models.IntegerField()),
+                ("last_digits", models.CharField(max_length=4)),
+                ("verification_cvv", models.CharField(max_length=3)),
+                ("phonenumber", models.CharField(max_length=15)),
+                ("email", models.EmailField(max_length=254)),
+                ("name", models.CharField(max_length=100)),
+                ("address_line_1", models.CharField(max_length=200)),
+                ("address_line_2", models.CharField(max_length=200)),
+                ("postal_code", models.CharField(max_length=10)),
+                ("city", models.CharField(max_length=100)),
+                ("district", models.CharField(max_length=100)),
+                ("country_code", models.CharField(max_length=4)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
-        ),
+        )
     ]

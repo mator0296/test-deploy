@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import environ
+
 import django_cache_url
+import environ
 
 root = environ.Path(__file__) - 3  # get root of the project
 env = environ.Env()
@@ -29,6 +30,10 @@ PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "3w4x62a8bdkdv%z@1z7t9y7gf=ircv!bdj9q9rm%6)_f#t3k5t"
+
+# CIRCLE API KEY AND BASE URL
+CIRCLE_API_KEY = env("CIRCLE_API_KEY")
+CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
