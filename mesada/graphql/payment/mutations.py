@@ -20,5 +20,7 @@ class CreateCard(BaseMutation):
     @classmethod
     def perform_mutation(cls, _root, info, **data):
         ip_address = info.context.META.get("REMOTE_ADDR")
+        session = info.context.META.session
         print(ip_address)
+        print(str(session))
         return ip_address
