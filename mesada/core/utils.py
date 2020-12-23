@@ -1,3 +1,6 @@
+from uuid import uuid4
+
+
 def get_client_ip(request):
     ip = request.META.get("HTTP_X_FORWARDED_FOR", None)
     if ip:
@@ -12,3 +15,7 @@ def get_country_by_ip(ip_address):
     #     if country_iso_code in countries:
     #         return Country(country_iso_code)
     return None
+
+
+def generate_idempotency_key():
+    return str(uuid4())

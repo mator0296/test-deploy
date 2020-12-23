@@ -38,7 +38,7 @@ CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['usa-testing.mesada.io', 'usa.mesada.io', 'localhost', 'usa-production.mesada.io']
 
 AUTH_USER_MODEL = "account.User"
 # Application definition
