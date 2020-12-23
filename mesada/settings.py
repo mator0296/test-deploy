@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import environ
+
 import django_cache_url
+import environ
 
 root = environ.Path(__file__) - 3  # get root of the project
 env = environ.Env()
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "corsheaders",
     "mesada.account",
+    "mesada.payment",
     "djmoney",
 ]
 
@@ -95,9 +97,7 @@ WSGI_APPLICATION = "mesada.wsgi.application"
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': env.db('DATABASE_URL')
-}
+DATABASES = {"default": env.db("DATABASE_URL")}
 
 
 # Password validation
