@@ -5,7 +5,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator 
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.forms.models import model_to_dict
@@ -154,13 +154,16 @@ class Recipient(models.Model):
     last_name = models.CharField(max_length=256, blank=False)
     alias = models.CharField(max_length=256, blank=True)
     email = models.EmailField(unique=True)
-    clabe = models.CharField(max_length=18,validators=[
-        RegexValidator(
-            regex='\d{18}',
-            message='Clabe must have 18 digits',
-            code='invalid_clabe'
-        ),
-    ])
+    clabe = models.CharField(
+        max_length=18,
+        validators=[
+            RegexValidator(
+                regex="\d{18}",
+                message="Clabe must have 18 digits",
+                code="invalid_clabe",
+            )
+        ],
+    )
     bank_name = models.CharField(max_length=256, blank=False)
 
     class Meta:
