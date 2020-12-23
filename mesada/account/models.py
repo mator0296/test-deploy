@@ -10,10 +10,9 @@ from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import pgettext_lazyç
+from django.utils.translation import pgettext_lazy
 from django_countries.fields import Country, CountryField
 from phonenumber_field.modelfields import PhoneNumber, PhoneNumberField
-from djmoney.models.fields import MoneyField
 
 from .validators import validate_possible_number
 
@@ -192,32 +191,3 @@ class User(AbstractBaseUser, PermissionsMixin):
             if first_name or last_name:
                 return ("%s %s" % (first_name, last_name)).strip()
         return self.email
-
-
-class Payment(models.Model):
-
-    class Status(models.TextChoices):
-        PENDING = "pending"
-        CONFIRMED = "confirmed"
-        PAID = "paid"
-        FAILED = "failed"
-
-    type = models.CharField(max_length=256)
-    merchant_id = models.CharField(max_length=256, unique=True)
-    merchant_wallet_id = models.CharField(max_length=256, unique=True)
-    amount = MoneyField(
-        max_digits=19, decimal_places=4, default_currency='USD'
-    )
-    source = models.JSONField()
-    description = models.TextField(blank=True, default="")
-    status = models.CharField()
-    verification = models.JSONField()
-    cancel = models.JSONField()
-    refunds = models.JSONField()
-    fees = models.JSONField()
-    tracking_ref = models.CharField()
-    error_code = models.CharField()
-    metadata = models.JSONField()
-    risk_evaluation = models.JSONField()
-    create_date = models.DateTimeField()
-    update_date = models.DateTimeField()
