@@ -16,10 +16,14 @@ CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
 
 
 def create_card(body):
-    """Save a card within the Circle API."""
+    """Save a card within the Circle API.
+
+    Args:
+        body (dict): Request body.
+    """
     url = f"{CIRCLE_BASE_URL}/cards"
     headers = {"Accept": "application/json", "Content-Type": "application/json"}
 
     response = requests.request("POST", url, headers=headers, json=body)
 
-    print(response.text)
+    return response
