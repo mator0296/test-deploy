@@ -1,14 +1,19 @@
 import graphene
-from requests import Response
 
-from ..core.mutations import BaseMutation
 from ...payment import create_card
+from ..core.mutations import BaseMutation
 
 
 class CardInput(graphene.InputObjectType):
-    encrypted_data = graphene.String(description="Card encrypted data", required=True)
+    encrypted_data = graphene.String(
+        description="Card encrypted data",
+        required=True
+    )
     key_id = graphene.String(description="Encryption key", required=True)
-    exp_month = graphene.Int(description="Card expiration month", required=True)
+    exp_month = graphene.Int(
+        description="Card expiration month",
+        required=True
+    )
     exp_year = graphene.Int(description="Card expiration year", required=True)
 
 
