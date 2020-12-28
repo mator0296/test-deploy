@@ -38,12 +38,8 @@ CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "usa-testing.mesada.io",
-    "usa.mesada.io",
-    "localhost",
-    "usa-production.mesada.io",
-]
+ALLOWED_HOSTS = ['usa-testing.mesada.io', 'usa.mesada.io',
+                 'localhost:*', 'usa-production.mesada.io']
 
 AUTH_USER_MODEL = "account.User"
 # Application definition
@@ -52,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "corsheaders",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -59,12 +56,16 @@ INSTALLED_APPS = [
     "graphene_django",
     "django_filters",
     "phonenumber_field",
-    "corsheaders",
     "mesada.account",
+<<<<<<< HEAD
     "mesada.payment",
+=======
+
+>>>>>>> 13e3c001b0a692b8ed9cd01bc7c2ccc4ddc27cc4
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -72,11 +73,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "mesada.graphql.middleware.jwt_middleware",
 ]
-
+# this have to change to CORS_ORIGIN_WHITELIST in production env
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = "mesada.urls"
 
