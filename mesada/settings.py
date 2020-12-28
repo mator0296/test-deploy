@@ -57,11 +57,7 @@ INSTALLED_APPS = [
     "django_filters",
     "phonenumber_field",
     "mesada.account",
-<<<<<<< HEAD
     "mesada.payment",
-=======
-
->>>>>>> 13e3c001b0a692b8ed9cd01bc7c2ccc4ddc27cc4
 ]
 
 MIDDLEWARE = [
