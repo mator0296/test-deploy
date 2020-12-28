@@ -17,6 +17,8 @@ USER_SEARCH_FIELDS = (
     "default_address__country",
 )
 
+ADDRESS_SEARCH_FIELDS = ("address_name", "postal_code")
+
 
 def resolve_customers(info, query):
     qs = models.User.objects.filter(Q(is_staff=False) | (Q(is_staff=True)))
@@ -79,6 +81,12 @@ def resolve_address_validator(info, country_code, country_area, city_area):
     )
 
 
-def resolve_addresses(info, query):
-    # qs = models.Address.objects.filter(Q(address_name=) & Q(postal_code=))
-    pass
+def resolve_addresses(info, search, query):
+    qs = models.Address.objects.filter(
+        Q(address_name=search) | Q(postal_code=search)
+    )
+    qs = filter_by_query_param(
+        queryset=qs, query=query, search_fields=ADDRESS_SEARCH_FIELDS
+    )
+    qs = qs.distinct()
+    return gql_optimizer.query(qs, info)

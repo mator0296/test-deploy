@@ -4,7 +4,7 @@ from graphql_jwt.decorators import permission_required
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
 from ..core.types import FilterInputObjectType
-from .filters import CustomerFilter, StaffUserFilter
+from .filters import CustomerFilter, StaffUserFilter, AddressFilter
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -23,7 +23,12 @@ from .mutations import (
     StaffDelete,
     StaffUpdate,
 )
-from .resolvers import resolve_address_validator, resolve_customers, resolve_staff_users
+from .resolvers import (
+    resolve_address_validator,
+    resolve_addresses,
+    resolve_customers,
+    resolve_staff_users
+)
 from .types import AddressValidationData, User, Address
 
 
@@ -35,6 +40,11 @@ class CustomerFilterInput(FilterInputObjectType):
 class StaffUserInput(FilterInputObjectType):
     class Meta:
         filterset_class = StaffUserFilter
+
+
+class AddressFilterInput(FilterInputObjectType):
+    class Meta:
+        filterset_class = AddressFilter
 
 
 class AccountQueries(graphene.ObjectType):
@@ -62,7 +72,13 @@ class AccountQueries(graphene.ObjectType):
         id=graphene.Argument(graphene.ID, required=True),
         description="Lookup an address by ID."
     )
-    # addresses =
+    addresses = FilterInputConnectionField(
+        Address,
+        filter=AddressFilter(),
+        description="List of addresses.",
+        search=graphene.String(description="Address lookup string"),
+        query=graphene.String(description="Addresses"),
+    )
 
     # @permission_required("account.manage_users")
     def resolve_customers(self, info, query=None, **_kwargs):
@@ -83,8 +99,8 @@ class AccountQueries(graphene.ObjectType):
     def resolve_address(self, info, id):
         return graphene.Node.get_node_from_global_id(info, id, Address)
 
-    def resolve_addresses(self, info):
-        pass
+    def resolve_addresses(self, info, search, query=None, **_kwargs):
+        return resolve_addresses(info, search=search, query=query)
 
 
 class AccountMutations(graphene.ObjectType):
