@@ -3,13 +3,29 @@ from django_countries.fields import CountryField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from ..account.models import User
 from django.utils import timezone
+from django_enumfield import enum
+
+
+class verificationAvs(enum.Enum):
+    NOT_REQUESTED = 0
+    PENDING = 1
+
+
+class verificationCvv(enum.Enum):
+    NOT_REQUESTED = 0
+    PASS = 1
+    FAIL = 2
+    UNAVAILABLE = 3
+    PENDING = 4
 
 
 class paymentMethods(models.Model):
 
     type = models.CharField(max_length=50, blank=False)
     exp_month = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(12)], null=True, blank=True
+        validators=[MinValueValidator(1), MaxValueValidator(12)],
+        null=True,
+        blank=True,
     )
     exp_year = models.PositiveIntegerField(
         validators=[MaxValueValidator(2050)], null=True, blank=True
@@ -17,8 +33,12 @@ class paymentMethods(models.Model):
     network = models.CharField(max_length=50, blank=True)
     last_digits = models.CharField(max_length=4, blank=True)
     fingerprint = models.CharField(max_length=36, blank=True)
-    verification_cvv = models.CharField(max_length=50, blank=True)
-    verification_avs = models.CharField(max_length=50, blank=True)
+    verification_cvv = enum.EnumField(
+        verificationCvv, default=verificationCvv.NOT_REQUESTED
+    )
+    verification_avs = enum.EnumField(
+        verificationAvs, default=verificationAvs.NOT_REQUESTED
+    )
     phonenumber = models.CharField(max_length=15, blank=True)
     email = models.EmailField(max_length=256, blank=True)
     name = models.CharField(max_length=256, blank=True)
