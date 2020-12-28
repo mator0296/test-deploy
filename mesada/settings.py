@@ -36,7 +36,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "usa-testing.mesada.io",
     "usa.mesada.io",
-    "localhost",
+    "localhost:*",
     "usa-production.mesada.io",
 ]
 
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "corsheaders",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -54,12 +55,11 @@ INSTALLED_APPS = [
     "graphene_django",
     "django_filters",
     "phonenumber_field",
-    "corsheaders",
     "mesada.account",
-    "mesada.payment",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -67,11 +67,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "mesada.graphql.middleware.jwt_middleware",
 ]
-
+# this have to change to CORS_ORIGIN_WHITELIST in production env
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = "mesada.urls"
 
@@ -88,7 +88,9 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "string_if_invalid": '<< MISSING VARIABLE "%s" >>' if DEBUG else "",
+            "string_if_invalid": '<< MISSING VARIABLE "%s" >>'
+            if DEBUG
+            else "",
         },
     }
 ]
@@ -113,8 +115,14 @@ AUTH_PASSWORD_VALIDATORS = [
         )
     },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": ("django.contrib.auth.password_validation.CommonPasswordValidator")},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {
+        "NAME": (
+            "django.contrib.auth.password_validation.CommonPasswordValidator"
+        )
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
+    },
 ]
 
 
