@@ -77,3 +77,8 @@ def resolve_address_validator(info, country_code, country_area, city_area):
         postal_code_examples=rules.postal_code_examples,
         postal_code_prefix=rules.postal_code_prefix,
     )
+
+
+def resolve_addresses(info, query):
+    # qs = models.Address.objects.filter(Q(address_name=) & Q(postal_code=))
+    pass

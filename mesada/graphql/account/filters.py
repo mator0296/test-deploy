@@ -90,3 +90,7 @@ class StaffUserFilter(django_filters.FilterSet):
     class Meta:
         model = User
         fields = ["status", "search"]
+
+
+class AddressFilter(django_filters.FilterSet):
+    pass

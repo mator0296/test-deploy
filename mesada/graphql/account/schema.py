@@ -24,7 +24,7 @@ from .mutations import (
     StaffUpdate,
 )
 from .resolvers import resolve_address_validator, resolve_customers, resolve_staff_users
-from .types import AddressValidationData, User
+from .types import AddressValidationData, User, Address
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -57,6 +57,12 @@ class AccountQueries(graphene.ObjectType):
         id=graphene.Argument(graphene.ID, required=True),
         description="Lookup an user by ID.",
     )
+    address = graphene.Field(
+        Address,
+        id=graphene.Argument(graphene.ID, required=True),
+        description="Lookup an address by ID."
+    )
+    # addresses =
 
     # @permission_required("account.manage_users")
     def resolve_customers(self, info, query=None, **_kwargs):
@@ -73,6 +79,12 @@ class AccountQueries(graphene.ObjectType):
     @permission_required("account.manage_users")
     def resolve_user(self, info, id):
         return graphene.Node.get_node_from_global_id(info, id, User)
+
+    def resolve_address(self, info, id):
+        return graphene.Node.get_node_from_global_id(info, id, Address)
+
+    def resolve_addresses(self, info):
+        pass
 
 
 class AccountMutations(graphene.ObjectType):
