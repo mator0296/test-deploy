@@ -95,7 +95,15 @@ WSGI_APPLICATION = "mesada.wsgi.application"
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db('DATABASE_URL')
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "postgres",
+        "HOST": "localhost",
+        "PORT": "5432",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+    }
+    #'default': env.db('DATABASE_URL')
 }
 
 
