@@ -675,21 +675,13 @@ class ValidatePhoneNumber(BaseMutation):
         description = "Send a token to validate the phone number"
 
     @classmethod
-    def clean_input(cls, info, instance, data):
-        pass
-
-    @classmethod
     def perform_mutation(cls, _root, info, phone):
         obj = ValidatePhoneNumber()
-
         try:
             response = send_token(phone)
             if response.status == "pending" and not response.valid:
                 status = 1
         except TwilioRestException as e:
-            # e contains the error sent by Twilio
-            # when it is not possible to send the validation
-            status = 2
-
+            raise ValidationError({"twilio_service": e.msg})
         setattr(obj, "status", status)
         return obj
