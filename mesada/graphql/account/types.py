@@ -5,12 +5,12 @@ from django.contrib.auth import get_user_model
 from graphene import relay
 from graphql_jwt.decorators import permission_required
 
-from ...account.models import Address, User, Recipient
+from ...account.models import Address, Recipient, User
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
 from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
 from ..utils import format_permissions_for_display
-from .filters import CustomerFilter, StaffUserFilter
+from .filters import CustomerFilter, RecipientsFilter, StaffUserFilter
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -21,11 +21,11 @@ class CustomerFilterInput(FilterInputObjectType):
 class StaffUserInput(FilterInputObjectType):
     class Meta:
         filterset_class = StaffUserFilter
-        
+
 
 class RecipientsFilterInput(FilterInputObjectType):
     class Meta:
-        filterset_class = RecipientsFilter          
+        filterset_class = RecipientsFilter
 
 
 class AddressInput(graphene.InputObjectType):
@@ -130,7 +130,6 @@ class User(CountableDjangoObjectType):
         return self.note
 
 
-
 class AddressValidationData(graphene.ObjectType):
     country_code = graphene.String()
     country_name = graphene.String()
@@ -149,21 +148,9 @@ class AddressValidationData(graphene.ObjectType):
 
 
 class Recipient(CountableDjangoObjectType):
-    
     class Meta:
         description = "Represents user recipeint data."
-        filter_fields = [ 
-            "first_name",
-            "last_name",
-            "email",
-            "alias",
-        ]
+        filter_fields = ["first_name", "last_name", "email", "alias"]
         interfaces = [relay.Node]
         model = Recipient
-        only_fields = [
-            "first_name",
-            "last_name",
-            "email",
-            "alias",
-        ]
-
+        only_fields = ["first_name", "last_name", "email", "alias"]

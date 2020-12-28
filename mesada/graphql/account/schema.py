@@ -1,11 +1,11 @@
 import graphene
-from graphql_jwt.decorators import permission_required
 from graphene_django import DjangoObjectType
+from graphql_jwt.decorators import permission_required
 
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
 from ..core.types import FilterInputObjectType
-from .filters import CustomerFilter, StaffUserFilter, RecipientsFilter
+from .filters import CustomerFilter, RecipientsFilter, StaffUserFilter
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -24,8 +24,14 @@ from .mutations import (
     StaffDelete,
     StaffUpdate,
 )
-from .resolvers import resolve_address_validator, resolve_customers, resolve_staff_users, resolve_recipient_, resolve_recipients_
-from .types import AddressValidationData, User, Recipient
+from .resolvers import (
+    resolve_address_validator,
+    resolve_customers,
+    resolve_recipient_,
+    resolve_recipients_,
+    resolve_staff_users,
+)
+from .types import AddressValidationData, Recipient, User
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -40,7 +46,7 @@ class StaffUserInput(FilterInputObjectType):
 
 class RecipientsFilterInput(FilterInputObjectType):
     class Meta:
-        filterset_class = RecipientsFilter        
+        filterset_class = RecipientsFilter
 
 
 class AccountQueries(graphene.ObjectType):
@@ -68,13 +74,13 @@ class AccountQueries(graphene.ObjectType):
         Recipient,
         id=graphene.Argument(graphene.ID, required=True),
         description="Lookup an Recipient by ID.",
-    )  
+    )
 
     recipients = FilterInputConnectionField(
         Recipient,
         filter=RecipientsFilterInput(),
         description="Lookup an Recipient by ID.",
-        search = graphene.String(),
+        search=graphene.String(),
         query=graphene.String(description="Recipient Users"),
     )
 
@@ -98,7 +104,7 @@ class AccountQueries(graphene.ObjectType):
         return resolve_recipient_(info, id=id)
 
     def resolve_recipients(self, info, search, query=None, **_kwargs):
-        return resolve_recipients_(info, search=search, query=query)    
+        return resolve_recipients_(info, search=search, query=query)
 
 
 class AccountMutations(graphene.ObjectType):

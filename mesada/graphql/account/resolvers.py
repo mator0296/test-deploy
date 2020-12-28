@@ -17,12 +17,7 @@ USER_SEARCH_FIELDS = (
     "default_address__country",
 )
 
-RECIPIENT_SEARCH_FIELDS = (
-    "alias",
-    "email",
-    "first_name",
-    "last_name",
-)
+RECIPIENT_SEARCH_FIELDS = ("alias", "email", "first_name", "last_name")
 
 
 def resolve_customers(info, query):
@@ -90,10 +85,15 @@ def resolve_recipient_(info, id):
     qs = models.Recipient.objects.get(pk=id)
     return qs
 
+
 def resolve_recipients_(info, search, query):
-    qs = models.Recipient.objects.filter(Q(alias__icontains=search)|Q(email__icontains=search)|Q(first_name__icontains=search))
+    qs = models.Recipient.objects.filter(
+        Q(alias__icontains=search)
+        | Q(email__icontains=search)
+        | Q(first_name__icontains=search)
+    )
     qs = filter_by_query_param(
-        queryset=qs, query=query, search_fields=RECIPIENT_SEARCH_FIELDS 
+        queryset=qs, query=query, search_fields=RECIPIENT_SEARCH_FIELDS
     )
     qs = qs.distinct()
-    return gql_optimizer.query(qs, info)   
+    return gql_optimizer.query(qs, info)

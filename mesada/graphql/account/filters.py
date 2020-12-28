@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Count, Sum
 
-from ...account.models import User, Recipient
+from ...account.models import Recipient, User
 from ..core.filters import EnumFilter, ObjectTypeFilter
 from ..core.types import DateRangeInput, IntRangeInput, PriceRangeInput
 from ..utils import filter_by_query_param
@@ -68,16 +68,12 @@ def filter_search(qs, _, value):
         qs = filter_by_query_param(qs, value, search_fields)
     return qs
 
+
 def filter_search_recipients(qs, _, value):
-    search_fields = (
-        "email",
-        "first_name",
-        "last_name",
-        "alias",
-    )
+    search_fields = ("email", "first_name", "last_name", "alias")
     if value:
         qs = filter_by_query_param(qs, value, search_fields)
-    return qs    
+    return qs
 
 
 class CustomerFilter(django_filters.FilterSet):
@@ -111,4 +107,4 @@ class RecipientsFilter(django_filters.FilterSet):
 
     class Meta:
         model = Recipient
-        fields = ["search"]        
+        fields = ["search"]
