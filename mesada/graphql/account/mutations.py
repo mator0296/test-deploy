@@ -22,7 +22,7 @@ from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload
 from ..core.utils import get_user_instance
-from .enums import ValidatePhoneStatus
+from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
 
 ADDRESS_FIELD = "billing_address"
@@ -666,7 +666,7 @@ class AddressDelete(ModelDeleteMutation):
 
 
 class ValidatePhoneNumber(BaseMutation):
-    status = graphene.Field(ValidatePhoneStatus)
+    status = graphene.Field(ValidatePhoneStatusEnum)
 
     class Arguments:
         phone = graphene.String(description="Phone Number", required=True)
@@ -676,12 +676,10 @@ class ValidatePhoneNumber(BaseMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, phone):
-        obj = ValidatePhoneNumber()
         try:
             response = send_token(phone)
-            if response.status == "pending" and not response.valid:
-                status = 1
+            if response.status == "pending" and response.valid is False:
+                status = ValidatePhoneStatusEnum.PROCEED
         except TwilioRestException as e:
             raise ValidationError({"twilio_service": e.msg})
-        setattr(obj, "status", status)
-        return obj
+        return cls(status=status)

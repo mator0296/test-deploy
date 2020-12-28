@@ -8,7 +8,3 @@ def send_token(phone):
     return client.verify.services(
         settings.TWILIO_VERIFICATION_SID
     ).verifications.create(to=phone, channel="sms")
-
-
-def check_token(token):
-    pass
