@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from graphene import relay
 from graphql_jwt.decorators import permission_required
 
-from ...account.models import Address, User
+from ...account.models import Address, User, Recipient
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
 from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
@@ -21,6 +21,11 @@ class CustomerFilterInput(FilterInputObjectType):
 class StaffUserInput(FilterInputObjectType):
     class Meta:
         filterset_class = StaffUserFilter
+        
+
+class RecipientsFilterInput(FilterInputObjectType):
+    class Meta:
+        filterset_class = RecipientsFilter          
 
 
 class AddressInput(graphene.InputObjectType):
@@ -125,6 +130,7 @@ class User(CountableDjangoObjectType):
         return self.note
 
 
+
 class AddressValidationData(graphene.ObjectType):
     country_code = graphene.String()
     country_name = graphene.String()
@@ -140,3 +146,24 @@ class AddressValidationData(graphene.ObjectType):
     postal_code_matchers = graphene.List(graphene.String)
     postal_code_examples = graphene.List(graphene.String)
     postal_code_prefix = graphene.String()
+
+
+class Recipient(CountableDjangoObjectType):
+    
+    class Meta:
+        description = "Represents user recipeint data."
+        filter_fields = [ 
+            "first_name",
+            "last_name",
+            "email",
+            "alias",
+        ]
+        interfaces = [relay.Node]
+        model = Recipient
+        only_fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "alias",
+        ]
+
