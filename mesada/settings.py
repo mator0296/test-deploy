@@ -88,9 +88,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "string_if_invalid": '<< MISSING VARIABLE "%s" >>'
-            if DEBUG
-            else "",
+            "string_if_invalid": '<< MISSING VARIABLE "%s" >>' if DEBUG else "",
         },
     }
 ]
@@ -115,14 +113,8 @@ AUTH_PASSWORD_VALIDATORS = [
         )
     },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {
-        "NAME": (
-            "django.contrib.auth.password_validation.CommonPasswordValidator"
-        )
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
-    },
+    {"NAME": ("django.contrib.auth.password_validation.CommonPasswordValidator")},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
