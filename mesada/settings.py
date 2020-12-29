@@ -34,7 +34,7 @@ SECRET_KEY = "3w4x62a8bdkdv%z@1z7t9y7gf=ircv!bdj9q9rm%6)_f#t3k5t"
 DEBUG = True
 
 ALLOWED_HOSTS = ['usa-testing.mesada.io', 'usa.mesada.io',
-                 'localhost:*', 'usa-production.mesada.io']
+                 'localhost:*', 'usa-production.mesada.io', 'mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com']
 
 AUTH_USER_MODEL = "account.User"
 # Application definition
