@@ -2,21 +2,7 @@ import graphene
 
 from ...payment import create_card
 from ..core.mutations import BaseMutation
-
-
-class BillingDetailsInput(graphene.InputObjectType):
-    name = graphene.String(description="Full name of the card holder", required=True)
-    city = graphene.String(required=True)
-    country = graphene.String(
-        description="Country portion of the address. Formatted as a two-letter country code",
-        required=True,
-    )
-    line1 = graphene.String(description="Line one of the street address", required=True)
-    line2 = graphene.String(description="Line two of the street address")
-    district = graphene.String(
-        description="Region portion of the address. If the country is US or Canada district is required and should use the two-letter code for the subdivision."
-    )
-    postal_code = graphene.String(description="ZIP code of the address", required=True)
+from .types import BillingDetailsInput, Card
 
 
 class CardInput(graphene.InputObjectType):
@@ -29,6 +15,7 @@ class CardInput(graphene.InputObjectType):
 
 class CreateCard(BaseMutation):
     response = graphene.JSONString()
+    card = graphene.Field(Card)
 
     class Arguments:
         input = CardInput(description="Card input", required=True)
@@ -38,16 +25,27 @@ class CreateCard(BaseMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
-        obj = CreateCard()
-        print(data)
+        print(info.context.user.is_authenticated)
+        card = data.get("input")
+        billing_details = card.get("billing_details")
+        if not billing_details:
+            # TODO: get the billing details from user's address
+            pass
+
         ip_address = info.context.META.get("REMOTE_ADDR")
         session = info.context.session
-        body = {}
+        body = {
+            "idempotencyKey": "",
+            "keyId": card.get("key_id"),
+            "encryptedData": card.get("encrypted_data"),
+            "billingDetails": billing_details,
+            "expMonth": card.get("expo_month"),
+            "expYear": card.get("expo_year"),
+            "metadata": {
+                "sessionId": session.session_key,
+                "ipAddress": ip_address
+            }
+        }
 
         response = create_card(body)
-
-        print(ip_address)
-        print(str(session.session_key))
-
-        setattr(obj, "response", response.json())
-        return obj
+        return cls(response=response.json(), card=card)
