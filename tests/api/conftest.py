@@ -111,6 +111,7 @@ def superuser():
     superuser = User.objects.create_superuser("superuser@example.com", "pass")
     return superuser
 
+
 @pytest.fixture
 def user_list_not_active(user_list):
     users = User.objects.filter(pk__in=[user.pk for user in user_list])

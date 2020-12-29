@@ -21,6 +21,7 @@ def get_graphql_content(response):
 
 def assert_no_permission(response):
     content = _get_graphql_content_from_response(response)
+
     assert "errors" in content, content
     assert content["errors"][0]["message"] == (
         "You do not have permission to perform this action"
@@ -37,7 +38,9 @@ def get_multipart_request_body(query, variables, file, file_name):
         "operations": json.dumps(
             {"query": query, "variables": variables}, cls=DjangoJSONEncoder
         ),
-        "map": json.dumps({file_name: ["variables.file"]}, cls=DjangoJSONEncoder),
+        "map": json.dumps(
+            {file_name: ["variables.file"]}, cls=DjangoJSONEncoder
+            ),
         file_name: file,
     }
 

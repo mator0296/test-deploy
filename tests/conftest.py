@@ -1,9 +1,12 @@
+import django
 import pytest
 import random
 import string
+django.setup()  # noqa: E731
+from mesada.account.models import User  # noqa: E402
+from django.contrib.auth.models import Permission  # noqa: E402
 
-from django.contrib.auth.models import Permission
-from mesada.account.models import User
+pytestmark = pytest.mark.django_db
 
 
 def random_string(n):
@@ -14,6 +17,7 @@ def random_numbers(n):
     """Return random string of numbers"""
     return "".join(random.choice(string.digits) for _ in range(n))
 
+
 @pytest.fixture
 def settings():
     from django.conf import settings
@@ -22,7 +26,7 @@ def settings():
 
 
 @pytest.fixture()
-def staff_user(db):
+def staff_user():
     """Return a staff member."""
     staff = User.objects.filter(email="staff_test@example.com")
     staff.delete()
@@ -33,16 +37,15 @@ def staff_user(db):
         is_active=True,
     )
 
+
 @pytest.fixture
-def customer_user(): 
+def customer_user():
     mail = random_string(6) + "@mail.com"
     user = User.objects.filter(email="test@example.com")
     user.delete()
-    user = User.objects.create_user(
-        mail,
-        "password",
-    )
+    user = User.objects.create_user(mail, "password")
     return user
+
 
 @pytest.fixture
 def permission_manage_users():
