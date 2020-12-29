@@ -33,8 +33,13 @@ SECRET_KEY = "3w4x62a8bdkdv%z@1z7t9y7gf=ircv!bdj9q9rm%6)_f#t3k5t"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['usa-testing.mesada.io', 'usa.mesada.io',
-                 'localhost:*', 'usa-production.mesada.io']
+ALLOWED_HOSTS = [
+    "usa-testing.mesada.io",
+    "usa.mesada.io",
+    "localhost",
+    "usa-production.mesada.io",
+    "testserver",
+]
 
 AUTH_USER_MODEL = "account.User"
 # Application definition
@@ -47,12 +52,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "mesada.account",
+    "mesada.core",
+    "mesada.graphql",
     "django_extensions",
     "graphene_django",
     "django_filters",
     "phonenumber_field",
-    "mesada.account",
-
 ]
 
 MIDDLEWARE = [
@@ -65,8 +71,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
-    "mesada.graphql.middleware.jwt_middleware",
 ]
+
 # this have to change to CORS_ORIGIN_WHITELIST in production env
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -85,8 +91,8 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "string_if_invalid": '<< MISSING VARIABLE "%s" >>' if DEBUG else "",
-        },
+            "string_if_invalid": '<< MISSING VARIABLE "%s" >>' if DEBUG else ""
+        }
     }
 ]
 
@@ -98,15 +104,7 @@ WSGI_APPLICATION = "mesada.wsgi.application"
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "HOST": "localhost",
-        "PORT": "5432",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-    }
-    #'default': env.db('DATABASE_URL')
+    'default': env.db('DATABASE_URL')
 }
 
 
@@ -153,6 +151,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 GRAPHENE = {
+    "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"],
     "RELAY_CONNECTION_ENFORCE_FIRST_OR_LAST": True,
     "RELAY_CONNECTION_MAX_LIMIT": 100,
 }
