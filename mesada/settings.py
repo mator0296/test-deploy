@@ -33,8 +33,13 @@ SECRET_KEY = "3w4x62a8bdkdv%z@1z7t9y7gf=ircv!bdj9q9rm%6)_f#t3k5t"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['usa-testing.mesada.io', 'usa.mesada.io',
-                 'localhost:*', 'usa-production.mesada.io', 'mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com']
+ALLOWED_HOSTS = [
+    "usa-testing.mesada.io",
+    "usa.mesada.io",
+    "localhost:*",
+    "usa-production.mesada.io",
+    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com"
+]
 
 AUTH_USER_MODEL = "account.User"
 # Application definition
@@ -52,7 +57,6 @@ INSTALLED_APPS = [
     "django_filters",
     "phonenumber_field",
     "mesada.account",
-
 ]
 
 MIDDLEWARE = [
@@ -92,14 +96,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "mesada.wsgi.application"
 
-
 # Database
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': env.db('DATABASE_URL')
-}
+DATABASES = {"default": env.db("DATABASE_URL")}
 
 
 # Password validation

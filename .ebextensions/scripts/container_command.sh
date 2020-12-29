@@ -17,7 +17,7 @@ done
 # build --env arguments for docker from env var settings
 EB_CONFIG_DOCKER_ENV_ARGS="--env-file .env -d --name=shopblender_pre_deploy "
 echo $EB_CONFIG_DOCKER_ENV_ARGS
-
+echo $JSON
 sudo docker run ${EB_CONFIG_DOCKER_ENV_ARGS} ${EB_CONFIG_DOCKER_IMAGE_STAGING}
 
 
