@@ -220,9 +220,6 @@ class BaseMutation(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, **data):
         if not cls.check_permissions(info.context.user):
-            import pdb
-
-            pdb.set_trace()
             raise PermissionDenied()
 
         try:
