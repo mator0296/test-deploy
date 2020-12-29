@@ -11,7 +11,7 @@ EB_CONFIG_DOCKER_ENV_ARGS=()
 for (( i=1; i<${arraylength}+1; i++ ));
 do
     variable=".${ENV_VARS[$i-1]}"
-    value=$(echo $JSON | jq "${variable}")
+    value=$(echo $JSON | jq -r "${variable}")
     echo ${ENV_VARS[$i-1]}"="${value}>>".env"
 done
 # build --env arguments for docker from env var settings
