@@ -1,7 +1,8 @@
 import graphene
 
 from ...payment import create_card
-from ..core.mutations import BaseMutation
+from ...payment.models import paymentMethods
+from ..core.mutations import ModelMutation
 from .types import BillingDetailsInput, Card
 
 
@@ -13,19 +14,20 @@ class CardInput(graphene.InputObjectType):
     billing_details = BillingDetailsInput(description="Card billing details")
 
 
-class CreateCard(BaseMutation):
+class CreateCard(ModelMutation):
     response = graphene.JSONString()
     card = graphene.Field(Card)
+
+    class Meta:
+        description = "Save a new card withing the Circle API."
+        model = paymentMethods
 
     class Arguments:
         input = CardInput(description="Card input", required=True)
 
-    class Meta:
-        description = "Save a new card withing the Circle API."
-
     @classmethod
     def perform_mutation(cls, _root, info, **data):
-        print(info.context.user.is_authenticated)
+        print(info.context.user)
         card = data.get("input")
         billing_details = card.get("billing_details")
         if not billing_details:
@@ -41,10 +43,7 @@ class CreateCard(BaseMutation):
             "billingDetails": billing_details,
             "expMonth": card.get("expo_month"),
             "expYear": card.get("expo_year"),
-            "metadata": {
-                "sessionId": session.session_key,
-                "ipAddress": ip_address
-            }
+            "metadata": {"sessionId": session.session_key, "ipAddress": ip_address},
         }
 
         response = create_card(body)

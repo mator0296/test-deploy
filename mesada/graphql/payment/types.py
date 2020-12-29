@@ -1,6 +1,6 @@
 import graphene
 from ..core.connection import CountableDjangoObjectType
-
+from ...payment.models import paymentMethods
 
 class BillingDetailsInput(graphene.InputObjectType):
     name = graphene.String(description="Full name of the card holder", required=True)
@@ -22,3 +22,11 @@ class Card(graphene.ObjectType):
     key_id = graphene.String(description="Encryption key", required=True)
     exp_month = graphene.Int(description="Card expiration month", required=True)
     exp_year = graphene.Int(description="Card expiration year", required=True)
+
+
+class PaymentMethod(CountableDjangoObjectType):
+    type = graphene.String()
+
+    class Meta:
+        description = "Represents a Payment Method"
+        model = paymentMethods
