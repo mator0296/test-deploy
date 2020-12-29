@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "graphene_django",
     "django_filters",
     "phonenumber_field",
+    "mesada.payment"
 ]
 
 MIDDLEWARE = [
