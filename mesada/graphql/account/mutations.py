@@ -665,26 +665,6 @@ class AddressDelete(ModelDeleteMutation):
         return response
 
 
-class ValidatePhoneNumber(BaseMutation):
-    status = graphene.Field(ValidatePhoneStatusEnum)
-
-    class Arguments:
-        phone = graphene.String(description="Phone Number", required=True)
-
-    class Meta:
-        description = "Send a token to validate the phone number"
-
-    @classmethod
-    def perform_mutation(cls, _root, info, phone):
-        try:
-            response = send_token(phone)
-            if response.status == "pending" and response.valid is False:
-                status = ValidatePhoneStatusEnum.PROCEED
-        except TwilioRestException as e:
-            raise ValidationError({"twilio_service": e.msg})
-        return cls(status=status)
-
-
 class SendPhoneVerificationSMS(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 
@@ -722,7 +702,7 @@ class VerifySMSCodeVerification(BaseMutation):
             description="User ID to submit the verification code.", required=True
         )
         code = graphene.String(
-            description="verification code.", required=True
+            description="Verification code.", required=True
         )
 
     class Meta:
