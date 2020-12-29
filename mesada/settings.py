@@ -98,14 +98,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "mesada.wsgi.application"
 
-
 # Database
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': env.db('DATABASE_URL')
-}
+DATABASES = {"default": env.db("DATABASE_URL")}
 
 
 # Password validation

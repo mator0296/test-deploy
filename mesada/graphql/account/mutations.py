@@ -57,7 +57,7 @@ class CustomerRegisterInput(graphene.InputObjectType):
         description="The unique email address of the user.", required=True
     )
     password = graphene.String(description="Password", required=True)
-    phone = graphene.String(description="Phone Number")
+    phone = graphene.String(description="Phone Number", required=True)
 
 
 class CustomerRegister(ModelMutation):
