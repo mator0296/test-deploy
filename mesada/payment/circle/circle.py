@@ -10,6 +10,11 @@ from django.conf import settings
 
 CIRCLE_API_KEY = settings.CIRCLE_API_KEY
 CIRCLE_BASE_URL = settings.CIRCLE_BASE_URL
+HEADERS = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {CIRCLE_API_KEY}",
+}
 
 
 def create_card(body):
@@ -19,12 +24,6 @@ def create_card(body):
         body (dict): Request body.
     """
     url = f"{CIRCLE_BASE_URL}/cards"
-    print(url)
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    }
-
-    response = requests.request("POST", url, headers=headers, json=body)
+    response = requests.request("POST", url, headers=HEADERS, json=body)
 
     return response

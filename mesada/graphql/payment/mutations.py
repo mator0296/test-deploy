@@ -3,6 +3,7 @@ import graphene
 from ...payment import create_card
 from ...payment.models import paymentMethods
 from ..core.mutations import ModelMutation
+from ...core.utils import generate_idempotency_key
 from .types import BillingDetailsInput, Card
 
 
@@ -27,7 +28,7 @@ class CreateCard(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
-        print(info.context.user)
+        print(info.context.user.addresses)
         card = data.get("input")
         billing_details = card.get("billing_details")
         if not billing_details:
@@ -37,13 +38,18 @@ class CreateCard(ModelMutation):
         ip_address = info.context.META.get("REMOTE_ADDR")
         session = info.context.session
         body = {
-            "idempotencyKey": "",
+            "idempotencyKey": generate_idempotency_key(),
             "keyId": card.get("key_id"),
             "encryptedData": card.get("encrypted_data"),
             "billingDetails": billing_details,
             "expMonth": card.get("expo_month"),
             "expYear": card.get("expo_year"),
-            "metadata": {"sessionId": session.session_key, "ipAddress": ip_address},
+            "metadata": {
+                "email": "test@mail.com",
+                "phoneNumber": "+16167302202",
+                "sessionId": session.session_key,
+                "ipAddress": ip_address
+            },
         }
 
         response = create_card(body)
