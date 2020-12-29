@@ -14,5 +14,5 @@ from .graphql.views import GraphQLView
 
 urlpatterns = [
     url(r"^graphql/", csrf_exempt(GraphQLView.as_view(schema=schema)), name="api"),
-    path('', lambda request: HttpResponse('hello'), name='hello')
+    path("", lambda request: HttpResponse("hello"), name="hello"),
 ]
