@@ -25,6 +25,7 @@ from .mutations import (
 )
 from .resolvers import (
     resolve_address_validator,
+    resolve_address,
     resolve_addresses,
     resolve_customers,
     resolve_staff_users
@@ -74,7 +75,7 @@ class AccountQueries(graphene.ObjectType):
     )
     addresses = FilterInputConnectionField(
         Address,
-        filter=AddressFilter(),
+        filter=AddressFilterInput(),
         description="List of addresses.",
         search=graphene.String(description="Address lookup string"),
         query=graphene.String(description="Addresses"),
@@ -97,7 +98,7 @@ class AccountQueries(graphene.ObjectType):
         return graphene.Node.get_node_from_global_id(info, id, User)
 
     def resolve_address(self, info, id):
-        return graphene.Node.get_node_from_global_id(info, id, Address)
+        return resolve_address(info, id)
 
     def resolve_addresses(self, info, search, query=None, **_kwargs):
         return resolve_addresses(info, search=search, query=query)

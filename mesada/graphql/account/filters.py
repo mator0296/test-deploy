@@ -104,4 +104,4 @@ class AddressFilter(django_filters.FilterSet):
 
     class Meta:
         model = Address
-        fields = ["status"]
+        fields = ["search"]

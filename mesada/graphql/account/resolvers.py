@@ -81,6 +81,10 @@ def resolve_address_validator(info, country_code, country_area, city_area):
     )
 
 
+def resolve_address(info, id):
+    return models.Address.objects.get(pk=id)
+
+
 def resolve_addresses(info, search, query):
     qs = models.Address.objects.filter(
         Q(address_name=search) | Q(postal_code=search)
