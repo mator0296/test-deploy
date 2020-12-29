@@ -183,6 +183,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_phone_verified = models.BooleanField(default=False)
     note = models.TextField(null=True, blank=True)
     postal_code = models.CharField(max_length=6, null=True)
     date_joined = models.DateTimeField(default=timezone.now, editable=False)

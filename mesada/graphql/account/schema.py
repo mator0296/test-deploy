@@ -22,7 +22,8 @@ from .mutations import (
     StaffCreate,
     StaffDelete,
     StaffUpdate,
-    ValidatePhoneNumber,
+    SendPhoneVerificationSMS,
+    VerifySMSCodeVerification
 )
 from .resolvers import resolve_address_validator, resolve_customers, resolve_staff_users
 from .types import AddressValidationData, User
@@ -98,4 +99,5 @@ class AccountMutations(graphene.ObjectType):
     address_delete = AddressDelete.Field()
     address_update = AddressUpdate.Field()
 
-    validate_phone_number = ValidatePhoneNumber.Field()
+    sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
+    verifySMSCodeVerification = VerifySMSCodeVerification.Field()
