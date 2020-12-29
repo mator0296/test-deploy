@@ -4,13 +4,11 @@ import graphene
 import graphql_jwt
 from django.contrib.sites.shortcuts import get_current_site
 
-from .mutations import CreateToken, VerifyToken
-
 
 class CoreMutations(graphene.ObjectType):
-    token_create = CreateToken.Field()
+    token_create = graphql_jwt.ObtainJSONWebToken.Field()
     token_refresh = graphql_jwt.Refresh.Field()
-    token_verify = VerifyToken.Field()
+    token_verify = graphql_jwt.Verify.Field()
 
 
 class CoreQueries(graphene.ObjectType):
