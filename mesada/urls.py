@@ -1,9 +1,9 @@
 """mesada URL Configuration"""
 
 from django.conf.urls import url
+from django.http import HttpResponse
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
 
 # from .data_feeds.urls import urlpatterns as feed_urls
 from .graphql.api import schema
