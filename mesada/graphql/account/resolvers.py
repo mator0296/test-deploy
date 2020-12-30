@@ -19,7 +19,7 @@ USER_SEARCH_FIELDS = (
 
 
 def resolve_customers(info, query):
-    qs = models.User.objects.filter(Q(is_staff=False) | (Q(is_staff=True)))
+    qs = models.User.objects.filter(Q(is_staff=False))
     qs = filter_by_query_param(
         queryset=qs, query=query, search_fields=USER_SEARCH_FIELDS
     )
