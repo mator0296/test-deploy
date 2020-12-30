@@ -19,7 +19,7 @@ class verificationCvv(enum.Enum):
     PENDING = 4
 
 
-class paymentMethods(models.Model):
+class PaymentMethods(models.Model):
 
     type = models.CharField(max_length=50, blank=False)
     exp_month = models.PositiveIntegerField(
