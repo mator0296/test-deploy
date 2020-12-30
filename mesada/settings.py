@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import environ
+
 import django_cache_url
+import environ
 
 root = environ.Path(__file__) - 3  # get root of the project
 env = environ.Env()
@@ -38,8 +39,7 @@ ALLOWED_HOSTS = [
     "usa.mesada.io",
     "localhost",
     "usa-production.mesada.io",
-    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com"
-    "testserver",
+    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com" "testserver",
 ]
 
 AUTH_USER_MODEL = "account.User"

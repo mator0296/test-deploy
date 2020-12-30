@@ -7,11 +7,10 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from graphql.error import GraphQLError
 from graphql_jwt.decorators import staff_member_required
 from graphql_jwt.exceptions import PermissionDenied
 from graphql_jwt.shortcuts import get_token
-
-from graphql.error import GraphQLError
 
 from ...account import models
 from ...core.permissions import get_permissions
