@@ -23,7 +23,9 @@ class paymentMethods(models.Model):
 
     type = models.CharField(max_length=50, blank=False)
     exp_month = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(12)], null=True, blank=True
+        validators=[MinValueValidator(1), MaxValueValidator(12)],
+        null=True,
+        blank=True,
     )
     exp_year = models.PositiveIntegerField(
         validators=[MaxValueValidator(2050)], null=True, blank=True
