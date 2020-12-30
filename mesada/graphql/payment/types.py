@@ -1,6 +1,6 @@
 from graphene_django.types import DjangoObjectType
-from ..payment.models import PaymentMethods
-from ..account.models import User
+
+from ...payment.models import PaymentMethods
 
 
 class PaymentMethodType(DjangoObjectType):
@@ -17,9 +17,3 @@ class PaymentMethodType(DjangoObjectType):
             "fingerprint",
             "user",
         )
-
-
-class UserType(DjangoObjectType):
-    class Meta:
-        model = User
-        fields = ("id",)
