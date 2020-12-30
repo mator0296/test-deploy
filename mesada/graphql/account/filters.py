@@ -71,7 +71,7 @@ def filter_search(qs, _, value):
 
 def filter_search_address(qs, _, value):
     search_fields = ("address_name", "postal_code")
-    if value:
+    if value is not None:
         qs = filter_by_query_param(qs, value, search_fields)
     return qs
 
