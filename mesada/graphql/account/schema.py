@@ -22,6 +22,7 @@ from .mutations import (
     StaffCreate,
     StaffDelete,
     StaffUpdate,
+    RecipientCreate,
 )
 from .resolvers import resolve_address_validator, resolve_customers, resolve_staff_users
 from .types import AddressValidationData, User
@@ -96,3 +97,5 @@ class AccountMutations(graphene.ObjectType):
     address_create = AddressCreate.Field()
     address_delete = AddressDelete.Field()
     address_update = AddressUpdate.Field()
+    
+    recipient_create = RecipientCreate.Field()

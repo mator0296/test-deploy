@@ -15,7 +15,7 @@ from graphql.error import GraphQLError
 
 from ...account import models
 from ...core.permissions import get_permissions
-from ..account.types import Address, AddressInput, User
+from ..account.types import Address, User, Recipient, AddressInput, RecipientInput
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload
@@ -663,3 +663,40 @@ class AddressDelete(ModelDeleteMutation):
 
         response.user = user
         return response
+
+
+class RecipientCreate(ModelMutation):
+    recipient = graphene.Field(
+        Recipient, description="A recipient instance created."
+    )
+
+    class Arguments:
+        input = RecipientInput(
+            description="Fields required to create recipient", required=True
+        )
+
+    class Meta:
+        description = "Create a recipient."
+        model = models.Recipient
+
+    @classmethod
+    def perform_mutation(cls, root, info, **data):
+        user = get_user_instance(info)
+        input_data = data.get("input")
+        # Obtener el usuario por el ID (Devolver error si no existe usuario) try except
+        # Crear el recipient con los datos (first_name, last_name, alis,email, clabe, bank_name) super()perform_mutation
+        # Si se crea correctamente el recipient:
+        #                       asigno el recipient recien creado a cls.recipient
+        #                       asigno a usuario obtenido por su ID el recipient recien creado (user.recipients.add(response.recipient))
+        #                       guardo la data de usario
+        #                       return recipient
+        # de lo contrario enviar error response.errors return
+        #input_data = data.get("input")
+        #response = super().perform_mutation(root, info, **data)
+        #print(response,"hello")
+        '''if not response.errors:
+                user.addresses.add(response.address)
+                response.user = user
+            return response
+        return cls(user=None)'''
+        return cls(recipient=None)
