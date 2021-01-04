@@ -60,11 +60,13 @@ INSTALLED_APPS = [
     "mesada.account",
     "mesada.core",
     "mesada.graphql",
+    "mesada.payment",
     "django_extensions",
     "graphene_django",
     "django_filters",
     "phonenumber_field",
     "mesada.payment",
+    "djmoney",
 ]
 
 MIDDLEWARE = [
