@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "usa-production.mesada.io",
     "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com" "testserver",
+    "127.0.0.1",
 ]
 
 AUTH_USER_MODEL = "account.User"
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "mesada.account",
+    "mesada.payment",
     "mesada.core",
     "mesada.graphql",
     "django_extensions",

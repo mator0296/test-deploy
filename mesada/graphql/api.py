@@ -2,9 +2,10 @@ import graphene
 
 from .account.schema import AccountMutations, AccountQueries
 from .core.schema import CoreMutations, CoreQueries
+from .payment.schema import PaymentMethodsQueries
 
 
-class Queries(AccountQueries, CoreQueries):
+class Queries(AccountQueries, PaymentMethodsQueries, CoreQueries):
     node = graphene.Node.Field()
 
 

@@ -6,8 +6,8 @@ from .types import PaymentMethodType
 
 
 class PaymentMethodsQueries(ObjectType):
-    paymentMethod = graphene.Field(PaymentMethodType, id=graphene.Int())
-    userPaymentMethods = graphene.List(PaymentMethodType, user_id=graphene.Int())
+    payment_method = graphene.Field(PaymentMethodType, id=graphene.Int())
+    user_payment_methods = graphene.List(PaymentMethodType, user_id=graphene.Int())
 
     @login_required
     def resolve_payment_method(self, _info, **kwargs):
