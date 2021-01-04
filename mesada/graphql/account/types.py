@@ -11,6 +11,7 @@ from ..core.connection import CountableDjangoObjectType
 from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
 from ..utils import format_permissions_for_display
 from .filters import CustomerFilter, StaffUserFilter
+from .enums import BankName
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -43,7 +44,7 @@ class RecipientInput(graphene.InputObjectType):
     alias = graphene.String(description="Pseudonym.")
     email = graphene.String(description="The unique email address of the recipient.", required=True)
     clabe = graphene.String(description="Bank account number in Mexico.", required=True)
-    bank_name = graphene.String(description="Bank Name in Mexico.", required=True)
+    bank_name = graphene.Field( BankName,description="Bank Name in Mexico.", required=True)
 
 
 class Address(CountableDjangoObjectType):
