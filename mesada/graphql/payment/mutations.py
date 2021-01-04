@@ -1,12 +1,11 @@
 import graphene
 import hashlib
 
-from ...account import models
 from ...core.utils import generate_idempotency_key
 from ...payment import create_card
 from ...payment.models import paymentMethods, verificationAvs, verificationCvv
 from ..core.mutations import ModelMutation
-from .types import BillingDetailsInput, Card
+from .types import BillingDetailsInput, PaymentMethod
 
 
 def hash_session_id(session_id):
@@ -23,7 +22,7 @@ class CardInput(graphene.InputObjectType):
 
 class CreateCard(ModelMutation):
     response = graphene.JSONString()
-    card = graphene.Field(Card)
+    payment_method = graphene.Field(PaymentMethod)
 
     class Meta:
         description = "Save a new card withing the Circle API."
@@ -37,12 +36,11 @@ class CreateCard(ModelMutation):
         default_address = info.context.user.default_address
         card = data.get("input")
         billing_details = card.get("billing_details")
-
         if not billing_details:
             billing_details = {
                 "name": f"{default_address.first_name} {default_address.last_name}",
                 "city": default_address.city,
-                "country": default_address.country,
+                "country": str(default_address.country),
                 "line1": default_address.street_address_1,
                 "line2": default_address.street_address_2,
                 "district": default_address.country_area,
@@ -108,7 +106,7 @@ class CreateCard(ModelMutation):
             last_digits=data.get("last4"),
             fingerprint=data.get("fingerprint"),
             verification_cvv=verificationCvv[verification.get("cvv").upper()],
-            # verification_avs=verificationAvs[verification.get("avs").upper()],
+            verification_avs=verificationAvs[verification.get("avs").upper()],
             phonenumber=metadata.get("phoneNumber"),
             email=metadata.get("email"),
             name=billing_details.get("name"),
@@ -121,4 +119,4 @@ class CreateCard(ModelMutation):
             user=info.context.user,
         )
 
-        return cls(response=response.json(), card=card)
+        return cls(response=response.json(), payment_method=payment_method)
