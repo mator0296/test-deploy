@@ -1,7 +1,7 @@
 import graphene
 
-from ..account.types import User
 from ...payment.models import paymentMethods
+from ..account.types import User
 from ..core.connection import CountableDjangoObjectType
 
 

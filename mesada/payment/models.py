@@ -5,9 +5,8 @@ from django_countries.fields import CountryField
 from django_enumfield import enum
 from djmoney.models.fields import MoneyField
 
-from . import PaymentErrorCode, PaymentStatus
-
 from ..account.models import User
+from . import PaymentErrorCode, PaymentStatus
 
 
 class verificationAvs(enum.Enum):
