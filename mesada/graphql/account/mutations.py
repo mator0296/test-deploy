@@ -683,20 +683,9 @@ class RecipientCreate(ModelMutation):
     def perform_mutation(cls, root, info, **data):
         user = get_user_instance(info)
         input_data = data.get("input")
-        # Obtener el usuario por el ID (Devolver error si no existe usuario) try except
-        # Crear el recipient con los datos (first_name, last_name, alis,email, clabe, bank_name) super()perform_mutation
-        # Si se crea correctamente el recipient:
-        #                       asigno el recipient recien creado a cls.recipient
-        #                       asigno a usuario obtenido por su ID el recipient recien creado (user.recipients.add(response.recipient))
-        #                       guardo la data de usario
-        #                       return recipient
-        # de lo contrario enviar error response.errors return
-        #input_data = data.get("input")
-        #response = super().perform_mutation(root, info, **data)
-        #print(response,"hello")
-        '''if not response.errors:
-                user.addresses.add(response.address)
-                response.user = user
+        response = super().perform_mutation(root, info, **data)
+        if not response.errors:
+            user.recipients = response.recipient
+            user.save()
             return response
-        return cls(user=None)'''
         return cls(recipient=None)
