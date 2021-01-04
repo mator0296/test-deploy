@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [
     "usa-production.mesada.io",
     "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com"
     "testserver",
+    '127.0.0.1',
 ]
 
 AUTH_USER_MODEL = "account.User"
