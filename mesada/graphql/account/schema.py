@@ -60,7 +60,7 @@ class AccountQueries(graphene.ObjectType):
         description="Lookup an user by ID.",
     )
 
-    # @permission_required("account.manage_users")
+    @permission_required("account.manage_users")
     def resolve_customers(self, info, query=None, **_kwargs):
         return resolve_customers(info, query=query)
 

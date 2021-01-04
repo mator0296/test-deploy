@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import environ
+
 import django_cache_url
+import environ
 
 root = environ.Path(__file__) - 3  # get root of the project
 env = environ.Env()
@@ -33,8 +34,14 @@ SECRET_KEY = "3w4x62a8bdkdv%z@1z7t9y7gf=ircv!bdj9q9rm%6)_f#t3k5t"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['usa-testing.mesada.io', 'usa.mesada.io',
-                 'localhost:*', 'usa-production.mesada.io']
+ALLOWED_HOSTS = [
+    "usa-testing.mesada.io",
+    "usa.mesada.io",
+    "localhost",
+    "usa-production.mesada.io",
+    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com"
+    "testserver",
+]
 
 AUTH_USER_MODEL = "account.User"
 # Application definition
@@ -47,12 +54,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "mesada.account",
+    "mesada.core",
+    "mesada.graphql",
+    "mesada.payment",
     "django_extensions",
     "graphene_django",
     "django_filters",
     "phonenumber_field",
-    "mesada.account",
-
+    "djmoney",
 ]
 
 MIDDLEWARE = [
@@ -65,8 +75,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
-    "mesada.graphql.middleware.jwt_middleware",
 ]
+
 # this have to change to CORS_ORIGIN_WHITELIST in production env
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -91,7 +101,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "mesada.wsgi.application"
-
 
 # Database
 
@@ -143,6 +152,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 GRAPHENE = {
+    "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"],
     "RELAY_CONNECTION_ENFORCE_FIRST_OR_LAST": True,
     "RELAY_CONNECTION_MAX_LIMIT": 100,
 }

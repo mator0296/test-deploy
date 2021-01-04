@@ -60,7 +60,7 @@ class CustomerRegisterInput(graphene.InputObjectType):
         description="The unique email address of the user.", required=True
     )
     password = graphene.String(description="Password", required=True)
-    phone = graphene.String(description="Phone Number")
+    phone = graphene.String(description="Phone Number", required=True)
 
 
 class CustomerRegister(ModelMutation):
@@ -275,12 +275,15 @@ class StaffCreate(ModelMutation):
 
     class Meta:
         description = "Creates a new staff user."
-        exclude = ["password"]
+        exclude = ["password", "postal_code"]
         model = models.User
         permissions = ("account.manage_staff",)
 
     @classmethod
     def clean_input(cls, info, instance, data):
+        import pdb
+
+        pdb.set_trace()
         cleaned_input = super().clean_input(info, instance, data)
 
         # set is_staff to True to create a staff user
