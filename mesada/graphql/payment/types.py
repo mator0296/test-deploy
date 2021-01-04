@@ -1,5 +1,4 @@
 from graphene_django.types import DjangoObjectType
-
 from ...payment.models import PaymentMethods
 
 
