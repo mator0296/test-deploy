@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
     "usa.mesada.io",
     "localhost",
     "usa-production.mesada.io",
-    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com"
+    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com",
     "testserver",
 ]
 
