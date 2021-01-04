@@ -69,8 +69,8 @@ class CreateCard(ModelMutation):
 
         response = create_card(body)
         print(response.status_code)
-        # data = response.json().get("data")
-        data = {
+        data = response.json().get("data")
+        """ data = {
             "id": "1e38dcef-a947-493a-a674-f623e4418ace",
             "billingDetails": {
                 "name": "Satoshi Nakamoto",
@@ -87,12 +87,12 @@ class CreateCard(ModelMutation):
             "last4": "0123",
             "fingerprint": "eb170539-9e1c-4e92-bf4f-1d09534fdca2",
             "errorCode": "verification_failed",
-            "verification": {"avs": "D", "cvv": "not_requested"},
+            "verification": {"avs": "O", "cvv": "not_requested"},
             "riskEvaluation": {"decision": "denied", "reason": "3000"},
             "metadata": {"email": "satoshi@circle.com", "phoneNumber": "+14155555555"},
             "createDate": "2019-09-18T19:19:01Z",
             "updateDate": "2019-09-18T19:20:00Z",
-        }
+        } """
 
         billing_details = data.get("billingDetails")
         verification = data.get("verification")
