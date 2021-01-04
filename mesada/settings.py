@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import environ
+
 import django_cache_url
+import environ
 
 root = environ.Path(__file__) - 3  # get root of the project
 env = environ.Env()
@@ -56,10 +57,12 @@ INSTALLED_APPS = [
     "mesada.account",
     "mesada.core",
     "mesada.graphql",
+    "mesada.payment",
     "django_extensions",
     "graphene_django",
     "django_filters",
     "phonenumber_field",
+    "djmoney",
 ]
 
 MIDDLEWARE = [
