@@ -25,5 +25,6 @@ def create_card(body):
     """
     url = f"{CIRCLE_BASE_URL}/cards"
     response = requests.request("POST", url, headers=HEADERS, json=body)
+    response.raise_for_status()
 
     return response

@@ -1,15 +1,14 @@
 import graphene
 import hashlib
 
+from graphql.error.base import GraphQLError
+from requests.exceptions import RequestException
 from ...core.utils import generate_idempotency_key
 from ...payment import create_card
 from ...payment.models import paymentMethods, verificationAvs, verificationCvv
 from ..core.mutations import ModelMutation
 from .types import BillingDetailsInput, PaymentMethod
-
-
-def hash_session_id(session_id):
-    return hashlib.md5(session_id.encode("utf-8")).hexdigest()
+from .utils import get_default_billing_details, hash_session_id
 
 
 class CardInput(graphene.InputObjectType):
@@ -21,7 +20,6 @@ class CardInput(graphene.InputObjectType):
 
 
 class CreateCard(ModelMutation):
-    response = graphene.JSONString()
     payment_method = graphene.Field(PaymentMethod)
 
     class Meta:
@@ -33,19 +31,10 @@ class CreateCard(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
-        default_address = info.context.user.default_address
         card = data.get("input")
         billing_details = card.get("billing_details")
         if not billing_details:
-            billing_details = {
-                "name": f"{default_address.first_name} {default_address.last_name}",
-                "city": default_address.city,
-                "country": str(default_address.country),
-                "line1": default_address.street_address_1,
-                "line2": default_address.street_address_2,
-                "district": default_address.country_area,
-                "postalCode": default_address.postal_code,
-            }
+            billing_details = get_default_billing_details(info.context.user)
         if not info.context.session.session_key:
             info.context.session.save()
 
@@ -68,32 +57,8 @@ class CreateCard(ModelMutation):
         }
 
         response = create_card(body)
-        print(response.status_code)
-        data = response.json().get("data")
-        """ data = {
-            "id": "1e38dcef-a947-493a-a674-f623e4418ace",
-            "billingDetails": {
-                "name": "Satoshi Nakamoto",
-                "city": "Boston",
-                "country": "US",
-                "line1": "100 Money Street",
-                "line2": "Suite 1",
-                "district": "MA",
-                "postalCode": "01234",
-            },
-            "expMonth": 1,
-            "expYear": 2020,
-            "network": "VISA",
-            "last4": "0123",
-            "fingerprint": "eb170539-9e1c-4e92-bf4f-1d09534fdca2",
-            "errorCode": "verification_failed",
-            "verification": {"avs": "O", "cvv": "not_requested"},
-            "riskEvaluation": {"decision": "denied", "reason": "3000"},
-            "metadata": {"email": "satoshi@circle.com", "phoneNumber": "+14155555555"},
-            "createDate": "2019-09-18T19:19:01Z",
-            "updateDate": "2019-09-18T19:20:00Z",
-        } """
 
+        data = response.json().get("data")
         billing_details = data.get("billingDetails")
         verification = data.get("verification")
         metadata = data.get("metadata")
@@ -119,4 +84,4 @@ class CreateCard(ModelMutation):
             user=info.context.user,
         )
 
-        return cls(response=response.json(), payment_method=payment_method)
+        return cls(payment_method=payment_method)
