@@ -149,7 +149,7 @@ class BaseMutation(graphene.Mutation):
                             new_error_dict[field] = [
                                 ValidationError(
                                     message=pgettext_lazy(
-                                        "Base Mutation Error", "SignUP Email Error"
+                                        "Base Mutation Error", "This email is already taken."
                                     )
                                 )
                             ]
