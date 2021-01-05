@@ -5,12 +5,14 @@ from django.contrib.auth import get_user_model
 from graphene import relay
 from graphql_jwt.decorators import permission_required
 
-from ...account.models import Address, Recipient, User
+from ...account.models import Address, User, Recipient
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
 from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
 from ..utils import format_permissions_for_display
 from .filters import AddressFilter, CustomerFilter, StaffUserFilter, RecipientsFilter
+from .enums import BankName
+
 
 class CustomerFilterInput(FilterInputObjectType):
     class Meta:
@@ -44,6 +46,15 @@ class AddressInput(graphene.InputObjectType):
     postal_code = graphene.String(description="Postal code.")
     country = graphene.String(description="Country.")
     country_area = graphene.String(description="State or province.")
+
+
+class RecipientInput(graphene.InputObjectType):
+    first_name = graphene.String(description="Given name.")
+    last_name = graphene.String(description="Family name.")
+    alias = graphene.String(description="Pseudonym.")
+    email = graphene.String(description="The unique email address of the recipient.")
+    clabe = graphene.String(description="Bank account number in Mexico.")
+    bank_name = graphene.Field( BankName,description="Bank Name in Mexico.")
 
 
 class Address(CountableDjangoObjectType):
@@ -152,9 +163,19 @@ class AddressValidationData(graphene.ObjectType):
 
 
 class Recipient(CountableDjangoObjectType):
+
+    user_id = graphene.String(description="ID of the user associated with the recipient.")
+    user_email = graphene.String(description="Email of the user associated with the recipient.")
+
     class Meta:
-        description = "Represents user recipeint data."
-        filter_fields = ["first_name", "last_name", "email", "alias"]
+        description = "Represents recipient data."
         interfaces = [relay.Node]
         model = Recipient
-        only_fields = ["first_name", "last_name", "email", "alias"]
+        only_fields = [
+            "first_name",
+            "last_name",
+            "alias",
+            "email",
+            "clabe",
+            "bank_name",
+        ]

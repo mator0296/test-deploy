@@ -17,7 +17,7 @@ from graphql.error import GraphQLError
 from ...account import models
 from ...core.permissions import get_permissions
 from ...core.twilio import send_code, check_code
-from ..account.types import Address, AddressInput, User
+from ..account.types import Address, AddressInput, User, Recipient, RecipientInput
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload
@@ -667,6 +667,34 @@ class AddressDelete(ModelDeleteMutation):
         response.user = user
         return response
 
+
+class RecipientCreate(ModelMutation):
+    recipient = graphene.Field(
+        Recipient, description="A recipient instance created."
+    )
+
+    class Arguments:
+        input = RecipientInput(
+            description="Fields required to create recipient", required=True
+        )
+
+    class Meta:
+        description = "Create a recipient."
+        model = models.Recipient
+
+    @classmethod
+    def perform_mutation(cls, root, info, **data):
+        user = get_user_instance(info)
+        input_data = data.get("input")
+        response = super().perform_mutation(root, info, **data)
+        if not response.errors:
+            response.recipient.user_id = user.id
+            response.recipient.user_email = user.email
+            user.recipients = response.recipient
+            user.save()
+            return response
+        return cls(recipient=None)
+      
 
 class SendPhoneVerificationSMS(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
