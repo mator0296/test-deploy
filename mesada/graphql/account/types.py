@@ -10,8 +10,7 @@ from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
 from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
 from ..utils import format_permissions_for_display
-from .filters import CustomerFilter, RecipientsFilter, StaffUserFilter
-
+from .filters import AddressFilter, CustomerFilter, StaffUserFilter, RecipientsFilter
 
 class CustomerFilterInput(FilterInputObjectType):
     class Meta:
@@ -26,6 +25,11 @@ class StaffUserInput(FilterInputObjectType):
 class RecipientsFilterInput(FilterInputObjectType):
     class Meta:
         filterset_class = RecipientsFilter
+
+        
+class AddressFilterInput(FilterInputObjectType):
+    class Meta:
+        filterset_class = AddressFilter
 
 
 class AddressInput(graphene.InputObjectType):

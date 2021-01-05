@@ -176,13 +176,14 @@ class Recipient(models.Model):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     phone = PossiblePhoneNumberField(blank=True, default="")
-    first_name = models.CharField(max_length=256, blank=True)
-    last_name = models.CharField(max_length=256, blank=True)
+    first_name = models.CharField(max_length=256, blank=True, null=True)
+    last_name = models.CharField(max_length=256, blank=True, null=True)
     addresses = models.ManyToManyField(
         Address, blank=True, related_name="user_addresses"
     )
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_phone_verified = models.BooleanField(default=False)
     note = models.TextField(null=True, blank=True)
     postal_code = models.CharField(max_length=6, null=True)
     date_joined = models.DateTimeField(default=timezone.now, editable=False)

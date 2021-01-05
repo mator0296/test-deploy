@@ -4,6 +4,8 @@ branch-defaults:
   default:
     environment: mesada-test-provitional
     group_suffix: null
+  dev:
+    environment: mesada-test-provitional
   master:
     environment: mesada-test-provitional
 global:

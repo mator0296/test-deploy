@@ -4,7 +4,7 @@ from typing import Callable
 from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from graphene_django.settings import graphene_settings
-from graphql_jwt.middleware import JSONWebTokenMiddleware, _authenticate
+from graphql_jwt.middleware import JSONWebTokenMiddleware
 
 
 def api_only_request_handler(get_response: Callable, handler: Callable):
@@ -37,7 +37,7 @@ def jwt_middleware(get_response):
     """
     # Disable warnings for django-graphene-jwt
     graphene_settings.MIDDLEWARE.append(JSONWebTokenMiddleware)
-    # jwt_middleware_inst = JSONWebTokenMiddleware()
+    # jwt_middleware_inst = JSONWebTokenMiddleware(get_response=get_response)
     graphene_settings.MIDDLEWARE.remove(JSONWebTokenMiddleware)
 
     def middleware(request):
@@ -46,8 +46,8 @@ def jwt_middleware(get_response):
             request.user = AnonymousUser()
         # Authenticate using JWT middleware
         # process_request checks if the user is already authenticated
-        # jwt_middleware_inst.resolve(request, None, None)
-        _authenticate(request)
+        # jwt_middleware_inst.resolve(request)
+
         return get_response(request)
 
     return middleware
