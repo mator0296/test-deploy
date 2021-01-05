@@ -19,6 +19,7 @@ from .mutations import (
     PasswordReset,
     RecipientCreate,
     RecipientUpdate,
+    RecipientDelete,
     SendPhoneVerificationSMS,
     SetNewPassword,
     SetPassword,
@@ -132,6 +133,7 @@ class AccountMutations(graphene.ObjectType):
 
     recipient_create = RecipientCreate.Field()
     recipient_update = RecipientUpdate.Field()
+    recipient_delete = RecipientDelete.Field()
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
     verifySMSCodeVerification = VerifySMSCodeVerification.Field()

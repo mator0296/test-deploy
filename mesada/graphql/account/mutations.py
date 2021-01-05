@@ -715,6 +715,47 @@ class RecipientUpdate(ModelMutation):
         return response
 
 
+class RecipientDelete(ModelDeleteMutation):
+    recipient = graphene.Field(
+        Recipient, description="A user instance for which the address was deleted."
+    )
+
+    class Arguments:
+        id = graphene.ID(required=True, description="ID of the address to delete.")
+
+    class Meta:
+        description = "Deletes an address"
+        model = models.Recipient
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        node_id = data.get("id")
+        instance = cls.get_node_or_error(info, node_id, Address)
+        if instance:
+            cls.clean_instance(info, instance)
+
+        db_id = instance.id
+
+        # Return the first user that the address is assigned to. There is M2M
+        # relation between users and addresses, but in most cases address is
+        # related to only one user.
+        #user = instance.id
+
+        user = instance.delete()
+
+        instance.id = db_id
+
+        response = cls.success_response(instance)
+
+        # Refresh the user instance to clear the default addresses. If the
+        # deleted address was used as default, it would stay cached in the
+        # user instance and the invalid ID returned in the response might cause
+        # an error.
+          
+        response.user = user
+        return response        
+
+
 class SendPhoneVerificationSMS(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 
