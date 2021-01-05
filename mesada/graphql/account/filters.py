@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Count, Sum
 
-from ...account.models import User
+from ...account.models import Address, User
 from ..core.filters import EnumFilter, ObjectTypeFilter
 from ..core.types import DateRangeInput, IntRangeInput, PriceRangeInput
 from ..utils import filter_by_query_param
@@ -69,6 +69,13 @@ def filter_search(qs, _, value):
     return qs
 
 
+def filter_search_address(qs, _, value):
+    search_fields = ("address_name", "postal_code")
+    if value is not None:
+        qs = filter_by_query_param(qs, value, search_fields)
+    return qs
+
+
 class CustomerFilter(django_filters.FilterSet):
     date_joined = ObjectTypeFilter(
         input_class=DateRangeInput, method=filter_date_joined
@@ -90,3 +97,11 @@ class StaffUserFilter(django_filters.FilterSet):
     class Meta:
         model = User
         fields = ["status", "search"]
+
+
+class AddressFilter(django_filters.FilterSet):
+    search = django_filters.CharFilter(method=filter_search)
+
+    class Meta:
+        model = Address
+        fields = ["search"]

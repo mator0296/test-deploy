@@ -10,16 +10,19 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from graphql_jwt.decorators import staff_member_required
 from graphql_jwt.exceptions import PermissionDenied
 from graphql_jwt.shortcuts import get_token
+from twilio.base.exceptions import TwilioRestException
 
 from graphql.error import GraphQLError
 
 from ...account import models
 from ...core.permissions import get_permissions
-from ..account.types import Address, AddressInput, User
+from ...core.twilio import send_code, check_code
+from ..account.types import Address, AddressInput, User, Recipient, RecipientInput
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload
 from ..core.utils import get_user_instance
+from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
 
 ADDRESS_FIELD = "billing_address"
@@ -663,3 +666,96 @@ class AddressDelete(ModelDeleteMutation):
 
         response.user = user
         return response
+
+
+class RecipientCreate(ModelMutation):
+    recipient = graphene.Field(
+        Recipient, description="A recipient instance created."
+    )
+
+    class Arguments:
+        input = RecipientInput(
+            description="Fields required to create recipient", required=True
+        )
+
+    class Meta:
+        description = "Create a recipient."
+        model = models.Recipient
+
+    @classmethod
+    def perform_mutation(cls, root, info, **data):
+        user = get_user_instance(info)
+        input_data = data.get("input")
+        response = super().perform_mutation(root, info, **data)
+        if not response.errors:
+            response.recipient.user_id = user.id
+            response.recipient.user_email = user.email
+            user.recipients = response.recipient
+            user.save()
+            return response
+        return cls(recipient=None)
+      
+
+class SendPhoneVerificationSMS(BaseMutation):
+    status = graphene.Field(ValidatePhoneStatusEnum)
+
+    class Arguments:
+        user_id = graphene.ID(
+            description="User ID to submit the verification code.", required=True
+        )
+
+    class Meta:
+        description = "Send a code to validate the phone number"
+
+    @classmethod
+    def perform_mutation(cls, _root, info, user_id):
+        try:
+            user = models.User.objects.get(id=user_id)
+        except ObjectDoesNotExist:
+            raise ValidationError({"userID": "User with this ID doesn't exist"})
+        if user.is_phone_verified:
+            raise ValidationError({"isPhoneVerified": "Phone number of the user already verified"})
+        else:
+            try:
+                response = send_code(str(user.phone))
+            except TwilioRestException as e:
+                raise ValidationError({"twilio_service": e.msg})
+        if response.status == "pending" and response.valid is False:
+            status = ValidatePhoneStatusEnum.PROCEED
+        return cls(status=status)
+
+
+class VerifySMSCodeVerification(BaseMutation):
+    status = graphene.Field(ValidatePhoneStatusEnum)
+
+    class Arguments:
+        user_id = graphene.ID(
+            description="User ID to submit the verification code.", required=True
+        )
+        code = graphene.String(
+            description="Verification code.", required=True
+        )
+
+    class Meta:
+        description = "check the code to validate the phone number"
+
+    @classmethod
+    def perform_mutation(cls, _root, info, user_id, code):
+        try:
+            user = models.User.objects.get(id=user_id)
+        except ObjectDoesNotExist:
+            raise ValidationError({"userID": "User with this ID doesn't exist"})
+        if user.is_phone_verified:
+            raise ValidationError({"isPhoneVerified": "Phone number of the user already verified"})
+        else:
+            try:
+                response = check_code(str(user.phone), code)
+            except TwilioRestException as e:
+                raise ValidationError({"twilio_service": e.msg})
+        if response.status == "approved" and response.valid is True:
+            status = ValidatePhoneStatusEnum.APPROVED
+            user.is_phone_verified = True
+            user.save()
+        elif response.status == "pending" and response.valid is False:
+            status = ValidatePhoneStatusEnum.REJECTED
+        return cls(status=status)
