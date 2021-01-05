@@ -685,6 +685,8 @@ class RecipientCreate(ModelMutation):
         input_data = data.get("input")
         response = super().perform_mutation(root, info, **data)
         if not response.errors:
+            response.recipient.user_id = user.id
+            response.recipient.user_email = user.email
             user.recipients = response.recipient
             user.save()
             return response
