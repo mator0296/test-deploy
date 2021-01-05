@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import environ
+
 import django_cache_url
+import environ
 
 root = environ.Path(__file__) - 3  # get root of the project
 env = environ.Env()
@@ -38,7 +39,7 @@ ALLOWED_HOSTS = [
     "usa.mesada.io",
     "localhost",
     "usa-production.mesada.io",
-    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com"
+    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com",
     "testserver",
 ]
 
@@ -56,10 +57,12 @@ INSTALLED_APPS = [
     "mesada.account",
     "mesada.core",
     "mesada.graphql",
+    "mesada.payment",
     "django_extensions",
     "graphene_django",
     "django_filters",
     "phonenumber_field",
+    "djmoney",
 ]
 
 MIDDLEWARE = [
@@ -155,3 +158,8 @@ GRAPHENE = {
 }
 
 CACHES = {"default": django_cache_url.config()}
+
+# Verify Twilio
+TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
+TWILIO_VERIFICATION_SID = os.environ.get("TWILIO_SERVICE")
