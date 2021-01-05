@@ -17,7 +17,7 @@ class BillingDetailsInput(graphene.InputObjectType):
     district = graphene.String(
         description="Region portion of the address. If the country is US or Canada district is required and should use the two-letter code for the subdivision."
     )
-    postal_code = graphene.String(description="ZIP code of the address", required=True)
+    postalCode = graphene.String(description="ZIP code of the address", required=True)
 
 
 class PaymentMethod(CountableDjangoObjectType):

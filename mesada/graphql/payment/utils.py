@@ -1,4 +1,10 @@
+import base64
 import hashlib
+import json
+
+import pgpy
+
+from ...payment import request_encryption_key
 
 
 def hash_session_id(session_id):
@@ -15,3 +21,16 @@ def get_default_billing_details(user):
         "district": user.default_address.country_area,
         "postalCode": user.default_address.postal_code,
     }
+
+
+def generate_dummy_encrypted_data():
+    key_id, public_key = request_encryption_key()
+    dummy_message = {"number": "4007400000000007", "cvv": "123"}
+
+    key, _ = pgpy.PGPKey.from_blob(base64.b64decode(public_key))
+    message = pgpy.PGPMessage.new(json.dumps(dummy_message))
+    ciphertext = key.pubkey.encrypt(message)
+
+    encrypted_message = base64.b64encode(bytes(ciphertext))
+
+    return key_id, encrypted_message.decode()

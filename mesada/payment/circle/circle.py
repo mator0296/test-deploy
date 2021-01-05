@@ -7,6 +7,7 @@ https://developers.circle.com/docs/getting-started-with-the-circle-payments-api
 
 import requests
 from django.conf import settings
+from requests.exceptions import RequestException
 
 CIRCLE_API_KEY = settings.CIRCLE_API_KEY
 CIRCLE_BASE_URL = settings.CIRCLE_BASE_URL
@@ -27,4 +28,19 @@ def create_card(body):
     response = requests.request("POST", url, headers=HEADERS, json=body)
     response.raise_for_status()
 
-    return response
+    return response.json().get("data")
+
+
+def request_encryption_key():
+    """Request a public encryption key from the Circle API.
+
+    The key retrieved is an RSA public key that needs to be b64 decoded
+    to get the actual PGP public key.
+    """
+    url = f"{CIRCLE_BASE_URL}/encryption/public"
+    response = requests.request("GET", url, headers=HEADERS)
+    response.raise_for_status()
+
+    data = response.json().get("data")
+
+    return data.get("keyId"), data.get("publicKey")

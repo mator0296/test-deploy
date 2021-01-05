@@ -9,20 +9,16 @@ from .utils import get_default_billing_details, hash_session_id
 
 
 class CardInput(graphene.InputObjectType):
-    encrypted_data = graphene.String(
-        description="Card encrypted data",
-        required=True
-    )
+    encrypted_data = graphene.String(description="Card encrypted data", required=True)
     key_id = graphene.String(description="Encryption key", required=True)
-    exp_month = graphene.Int(
-        description="Card expiration month",
-        required=True
-    )
+    exp_month = graphene.Int(description="Card expiration month", required=True)
     exp_year = graphene.Int(description="Card expiration year", required=True)
     billing_details = BillingDetailsInput(description="Card billing details")
 
 
 class CreateCard(ModelMutation):
+    """Create card within the Circle API and insert into the DB."""
+
     payment_method = graphene.Field(PaymentMethod)
 
     class Meta:
@@ -34,6 +30,11 @@ class CreateCard(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
+        """Perform the card creation and insert the model into  the DB.
+
+        Returns:
+            CreateCard: Instance of the class.
+        """
         card = data.get("input")
         billing_details = card.get("billing_details")
         if not billing_details:
@@ -49,8 +50,8 @@ class CreateCard(ModelMutation):
             "keyId": card.get("key_id"),
             "encryptedData": card.get("encrypted_data"),
             "billingDetails": billing_details,
-            "expMonth": card.get("expo_month"),
-            "expYear": card.get("expo_year"),
+            "expMonth": card.get("exp_month"),
+            "expYear": card.get("exp_year"),
             "metadata": {
                 "email": info.context.user.email,
                 "phoneNumber": str(info.context.user.phone),
@@ -61,18 +62,17 @@ class CreateCard(ModelMutation):
 
         response = create_card(body)
 
-        data = response.json().get("data")
-        billing_details = data.get("billingDetails")
-        verification = data.get("verification")
-        metadata = data.get("metadata")
+        billing_details = response.get("billingDetails")
+        verification = response.get("verification")
+        metadata = response.get("metadata")
 
         payment_method = paymentMethods.objects.create(
             type="CARD",
-            exp_month=data.get("expMonth"),
-            exp_year=data.get("expYear"),
-            network=data.get("network"),
-            last_digits=data.get("last4"),
-            fingerprint=data.get("fingerprint"),
+            exp_month=response.get("expMonth"),
+            exp_year=response.get("expYear"),
+            network=response.get("network"),
+            last_digits=response.get("last4"),
+            fingerprint=response.get("fingerprint"),
             verification_cvv=verificationCvv[verification.get("cvv").upper()],
             verification_avs=verificationAvs[verification.get("avs").upper()],
             phonenumber=metadata.get("phoneNumber"),
