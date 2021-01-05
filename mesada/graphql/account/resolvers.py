@@ -86,9 +86,7 @@ def resolve_address(info, id):
 
 
 def resolve_addresses(info, search, query):
-    qs = models.Address.objects.filter(
-        Q(address_name=search) | Q(postal_code=search)
-    )
+    qs = models.Address.objects.filter(Q(address_name=search) | Q(postal_code=search))
     qs = filter_by_query_param(
         queryset=qs, query=query, search_fields=ADDRESS_SEARCH_FIELDS
     )

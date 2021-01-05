@@ -7,7 +7,6 @@ https://developers.circle.com/docs/getting-started-with-the-circle-payments-api
 
 import requests
 from django.conf import settings
-from requests.exceptions import RequestException
 
 CIRCLE_API_KEY = settings.CIRCLE_API_KEY
 CIRCLE_BASE_URL = settings.CIRCLE_BASE_URL
