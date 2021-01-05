@@ -23,6 +23,7 @@ from .mutations import (
     StaffDelete,
     StaffUpdate,
     RecipientCreate,
+    RecipientUpdate,
     SendPhoneVerificationSMS,
     VerifySMSCodeVerification,
 )
@@ -128,8 +129,9 @@ class AccountMutations(graphene.ObjectType):
     address_create = AddressCreate.Field()
     address_delete = AddressDelete.Field()
     address_update = AddressUpdate.Field()
-    
+
     recipient_create = RecipientCreate.Field()
+    recipient_update = RecipientUpdate.Field()
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
     verifySMSCodeVerification = VerifySMSCodeVerification.Field()
