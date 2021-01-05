@@ -39,12 +39,12 @@ class AddressInput(graphene.InputObjectType):
 
 
 class RecipientInput(graphene.InputObjectType):
-    first_name = graphene.String(description="Given name.", required=True)
-    last_name = graphene.String(description="Family name.", required=True)
+    first_name = graphene.String(description="Given name.")
+    last_name = graphene.String(description="Family name.")
     alias = graphene.String(description="Pseudonym.")
-    email = graphene.String(description="The unique email address of the recipient.", required=True)
-    clabe = graphene.String(description="Bank account number in Mexico.", required=True)
-    bank_name = graphene.Field( BankName,description="Bank Name in Mexico.", required=True)
+    email = graphene.String(description="The unique email address of the recipient.")
+    clabe = graphene.String(description="Bank account number in Mexico.")
+    bank_name = graphene.Field( BankName,description="Bank Name in Mexico.")
 
 
 class Address(CountableDjangoObjectType):
