@@ -5,19 +5,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('payment', '0002_payment'),
-    ]
+    dependencies = [("payment", "0002_payment")]
 
     operations = [
         migrations.AddField(
-            model_name='paymentmethods',
-            name='payment_token',
+            model_name="paymentmethods",
+            name="payment_token",
             field=models.CharField(blank=True, max_length=256),
         ),
         migrations.AddField(
-            model_name='paymentmethods',
-            name='processor_token',
+            model_name="paymentmethods",
+            name="processor_token",
             field=models.CharField(blank=True, max_length=256),
         ),
     ]
