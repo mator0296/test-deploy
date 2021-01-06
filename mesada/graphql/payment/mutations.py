@@ -94,3 +94,26 @@ class CreateCard(ModelMutation):
         )
 
         return cls(payment_method=payment_method)
+
+
+class CreateProcessorTokenInput(graphene.InputObjectType):
+    access_token = graphene.String(description="Plaid access token")
+    accounts = graphene.List(description="List of client's accounts")
+
+
+class CreateProcessorToken(ModelMutation):
+    """Exchange a Plaid access token for a Circle processor token."""
+
+    class Arguments:
+        input = CreateProcessorTokenInput(
+            description="Fields required to create a processor token.",
+            required=True
+        )
+
+    class Meta:
+        description = "Creates a new processor token."
+        model = paymentMethods
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        return super().perform_mutation(_root, info, **data)
