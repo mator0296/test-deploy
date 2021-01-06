@@ -4,7 +4,7 @@ from graphql_jwt.decorators import permission_required
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
 from ..core.types import FilterInputObjectType
-from .filters import CustomerFilter, StaffUserFilter, AddressFilter
+from .filters import AddressFilter, CustomerFilter, StaffUserFilter
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -17,23 +17,23 @@ from .mutations import (
     CustomerUpdate,
     LoggedUserUpdate,
     PasswordReset,
+    RecipientCreate,
+    SendPhoneVerificationSMS,
     SetNewPassword,
     SetPassword,
     StaffCreate,
     StaffDelete,
     StaffUpdate,
-    RecipientCreate,
-    SendPhoneVerificationSMS,
     VerifySMSCodeVerification,
 )
 from .resolvers import (
-    resolve_address_validator,
     resolve_address,
+    resolve_address_validator,
     resolve_addresses,
     resolve_customers,
-    resolve_staff_users
+    resolve_staff_users,
 )
-from .types import AddressValidationData, User, Address
+from .types import Address, AddressValidationData, User
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -74,7 +74,7 @@ class AccountQueries(graphene.ObjectType):
     address = graphene.Field(
         Address,
         id=graphene.Argument(graphene.ID, required=True),
-        description="Lookup an address by ID."
+        description="Lookup an address by ID.",
     )
     addresses = FilterInputConnectionField(
         Address,
@@ -128,7 +128,7 @@ class AccountMutations(graphene.ObjectType):
     address_create = AddressCreate.Field()
     address_delete = AddressDelete.Field()
     address_update = AddressUpdate.Field()
-    
+
     recipient_create = RecipientCreate.Field()
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()

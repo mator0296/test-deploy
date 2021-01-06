@@ -7,17 +7,16 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from graphql.error import GraphQLError
 from graphql_jwt.decorators import staff_member_required
 from graphql_jwt.exceptions import PermissionDenied
 from graphql_jwt.shortcuts import get_token
 from twilio.base.exceptions import TwilioRestException
 
-from graphql.error import GraphQLError
-
 from ...account import models
 from ...core.permissions import get_permissions
-from ...core.twilio import send_code, check_code
-from ..account.types import Address, AddressInput, User, Recipient, RecipientInput
+from ...core.twilio import check_code, send_code
+from ..account.types import Address, AddressInput, Recipient, RecipientInput, User
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload
@@ -669,9 +668,7 @@ class AddressDelete(ModelDeleteMutation):
 
 
 class RecipientCreate(ModelMutation):
-    recipient = graphene.Field(
-        Recipient, description="A recipient instance created."
-    )
+    recipient = graphene.Field(Recipient, description="A recipient instance created.")
 
     class Arguments:
         input = RecipientInput(
@@ -694,7 +691,7 @@ class RecipientCreate(ModelMutation):
             user.save()
             return response
         return cls(recipient=None)
-      
+
 
 class SendPhoneVerificationSMS(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
@@ -714,7 +711,9 @@ class SendPhoneVerificationSMS(BaseMutation):
         except ObjectDoesNotExist:
             raise ValidationError({"userID": "User with this ID doesn't exist"})
         if user.is_phone_verified:
-            raise ValidationError({"isPhoneVerified": "Phone number of the user already verified"})
+            raise ValidationError(
+                {"isPhoneVerified": "Phone number of the user already verified"}
+            )
         else:
             try:
                 response = send_code(str(user.phone))
@@ -732,9 +731,7 @@ class VerifySMSCodeVerification(BaseMutation):
         user_id = graphene.ID(
             description="User ID to submit the verification code.", required=True
         )
-        code = graphene.String(
-            description="Verification code.", required=True
-        )
+        code = graphene.String(description="Verification code.", required=True)
 
     class Meta:
         description = "check the code to validate the phone number"
@@ -746,7 +743,9 @@ class VerifySMSCodeVerification(BaseMutation):
         except ObjectDoesNotExist:
             raise ValidationError({"userID": "User with this ID doesn't exist"})
         if user.is_phone_verified:
-            raise ValidationError({"isPhoneVerified": "Phone number of the user already verified"})
+            raise ValidationError(
+                {"isPhoneVerified": "Phone number of the user already verified"}
+            )
         else:
             try:
                 response = check_code(str(user.phone), code)
