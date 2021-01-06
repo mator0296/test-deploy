@@ -10,13 +10,11 @@ from .utils import get_default_billing_details, hash_session_id
 
 class CardInput(graphene.InputObjectType):
     encrypted_data = graphene.String(
-        description="Card encrypted data",
-        required=True
+        description="Card encrypted data", required=True
     )
     key_id = graphene.String(description="Encryption key", required=True)
     exp_month = graphene.Int(
-        description="Card expiration month",
-        required=True
+        description="Card expiration month", required=True
     )
     exp_year = graphene.Int(description="Card expiration year", required=True)
     billing_details = BillingDetailsInput(description="Card billing details")
@@ -39,7 +37,7 @@ class CreateCard(ModelMutation):
         """Perform the card creation and insert the model into  the DB.
 
         Returns:
-            CreateCard: Instance of the class.
+            payment_method: Instance of the model.
         """
         card = data.get("input")
         billing_details = card.get("billing_details")
@@ -85,11 +83,14 @@ class CreateCard(ModelMutation):
             email=metadata.get("email"),
             name=billing_details.get("name"),
             address_line_1=billing_details.get("line1"),
-            address_line_2=billing_details.get("line2"),
+            address_line_2=billing_details.get("line2")
+            if billing_details.get("line2")
+            else "",
             postal_code=billing_details.get("postalCode"),
             city=billing_details.get("city"),
             district=billing_details.get("district"),
             country_code=billing_details.get("country"),
+            payment_token=response.get("id"),
             user=info.context.user,
         )
 
