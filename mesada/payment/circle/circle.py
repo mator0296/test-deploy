@@ -7,9 +7,12 @@ https://developers.circle.com/docs/getting-started-with-the-circle-payments-api
 
 import requests
 from django.conf import settings
+from ...core.utils import generate_idempotency_key
 
 CIRCLE_API_KEY = settings.CIRCLE_API_KEY
 CIRCLE_BASE_URL = settings.CIRCLE_BASE_URL
+CIRCLE_WALLET_ID = settings.CIRCLE_WALLET_ID
+CIRCLE_BLOCKCHAIN_ADDRESS = settings.CIRCLE_BLOCKCHAIN_ADDRESS
 HEADERS = {
     "Accept": "application/json",
     "Content-Type": "application/json",
@@ -43,3 +46,33 @@ def request_encryption_key():
     data = response.json().get("data")
 
     return data.get("keyId"), data.get("publicKey")
+
+
+def create_trasfer_by_blackchain(amount):
+    """ Create a transfer by blockchain within the Circle API
+    
+    Args:
+        amount: Amount to transfer.
+    """
+    payload = {
+        "idempotencyKey": generate_idempotency_key(),
+        "source": {
+            "type": "wallet",
+            "id": f"{CIRCLE_WALLET_ID}"
+        },
+        "amount": {
+            "amount": f"{amount}",
+            "currency": "USD"
+        },
+        "destination": {
+            "type": "blockchain",
+            "address": f"{CIRCLE_BLOCKCHAIN_ADDRESS}",
+            "chain": "ETH"
+        }
+    }
+    
+    url = f"{CIRCLE_BASE_URL}/transfers"
+    response = requests.request("POST", url, headers=HEADERS, json=payload)
+    response.raise_for_status()
+
+    return response

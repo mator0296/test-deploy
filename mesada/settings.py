@@ -35,6 +35,9 @@ SECRET_KEY = "3w4x62a8bdkdv%z@1z7t9y7gf=ircv!bdj9q9rm%6)_f#t3k5t"
 CIRCLE_API_KEY = env("CIRCLE_API_KEY")
 CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
 
+CIRCLE_WALLET_ID = env("CIRCLE_WALLET_ID")
+CIRCLE_BLOCKCHAIN_ADDRESS = env("CIRCLE_BLOCKCHAIN_ADDRESS")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
