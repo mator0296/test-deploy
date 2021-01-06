@@ -39,8 +39,8 @@ ALLOWED_HOSTS = [
     "usa.mesada.io",
     "localhost",
     "usa-production.mesada.io",
-    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com" "testserver",
-    "127.0.0.1",
+    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com",
+    "testserver",
 ]
 
 AUTH_USER_MODEL = "account.User"
@@ -94,7 +94,9 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "string_if_invalid": '<< MISSING VARIABLE "%s" >>' if DEBUG else "",
+            "string_if_invalid": '<< MISSING VARIABLE "%s" >>'
+            if DEBUG
+            else "",
         },
     }
 ]
@@ -119,8 +121,14 @@ AUTH_PASSWORD_VALIDATORS = [
         )
     },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": ("django.contrib.auth.password_validation.CommonPasswordValidator")},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {
+        "NAME": (
+            "django.contrib.auth.password_validation.CommonPasswordValidator"
+        )
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
+    },
 ]
 
 

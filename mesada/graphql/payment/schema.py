@@ -23,5 +23,5 @@ class PaymentMethodsQueries(ObjectType):
         return PaymentMethods.objects.get(pk=_id)
 
     @login_required
-    def resolve_user_payment_methods(self, _info, user_id):
+    def resolve_payment_methods(self, _info, user_id):
         return PaymentMethods.objects.filter(user__id=user_id)
