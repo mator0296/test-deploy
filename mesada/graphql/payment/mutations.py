@@ -6,17 +6,16 @@ from ...payment.models import paymentMethods, verificationAvs, verificationCvv
 from ..core.mutations import ModelMutation
 from .types import BillingDetailsInput, PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
+from ...payment import request_encryption_key
 
 
 class CardInput(graphene.InputObjectType):
     encrypted_data = graphene.String(
-        description="Card encrypted data",
-        required=True
+        description="Card encrypted data", required=True
     )
     key_id = graphene.String(description="Encryption key", required=True)
     exp_month = graphene.Int(
-        description="Card expiration month",
-        required=True
+        description="Card expiration month", required=True
     )
     exp_year = graphene.Int(description="Card expiration year", required=True)
     billing_details = BillingDetailsInput(description="Card billing details")
@@ -94,3 +93,24 @@ class CreateCard(ModelMutation):
         )
 
         return cls(payment_method=payment_method)
+
+
+class CreatePublicKey(ModelMutation):
+    """Mutation to request for a public encryption key from the Circle API.
+
+    The key retrieved is an RSA public key that needs to be b64 decoded
+    to get the actual PGP public key.
+    """
+
+    key_id = graphene.String()
+    public_key = graphene.String()
+
+    class Meta:
+        description = (
+            "request for a public encryption key from the Circle API."
+        )
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        key_id, public_key = request_encryption_key()
+        return cls(key_id=key_id, public_key=public_key)
