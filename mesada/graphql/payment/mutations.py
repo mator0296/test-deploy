@@ -90,7 +90,7 @@ class CreateCard(ModelMutation):
             city=billing_details.get("city"),
             district=billing_details.get("district"),
             country_code=billing_details.get("country"),
-            payment_token=response.get("id"),
+            payment_method_token=response.get("id"),
             user=info.context.user,
         )
 
