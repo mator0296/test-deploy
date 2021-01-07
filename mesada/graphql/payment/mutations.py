@@ -1,7 +1,7 @@
 import graphene
 
 from ...core.utils import generate_idempotency_key
-from ...payment import create_card
+from ...payment import create_card, processor_token_create
 from ...payment.models import paymentMethods, verificationAvs, verificationCvv
 from ..core.mutations import ModelMutation
 from .types import BillingDetailsInput, PaymentMethod
@@ -95,3 +95,50 @@ class CreateCard(ModelMutation):
         )
 
         return cls(payment_method=payment_method)
+
+
+class ProcessorTokenInput(graphene.InputObjectType):
+    public_token = graphene.String(
+        description="Plaid public token", required=True)
+    accounts = graphene.List(
+        graphene.JSONString,
+        description="List of client's accounts",
+        required=True
+    )
+
+
+class ProcessorTokenCreate(ModelMutation):
+    """Exchange a Plaid public token for a Circle processor token."""
+
+    payment_method = graphene.Field(PaymentMethod)
+    error = graphene.String(description="Plaid error code")
+    message = graphene.String(description="Plaid error user friendly message")
+
+    class Arguments:
+        input = ProcessorTokenInput(
+            description="Fields required to create a processor token.",
+            required=True
+        )
+
+    class Meta:
+        description = "Creates a new processor token."
+        model = paymentMethods
+
+    @classmethod
+    def perform_mutation(cls, _root, info, input):
+        access_token = input.get("public_token")
+        account_id = input.get("accounts")[0]["account_id"]
+
+        processor_token, error, message = processor_token_create(
+            access_token, account_id
+        )
+
+        if processor_token is not None:
+            payment_method = paymentMethods.objects.create(
+                type="ACH",
+                processor_token=processor_token,
+                user=info.context.user
+            )
+            return cls(payment_method=payment_method, error=None, message=None)
+
+        return cls(payment_method=None, error=error, message=message)
