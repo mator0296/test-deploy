@@ -38,7 +38,7 @@ class CreateCard(ModelMutation):
         """Perform the card creation and insert the model into  the DB.
 
         Returns:
-            CreateCard: Instance of the class.
+            payment_method: Instance of the model.
         """
         card = data.get("input")
         billing_details = card.get("billing_details")
@@ -84,11 +84,14 @@ class CreateCard(ModelMutation):
             email=metadata.get("email"),
             name=billing_details.get("name"),
             address_line_1=billing_details.get("line1"),
-            address_line_2=billing_details.get("line2"),
+            address_line_2=billing_details.get("line2")
+            if billing_details.get("line2")
+            else "",
             postal_code=billing_details.get("postalCode"),
             city=billing_details.get("city"),
             district=billing_details.get("district"),
             country_code=billing_details.get("country"),
+            payment_token=response.get("id"),
             user=info.context.user,
         )
 

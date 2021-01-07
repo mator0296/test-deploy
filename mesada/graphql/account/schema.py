@@ -5,34 +5,16 @@ from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
 from ..core.types import FilterInputObjectType
 from .filters import AddressFilter, CustomerFilter, StaffUserFilter
-from .mutations import (
-    AddressCreate,
-    AddressDelete,
-    AddressUpdate,
-    ChangePassword,
-    CustomerCreate,
-    CustomerDelete,
-    CustomerPasswordReset,
-    CustomerRegister,
-    CustomerUpdate,
-    LoggedUserUpdate,
-    PasswordReset,
-    RecipientCreate,
-    SendPhoneVerificationSMS,
-    SetNewPassword,
-    SetPassword,
-    StaffCreate,
-    StaffDelete,
-    StaffUpdate,
-    VerifySMSCodeVerification,
-)
-from .resolvers import (
-    resolve_address,
-    resolve_address_validator,
-    resolve_addresses,
-    resolve_customers,
-    resolve_staff_users,
-)
+from .mutations import (AddressCreate, AddressDelete, AddressUpdate,
+                        ChangePassword, CustomerCreate, CustomerDelete,
+                        CustomerPasswordReset, CustomerRegister,
+                        CustomerUpdate, LoggedUserUpdate, PasswordReset,
+                        RecipientCreate, SendPhoneVerificationSMS,
+                        SetNewPassword, SetPassword, StaffCreate, StaffDelete,
+                        StaffUpdate, VerifySMSCodeVerification)
+from .resolvers import (resolve_address, resolve_address_validator,
+                        resolve_addresses, resolve_customers,
+                        resolve_staff_users)
 from .types import Address, AddressValidationData, User
 
 
