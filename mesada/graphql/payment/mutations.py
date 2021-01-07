@@ -3,9 +3,10 @@ import graphene
 from ...core.utils import generate_idempotency_key
 from ...payment import create_card, processor_token_create
 from ...payment.models import paymentMethods, verificationAvs, verificationCvv
-from ..core.mutations import ModelMutation
+from ..core.mutations import ModelMutation, BaseMutation
 from .types import BillingDetailsInput, PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
+from ...payment import request_encryption_key
 
 
 class CardInput(graphene.InputObjectType):
@@ -97,7 +98,30 @@ class CreateCard(ModelMutation):
         return cls(payment_method=payment_method)
 
 
-class ProcessorTokenInput(graphene.InputObjectType):
+class CreatePublicKey(BaseMutation):
+    """
+    The key retrieved is an RSA public key that needs to be b64 decoded
+    to get the actual PGP public key.
+    """
+
+    key_id = graphene.String(
+        description="Unique identifier for the public key"
+    )
+    public_key = graphene.String(
+        description="A PGP ascii-armor encoded public key"
+    )
+
+    class Meta:
+        description = (
+            "Request for a public encryption key from the Circle API."
+        )
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        key_id, public_key = request_encryption_key()
+        return cls(key_id=key_id, public_key=public_key)
+
+      class ProcessorTokenInput(graphene.InputObjectType):
     public_token = graphene.String(
         description="Plaid public token", required=True)
     accounts = graphene.List(
