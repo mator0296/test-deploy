@@ -101,8 +101,10 @@ class CustomerRegister(ModelMutation):
 class UserInput(graphene.InputObjectType):
     first_name = graphene.String(description="Given name.")
     last_name = graphene.String(description="Family name.")
-    email = graphene.String(description="The unique email address of the user.")
-    is_active = graphene.Boolean(required=False, description="User account is active.")
+    email = graphene.String(
+        description="The unique email address of the user.")
+    is_active = graphene.Boolean(
+        required=False, description="User account is active.")
     note = graphene.String(description="A note about the user.")
 
 
@@ -176,7 +178,8 @@ class CustomerCreate(ModelMutation):
 
 class CustomerUpdate(CustomerCreate):
     class Arguments:
-        id = graphene.ID(description="ID of a customer to update.", required=True)
+        id = graphene.ID(
+            description="ID of a customer to update.", required=True)
         input = CustomerInput(
             description="Fields required to update a customer.", required=True
         )
@@ -211,7 +214,8 @@ class CustomerUpdate(CustomerCreate):
 
         # Clean the input and generate a new instance from the new data
         cleaned_input = cls.clean_input(info, original_instance, data)
-        new_instance = cls.construct_instance(copy(original_instance), cleaned_input)
+        new_instance = cls.construct_instance(
+            copy(original_instance), cleaned_input)
 
         # Save the new instance data
         cls.clean_instance(new_instance)
@@ -259,7 +263,8 @@ class CustomerDelete(CustomerDeleteMixin, UserDelete):
         permissions = ("account.manage_users",)
 
     class Arguments:
-        id = graphene.ID(required=True, description="ID of a customer to delete.")
+        id = graphene.ID(
+            required=True, description="ID of a customer to delete.")
 
     @classmethod
     def perform_mutation(cls, root, info, **data):
@@ -303,7 +308,8 @@ class StaffCreate(ModelMutation):
 
 class StaffUpdate(StaffCreate):
     class Arguments:
-        id = graphene.ID(description="ID of a staff user to update.", required=True)
+        id = graphene.ID(
+            description="ID of a staff user to update.", required=True)
         input = StaffInput(
             description="Fields required to update a staff user.", required=True
         )
@@ -342,7 +348,8 @@ class StaffDelete(StaffDeleteMixin, UserDelete):
         permissions = ("account.manage_staff",)
 
     class Arguments:
-        id = graphene.ID(required=True, description="ID of a staff user to delete.")
+        id = graphene.ID(
+            required=True, description="ID of a staff user to delete.")
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
@@ -409,7 +416,8 @@ class PasswordReset(BaseMutation):
         try:
             user = models.User.objects.get(email=email)
         except ObjectDoesNotExist:
-            raise ValidationError({"email": "User with this email doesn't exist"})
+            raise ValidationError(
+                {"email": "User with this email doesn't exist"})
         site = info.context.site
         send_user_password_reset_email(user, site)
         return PasswordReset()
@@ -418,14 +426,16 @@ class PasswordReset(BaseMutation):
 class CustomerPasswordResetInput(graphene.InputObjectType):
     email = graphene.String(
         required=True,
-        description=("Email of the user that will be used for password recovery."),
+        description=(
+            "Email of the user that will be used for password recovery."),
     )
 
 
 class ChangePasswordInput(graphene.InputObjectType):
     old_password = graphene.String(required=False, description="Old password")
     new_password1 = graphene.String(required=True, description="New password")
-    new_password2 = graphene.String(required=True, description="Repeat new password")
+    new_password2 = graphene.String(
+        required=True, description="Repeat new password")
 
 
 class ChangePassword(ModelMutation):
@@ -436,7 +446,8 @@ class ChangePassword(ModelMutation):
     INVALID_OLD_AND_NEW_PASS = "New and old passwords may not be equal"
 
     class Arguments:
-        input = ChangePasswordInput(required=True, description="Change password input")
+        input = ChangePasswordInput(
+            required=True, description="Change password input")
 
     class Meta:
         description = "Change password for signed in users"
@@ -458,11 +469,13 @@ class ChangePassword(ModelMutation):
             raise ValidationError({"missing_input": cls.MISSING_INPUT})
         if old_password:
             if not user.check_password(old_password):
-                raise ValidationError({"old_password": cls.INVALID_OLD_PASSWORD})
+                raise ValidationError(
+                    {"old_password": cls.INVALID_OLD_PASSWORD})
         elif not new_password1 == new_password2:
             raise ValidationError({"new_password": cls.INVALID_NEW_PASSWORDS})
         elif old_password == new_password1:
-            raise ValidationError({"new_password": cls.INVALID_OLD_AND_NEW_PASS})
+            raise ValidationError(
+                {"new_password": cls.INVALID_OLD_AND_NEW_PASS})
         else:
             return clean_input
 
@@ -487,7 +500,8 @@ class CustomerPasswordReset(BaseMutation):
         try:
             user = models.User.objects.get(email=email)
         except ObjectDoesNotExist:
-            raise ValidationError({"email": "User with this email doesn't exist"})
+            raise ValidationError(
+                {"email": "User with this email doesn't exist"})
         site = info.context.site
         send_user_password_reset_email(user, site)
         return CustomerPasswordReset()
@@ -586,7 +600,8 @@ class AddressUpdate(ModelMutation):
     )
 
     class Arguments:
-        id = graphene.ID(description="ID of the address to update", required=True)
+        id = graphene.ID(
+            description="ID of the address to update", required=True)
         input = AddressInput(
             description="Fields required to update address", required=True
         )
@@ -620,7 +635,8 @@ class AddressDelete(ModelDeleteMutation):
     )
 
     class Arguments:
-        id = graphene.ID(required=True, description="ID of the address to delete.")
+        id = graphene.ID(
+            required=True, description="ID of the address to delete.")
 
     class Meta:
         description = "Deletes an address"
@@ -670,7 +686,8 @@ class AddressDelete(ModelDeleteMutation):
 
 
 class RecipientCreate(ModelMutation):
-    recipient = graphene.Field(Recipient, description="A recipient instance created.")
+    recipient = graphene.Field(
+        Recipient, description="A recipient instance created.")
 
     class Arguments:
         input = RecipientInput(
@@ -694,12 +711,14 @@ class RecipientCreate(ModelMutation):
             return response
         return cls(recipient=None)
 
-      
+
 class RecipientUpdate(ModelMutation):
-    recipient = graphene.Field(Recipient, description="A recipient instance updated.")
+    recipient = graphene.Field(
+        Recipient, description="A recipient instance updated.")
 
     class Arguments:
-        id = graphene.ID(description="ID of the recipient to updated", required=True)
+        id = graphene.ID(
+            description="ID of the recipient to updated", required=True)
         input = RecipientInput(
             description="Fields required to updated recipient", required=True
         )
@@ -723,7 +742,8 @@ class RecipientDelete(ModelDeleteMutation):
     )
 
     class Arguments:
-        id = graphene.ID(required=True, description="ID of the address to delete.")
+        id = graphene.ID(
+            required=True, description="ID of the address to delete.")
 
     class Meta:
         description = "Deletes an address"
@@ -738,8 +758,8 @@ class RecipientDelete(ModelDeleteMutation):
 
         db_id = instance.id
 
-        # Return the first user that the address is assigned to. There is M2M
-        # relation between users and addresses, but in most cases address is
+        # Return the first user that the recipient is assigned to. There is M2M
+        # relation between users and recipientS, but in most cases address is
         # related to only one user.
         #user = instance.id
 
@@ -749,13 +769,13 @@ class RecipientDelete(ModelDeleteMutation):
 
         response = cls.success_response(instance)
 
-        # Refresh the user instance to clear the default addresses. If the
-        # deleted address was used as default, it would stay cached in the
+        # Refresh the user instance to clear the default recipients. If the
+        # deleted recipient was used as default, it would stay cached in the
         # user instance and the invalid ID returned in the response might cause
         # an error.
-          
+
         response.user = user
-        return response        
+        return response
 
 
 class SendPhoneVerificationSMS(BaseMutation):
@@ -774,7 +794,8 @@ class SendPhoneVerificationSMS(BaseMutation):
         try:
             user = models.User.objects.get(id=user_id)
         except ObjectDoesNotExist:
-            raise ValidationError({"userID": "User with this ID doesn't exist"})
+            raise ValidationError(
+                {"userID": "User with this ID doesn't exist"})
         if user.is_phone_verified:
             raise ValidationError(
                 {"isPhoneVerified": "Phone number of the user already verified"}
@@ -806,7 +827,8 @@ class VerifySMSCodeVerification(BaseMutation):
         try:
             user = models.User.objects.get(id=user_id)
         except ObjectDoesNotExist:
-            raise ValidationError({"userID": "User with this ID doesn't exist"})
+            raise ValidationError(
+                {"userID": "User with this ID doesn't exist"})
         if user.is_phone_verified:
             raise ValidationError(
                 {"isPhoneVerified": "Phone number of the user already verified"}
