@@ -9,13 +9,9 @@ from .utils import get_default_billing_details, hash_session_id
 
 
 class CardInput(graphene.InputObjectType):
-    encrypted_data = graphene.String(
-        description="Card encrypted data", required=True
-    )
+    encrypted_data = graphene.String(description="Card encrypted data", required=True)
     key_id = graphene.String(description="Encryption key", required=True)
-    exp_month = graphene.Int(
-        description="Card expiration month", required=True
-    )
+    exp_month = graphene.Int(description="Card expiration month", required=True)
     exp_year = graphene.Int(description="Card expiration year", required=True)
     billing_details = BillingDetailsInput(description="Card billing details")
 
