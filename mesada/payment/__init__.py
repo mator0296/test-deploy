@@ -1,6 +1,7 @@
 from django.db import models
 
 from .circle.circle import create_card, request_encryption_key
+from .plaid.plaid import processor_token_create
 
 
 class PaymentStatus(models.TextChoices):

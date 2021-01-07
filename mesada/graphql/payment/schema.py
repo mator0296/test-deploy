@@ -1,12 +1,12 @@
 import graphene
 
 # from ..core.auth import login_required
-from .mutations import CreateCard, CreateProcessorToken
+from .mutations import CreateCard, ProcessorTokenCreate
 
 
 class PaymentMutations(graphene.ObjectType):
     create_card = CreateCard.Field()
 
 
-class PaymentMethodsMutation(graphene.ObjectType):
-    create_processor_token = CreateProcessorToken.Field()
+class PaymentMethodsMutations(graphene.ObjectType):
+    processor_token_create = ProcessorTokenCreate.Field()

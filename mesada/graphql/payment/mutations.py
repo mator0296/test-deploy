@@ -1,7 +1,7 @@
 import graphene
 
 from ...core.utils import generate_idempotency_key
-from ...payment import create_card
+from ...payment import create_card, processor_token_create
 from ...payment.models import paymentMethods, verificationAvs, verificationCvv
 from ..core.mutations import ModelMutation
 from .types import BillingDetailsInput, PaymentMethod
@@ -97,16 +97,21 @@ class CreateCard(ModelMutation):
         return cls(payment_method=payment_method)
 
 
-class CreateProcessorTokenInput(graphene.InputObjectType):
-    access_token = graphene.String(description="Plaid access token")
-    accounts = graphene.List(description="List of client's accounts")
+class ProcessorTokenInput(graphene.InputObjectType):
+    public_token = graphene.String(description="Plaid public token")
+    accounts = graphene.List(
+        graphene.JSONString,
+        description="List of client's accounts"
+    )
 
 
-class CreateProcessorToken(ModelMutation):
-    """Exchange a Plaid access token for a Circle processor token."""
+class ProcessorTokenCreate(ModelMutation):
+    """Exchange a Plaid public token for a Circle processor token."""
+
+    payment_method = graphene.Field(PaymentMethod)
 
     class Arguments:
-        input = CreateProcessorTokenInput(
+        input = ProcessorTokenInput(
             description="Fields required to create a processor token.",
             required=True
         )
@@ -117,4 +122,16 @@ class CreateProcessorToken(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
-        return super().perform_mutation(_root, info, **data)
+        token_input = data.get("input")
+        access_token = token_input.get("access_token")
+        account_id = token_input.get("accounts")[0]["account_id"]
+
+        processor_token = processor_token_create(access_token, account_id)
+
+        payment_method = paymentMethods.objects.create(
+            type="ACH",
+            processor_token=processor_token,
+            user=info.context.user
+        )
+
+        return cls(payment_method=payment_method)
