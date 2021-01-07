@@ -714,7 +714,7 @@ class RecipientUpdate(ModelMutation):
         response.recipient.user_email = user.email
         return response
 
-
+      
 class SendPhoneVerificationSMS(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 

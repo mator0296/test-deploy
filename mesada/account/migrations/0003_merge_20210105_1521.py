@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('account', '0002_auto_20201229_1422'),
-        ('account', '0002_user_is_phone_verified'),
+        ("account", "0002_auto_20201229_1422"),
+        ("account", "0002_user_is_phone_verified"),
     ]
 
-    operations = [
-    ]
+    operations = []
