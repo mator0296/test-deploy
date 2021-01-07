@@ -109,6 +109,8 @@ class ProcessorTokenCreate(ModelMutation):
     """Exchange a Plaid public token for a Circle processor token."""
 
     payment_method = graphene.Field(PaymentMethod)
+    error = graphene.String(description="Plaid error code")
+    message = graphene.String(description="Plaid error user friendly message")
 
     class Arguments:
         input = ProcessorTokenInput(
@@ -126,12 +128,16 @@ class ProcessorTokenCreate(ModelMutation):
         access_token = token_input.get("public_token")
         account_id = token_input.get("accounts")[0]["account_id"]
 
-        processor_token = processor_token_create(access_token, account_id)
-
-        payment_method = paymentMethods.objects.create(
-            type="ACH",
-            processor_token=processor_token,
-            user=info.context.user
+        processor_token, error, message = processor_token_create(
+            access_token, account_id
         )
 
-        return cls(payment_method=payment_method)
+        if processor_token is not None:
+            payment_method = paymentMethods.objects.create(
+                type="ACH",
+                processor_token=processor_token,
+                user=info.context.user
+            )
+            return cls(payment_method=payment_method, error=None, message=None)
+        else:
+            return cls(payment_method=None, error=error, message=message)
