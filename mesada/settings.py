@@ -31,13 +31,6 @@ PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "3w4x62a8bdkdv%z@1z7t9y7gf=ircv!bdj9q9rm%6)_f#t3k5t"
 
-# CIRCLE API KEY AND BASE URL
-CIRCLE_API_KEY = env("CIRCLE_API_KEY")
-CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
-PLAID_BASE_URL = env("PLAID_BASE_URL")
-PLAID_CLIENT_ID = env("PLAID_CLIENT_ID")
-PLAID_SECRET_KEY = env("PLAID_SECRET_KEY")
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -166,7 +159,18 @@ GRAPHENE = {
 
 CACHES = {"default": django_cache_url.config()}
 
+# CIRCLE
+CIRCLE_API_KEY = env("CIRCLE_API_KEY")
+CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
+
 # Verify Twilio
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
 TWILIO_VERIFICATION_SID = os.environ.get("TWILIO_SERVICE")
+
+# Plaid credentials
+PLAID_BASE_URL = env("PLAID_BASE_URL")
+PLAID_CLIENT_ID = env("PLAID_CLIENT_ID")
+PLAID_SECRET_KEY = env("PLAID_SECRET_KEY")
+PLAID_ENVIRONMENT = os.getenv("PLAID_ENVIRONMENT")
+PLAID_PROCESSOR = os.getenv("PLAID_PROCESSOR")

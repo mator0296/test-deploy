@@ -108,3 +108,6 @@ class RecipientsFilter(django_filters.FilterSet):
     class Meta:
         model = Recipient
         fields = ["search"]
+
+class AddressFilter(django_filters.FilterSet):
+    pass
