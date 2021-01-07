@@ -1,11 +1,12 @@
 import graphene
 
 from ...core.utils import generate_idempotency_key
-from ...payment import create_card
+from ...payment import create_card, processor_token_create
 from ...payment.models import paymentMethods, verificationAvs, verificationCvv
-from ..core.mutations import ModelMutation
+from ..core.mutations import ModelMutation, BaseMutation
 from .types import BillingDetailsInput, PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
+from ...payment import request_encryption_key
 
 
 class CardInput(graphene.InputObjectType):
@@ -90,8 +91,78 @@ class CreateCard(ModelMutation):
             city=billing_details.get("city"),
             district=billing_details.get("district"),
             country_code=billing_details.get("country"),
-            payment_token=response.get("id"),
+            payment_method_token=response.get("id"),
             user=info.context.user,
         )
 
         return cls(payment_method=payment_method)
+
+
+class CreatePublicKey(BaseMutation):
+    """
+    The key retrieved is an RSA public key that needs to be b64 decoded
+    to get the actual PGP public key.
+    """
+
+    key_id = graphene.String(
+        description="Unique identifier for the public key"
+    )
+    public_key = graphene.String(
+        description="A PGP ascii-armor encoded public key"
+    )
+
+    class Meta:
+        description = (
+            "Request for a public encryption key from the Circle API."
+        )
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        key_id, public_key = request_encryption_key()
+        return cls(key_id=key_id, public_key=public_key)
+
+class ProcessorTokenInput(graphene.InputObjectType):
+    public_token = graphene.String(
+        description="Plaid public token", required=True)
+    accounts = graphene.List(
+        graphene.JSONString,
+        description="List of client's accounts",
+        required=True
+    )
+
+
+class ProcessorTokenCreate(ModelMutation):
+    """Exchange a Plaid public token for a Circle processor token."""
+
+    payment_method = graphene.Field(PaymentMethod)
+    error = graphene.String(description="Plaid error code")
+    message = graphene.String(description="Plaid error user friendly message")
+
+    class Arguments:
+        input = ProcessorTokenInput(
+            description="Fields required to create a processor token.",
+            required=True
+        )
+
+    class Meta:
+        description = "Creates a new processor token."
+        model = paymentMethods
+
+    @classmethod
+    def perform_mutation(cls, _root, info, input):
+        access_token = input.get("public_token")
+        account_id = input.get("accounts")[0]["account_id"]
+
+        processor_token, error, message = processor_token_create(
+            access_token, account_id
+        )
+
+        if processor_token is not None:
+            payment_method = paymentMethods.objects.create(
+                type="ACH",
+                processor_token=processor_token,
+                user=info.context.user
+            )
+            return cls(payment_method=payment_method, error=None, message=None)
+
+        return cls(payment_method=None, error=error, message=message)
