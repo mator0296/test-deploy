@@ -5,7 +5,8 @@ from graphql_jwt.decorators import permission_required
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
 from ..core.types import FilterInputObjectType
-from .filters import CustomerFilter, StaffUserFilter, AddressFilter, RecipientsFilter,
+
+from .filters import CustomerFilter, StaffUserFilter, AddressFilter, RecipientsFilter
 
 from .mutations import (
     AddressCreate,
@@ -42,6 +43,7 @@ from .types import AddressValidationData, Recipient, User
     resolve_staff_users
 )
 from .types import AddressValidationData, User, Address
+
 
 class CustomerFilterInput(FilterInputObjectType):
     class Meta:
@@ -86,7 +88,7 @@ class AccountQueries(graphene.ObjectType):
     address = graphene.Field(
         Address,
         id=graphene.Argument(graphene.ID, required=True),
-        description="Lookup an address by ID."
+        description="Lookup an address by ID.",
     )
     addresses = FilterInputConnectionField(
         Address,
@@ -162,7 +164,7 @@ class AccountMutations(graphene.ObjectType):
     address_create = AddressCreate.Field()
     address_delete = AddressDelete.Field()
     address_update = AddressUpdate.Field()
-    
+
     recipient_create = RecipientCreate.Field()
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
