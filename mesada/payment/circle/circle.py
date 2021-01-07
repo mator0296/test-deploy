@@ -12,7 +12,8 @@ from ...core.utils import generate_idempotency_key
 CIRCLE_API_KEY = settings.CIRCLE_API_KEY
 CIRCLE_BASE_URL = settings.CIRCLE_BASE_URL
 CIRCLE_WALLET_ID = settings.CIRCLE_WALLET_ID
-CIRCLE_BLOCKCHAIN_ADDRESS = settings.CIRCLE_BLOCKCHAIN_ADDRESS
+CIRCLE_BLOCKCHAIN_CHAIN = settings.CIRCLE_BLOCKCHAIN_CHAIN
+BITSO_BLOCKCHAIN_ADDRESS = settings.BITSO_BLOCKCHAIN_ADDRESS
 HEADERS = {
     "Accept": "application/json",
     "Content-Type": "application/json",
@@ -55,22 +56,22 @@ def create_trasfer_by_blackchain(amount):
         amount: Amount to transfer.
     """
     payload = {
-        "idempotencyKey": generate_idempotency_key(),
         "source": {
             "type": "wallet",
             "id": f"{CIRCLE_WALLET_ID}"
+        },
+        "destination": {
+            "type": "blockchain",
+            "address": f"{BITSO_BLOCKCHAIN_ADDRESS}",
+            "chain": f"{CIRCLE_BLOCKCHAIN_CHAIN}"
         },
         "amount": {
             "amount": f"{amount}",
             "currency": "USD"
         },
-        "destination": {
-            "type": "blockchain",
-            "address": f"{CIRCLE_BLOCKCHAIN_ADDRESS}",
-            "chain": "ETH"
-        }
+        "idempotencyKey": generate_idempotency_key()
     }
-    
+
     url = f"{CIRCLE_BASE_URL}/transfers"
     response = requests.request("POST", url, headers=HEADERS, json=payload)
     response.raise_for_status()
