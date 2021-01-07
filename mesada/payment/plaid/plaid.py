@@ -5,7 +5,6 @@ For more information on the Plaid Payments API check out:
 https://plaid.com/docs/api/
 """
 
-import requests
 from django.conf import settings
 from plaid import Client as ClientPlaid
 from plaid.errors import PlaidError
@@ -39,15 +38,28 @@ def processor_token_create(public_token, account_id):
         return None, e.code, e.message
 
 
-def create_link_token(body):
+def create_link_token(user):
     """Create a Plaid link token.
 
     Args:
-        body (dict): Request body.
+        user (User): Current user in session.
     """
     try:
+        body = {
+            "client_name": "Mesada",
+            "country_codes": settings.PLAID_COUNTRIES,
+            "language": "en",
+            "user": {
+                "client_user_id": str(user.id),
+                "legal_name": f"{user.first_name} {user.last_name}",
+                "phone_number": str(user.phone),
+                "email_address": user.email,
+            },
+            "products": settings.PLAID_PRODUCTS,
+        }
+
         response = client.LinkToken.create(body)
 
         return response
     except PlaidError as e:
-        return None, e.code, e.message
+        raise PlaidError(e)

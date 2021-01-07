@@ -173,3 +173,9 @@ PLAID_CLIENT_ID = env("PLAID_CLIENT_ID")
 PLAID_SECRET_KEY = env("PLAID_SECRET_KEY")
 PLAID_ENVIRONMENT = os.getenv("PLAID_ENVIRONMENT")
 PLAID_PROCESSOR = os.getenv("PLAID_PROCESSOR")
+
+# Plaid countries array
+PLAID_COUNTRIES = ["US"]
+
+# Plaid products array
+PLAID_PRODUCTS = ["auth"]

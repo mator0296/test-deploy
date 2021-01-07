@@ -110,20 +110,7 @@ class CreateLinkToken(BaseMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
-        body = {
-            "client_name": "Mesada",
-            "country_codes": ["US"],
-            "language": "en",
-            "user": {
-                "client_user_id": str(info.context.user.id),
-                "legal_name": f"{info.context.user.first_name} {info.context.user.last_name}",
-                "phone_number": str(info.context.user.phone),
-                "email_address": info.context.user.email,
-            },
-            "products": ["auth"],
-        }
-
-        response = create_link_token(body)
+        response = create_link_token(info.context.user)
 
         return CreateLinkToken(
             expiration=response.get("expiration"),
