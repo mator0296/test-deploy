@@ -123,7 +123,7 @@ class ProcessorTokenCreate(ModelMutation):
     @classmethod
     def perform_mutation(cls, _root, info, **data):
         token_input = data.get("input")
-        access_token = token_input.get("access_token")
+        access_token = token_input.get("public_token")
         account_id = token_input.get("accounts")[0]["account_id"]
 
         processor_token = processor_token_create(access_token, account_id)
