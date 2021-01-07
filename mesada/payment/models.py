@@ -1,17 +1,38 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django_countries.fields import CountryField
-from django.core.validators import MinValueValidator, MaxValueValidator
-from ..account.models import User
 from django.utils import timezone
+from django_countries.fields import CountryField
 from django_enumfield import enum
 from djmoney.models.fields import MoneyField
 
+from ..account.models import User
 from . import PaymentErrorCode, PaymentStatus
 
 
 class verificationAvs(enum.Enum):
     NOT_REQUESTED = 0
     PENDING = 1
+    A = 2
+    B = 3
+    C = 4
+    D = 5
+    E = 6
+    F = 7
+    G = 8
+    I = 9
+    K = 10
+    L = 11
+    M = 12
+    N = 13
+    O = 14
+    P = 15
+    R = 16
+    S = 17
+    U = 18
+    W = 19
+    X = 20
+    Y = 21
+    Z = 22
 
 
 class verificationCvv(enum.Enum):
@@ -51,6 +72,8 @@ class paymentMethods(models.Model):
     country_code = CountryField()
     created = models.DateTimeField(default=timezone.now, editable=False)
     updated = models.DateTimeField(auto_now=True)
+    payment_token = models.CharField(max_length=256, blank=True)
+    processor_token = models.CharField(max_length=256, blank=True)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

@@ -1,5 +1,7 @@
 from django.db import models
 
+from .circle.circle import create_card, request_encryption_key
+
 
 class PaymentStatus(models.TextChoices):
     PENDING = "pending"

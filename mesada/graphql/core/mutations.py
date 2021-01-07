@@ -3,19 +3,15 @@ from typing import Tuple
 
 import graphene
 from django.contrib.auth import get_user_model
-from django.core.exceptions import (
-    NON_FIELD_ERRORS,
-    ImproperlyConfigured,
-    ValidationError,
-)
+from django.core.exceptions import (NON_FIELD_ERRORS, ImproperlyConfigured,
+                                    ValidationError)
 from django.db.models.fields.files import FileField
 from django.utils.translation import pgettext_lazy
 from graphene.types.mutation import MutationOptions
 from graphene_django.registry import get_global_registry
+from graphql.error import GraphQLError
 from graphql_jwt import ObtainJSONWebToken, Verify
 from graphql_jwt.exceptions import JSONWebTokenError, PermissionDenied
-
-from graphql.error import GraphQLError
 
 from ...account import models
 from ..account.types import User
