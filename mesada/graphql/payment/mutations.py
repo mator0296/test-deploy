@@ -121,7 +121,7 @@ class CreatePublicKey(BaseMutation):
         key_id, public_key = request_encryption_key()
         return cls(key_id=key_id, public_key=public_key)
 
-      class ProcessorTokenInput(graphene.InputObjectType):
+class ProcessorTokenInput(graphene.InputObjectType):
     public_token = graphene.String(
         description="Plaid public token", required=True)
     accounts = graphene.List(
