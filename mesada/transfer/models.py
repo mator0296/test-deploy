@@ -23,7 +23,7 @@ class CircleTransfer(models.Model):
                         default_currency="USD")
     currency = models.CharField(max_length=256, blank=False, null=False)
     status = models.CharField(max_length=256, blank=False, null=False)
-    create_date = models.DateTimeField(null=True, blank=True)
+    create_date = models.DateTimeField(null=False, blank=False)
 
     class Meta:
         ordering = ("pk",)
