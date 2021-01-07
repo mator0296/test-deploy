@@ -34,6 +34,9 @@ SECRET_KEY = "3w4x62a8bdkdv%z@1z7t9y7gf=ircv!bdj9q9rm%6)_f#t3k5t"
 # CIRCLE API KEY AND BASE URL
 CIRCLE_API_KEY = env("CIRCLE_API_KEY")
 CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
+PLAID_BASE_URL = env("PLAID_BASE_URL")
+PLAID_CLIENT_ID = env("PLAID_CLIENT_ID")
+PLAID_SECRET_KEY = env("PLAID_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

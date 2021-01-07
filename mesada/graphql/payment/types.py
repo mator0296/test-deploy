@@ -49,5 +49,5 @@ class PaymentMethod(CountableDjangoObjectType):
     user = graphene.Field(User)
 
     class Meta:
-        description = "Represents a Payment Method"
+        description = "Represents a Payment Method."
         model = paymentMethods
