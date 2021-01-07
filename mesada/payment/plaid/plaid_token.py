@@ -23,6 +23,6 @@ def processor_token_create(public_token, account_id):
         create_response = client.Processor.tokenCreate(
             access_token, account_id, settings.PLAID_PROCESSOR
         )
-        return create_response["processor_token"], "", ""
+        return create_response["processor_token"], None, None
     except PlaidError as e:
-        return None, e.code, e.display_message
+        return None, e.code, e.message

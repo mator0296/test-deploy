@@ -98,10 +98,12 @@ class CreateCard(ModelMutation):
 
 
 class ProcessorTokenInput(graphene.InputObjectType):
-    public_token = graphene.String(description="Plaid public token")
+    public_token = graphene.String(
+        description="Plaid public token", required=True)
     accounts = graphene.List(
         graphene.JSONString,
-        description="List of client's accounts"
+        description="List of client's accounts",
+        required=True
     )
 
 
@@ -123,10 +125,9 @@ class ProcessorTokenCreate(ModelMutation):
         model = paymentMethods
 
     @classmethod
-    def perform_mutation(cls, _root, info, **data):
-        token_input = data.get("input")
-        access_token = token_input.get("public_token")
-        account_id = token_input.get("accounts")[0]["account_id"]
+    def perform_mutation(cls, _root, info, input):
+        access_token = input.get("public_token")
+        account_id = input.get("accounts")[0]["account_id"]
 
         processor_token, error, message = processor_token_create(
             access_token, account_id
@@ -139,5 +140,5 @@ class ProcessorTokenCreate(ModelMutation):
                 user=info.context.user
             )
             return cls(payment_method=payment_method, error=None, message=None)
-        else:
-            return cls(payment_method=None, error=error, message=message)
+
+        return cls(payment_method=None, error=error, message=message)
