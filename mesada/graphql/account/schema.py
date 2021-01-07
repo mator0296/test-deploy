@@ -35,14 +35,10 @@ from .resolvers import (
     resolve_recipient_,
     resolve_recipients_,
     resolve_staff_users,
-)
-from .types import AddressValidationData, Recipient, User
     resolve_address,
     resolve_addresses,
-    resolve_customers,
-    resolve_staff_users
 )
-from .types import AddressValidationData, User, Address
+from .types import AddressValidationData, Recipient, User, Address
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -59,9 +55,9 @@ class RecipientsFilterInput(FilterInputObjectType):
     class Meta:
         filterset_class = RecipientsFilter
 
-class AddressFilterInput(FilterInputObjectType):
-    class Meta:
-        filterset_class = AddressFilter
+# class AddressFilterInput(FilterInputObjectType):
+#     class Meta:
+#         filterset_class = AddressFilter
 
 
 
@@ -92,7 +88,7 @@ class AccountQueries(graphene.ObjectType):
     )
     addresses = FilterInputConnectionField(
         Address,
-        filter=AddressFilterInput(),
+        # filter=AddressFilterInput(),
         description="List of addresses.",
         search=graphene.String(description="Address lookup string"),
         query=graphene.String(description="Addresses"),
