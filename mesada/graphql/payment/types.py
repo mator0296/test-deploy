@@ -7,8 +7,7 @@ from ..core.connection import CountableDjangoObjectType
 
 class BillingDetailsInput(graphene.InputObjectType):
     name = graphene.String(
-        description="Full name of the card holder",
-        required=True
+        description="Full name of the card holder", required=True
     )
     city = graphene.String(required=True)
     country = graphene.String(
@@ -16,16 +15,14 @@ class BillingDetailsInput(graphene.InputObjectType):
         required=True,
     )
     line1 = graphene.String(
-        description="Line one of the street address",
-        required=True
+        description="Line one of the street address", required=True
     )
     line2 = graphene.String(description="Line two of the street address")
     district = graphene.String(
         description="Region portion of the address. If the country is US or Canada district is required and should use the two-letter code for the subdivision."
     )
     postalCode = graphene.String(
-        description="ZIP code of the address",
-        required=True
+        description="ZIP code of the address", required=True
     )
 
 

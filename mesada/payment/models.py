@@ -72,6 +72,8 @@ class paymentMethods(models.Model):
     country_code = CountryField()
     created = models.DateTimeField(default=timezone.now, editable=False)
     updated = models.DateTimeField(auto_now=True)
+    payment_token = models.CharField(max_length=256, blank=True)
+    processor_token = models.CharField(max_length=256, blank=True)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
