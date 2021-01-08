@@ -45,6 +45,7 @@ ALLOWED_HOSTS = [
     "usa-production.mesada.io",
     "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com",
     "testserver",
+
 ]
 
 AUTH_USER_MODEL = "account.User"
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
     "mesada.core",
     "mesada.graphql",
     "mesada.payment",
+    "mesada.transfer",
     "django_extensions",
     "graphene_django",
     "django_filters",
