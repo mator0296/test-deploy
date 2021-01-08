@@ -1,3 +1,3 @@
-isort --diff $(git status -s | grep -E '\.py$' | cut -c 4-)
+isort --diff -c $(git status -s | grep -E '\.py$' | cut -c 4-)
 black mesada tests
 flake8 $(git status -s | grep -E '\.py$' | cut -c 4-)

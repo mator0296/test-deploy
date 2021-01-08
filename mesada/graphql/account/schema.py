@@ -1,5 +1,4 @@
 import graphene
-from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import permission_required
 
 from ..core.auth import login_required
@@ -29,21 +28,10 @@ from .mutations import (
     StaffUpdate,
     VerifySMSCodeVerification,
 )
+
+from .types import Address, User, Recipient
+
 from .resolvers import (
-    resolve_address,
-    resolve_address_validator,
-    resolve_addresses,
-    resolve_customers,
-    resolve_staff_users,
-)
-from .types import (
-    Address,
-    AddressValidationData,
-    User,
-    Recipient
-)
-from .resolvers import (
-    resolve_address_validator,
     resolve_customers,
     resolve_recipient_,
     resolve_recipients_,
@@ -68,9 +56,9 @@ class RecipientsFilterInput(FilterInputObjectType):
         filterset_class = RecipientsFilter
 
 
-# class AddressFilterInput(FilterInputObjectType):
-#     class Meta:
-#         filterset_class = AddressFilter
+class AddressFilterInput(FilterInputObjectType):
+    class Meta:
+        filterset_class = AddressFilter
 
 
 class AccountQueries(graphene.ObjectType):
@@ -100,7 +88,7 @@ class AccountQueries(graphene.ObjectType):
     )
     addresses = FilterInputConnectionField(
         Address,
-        # filter=AddressFilterInput(),
+        filter=AddressFilterInput(),
         description="List of addresses.",
         search=graphene.String(description="Address lookup string"),
         query=graphene.String(description="Addresses"),

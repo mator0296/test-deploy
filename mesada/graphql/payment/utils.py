@@ -4,7 +4,7 @@ import json
 
 import pgpy
 
-from ...payment import request_encryption_key
+from ...payment.circle.circle import request_encryption_key
 
 
 def hash_session_id(session_id):
