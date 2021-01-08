@@ -1,0 +1,66 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "command": [
+        "celery",
+        "-A",
+        "dockerexample",
+        "worker",
+        "-B",
+        "--loglevel=DEBUG"
+      ],
+      "essential": true,
+      "image": "docker_tutorial_django",
+      "links": ["redis"],
+      "memory": 1000,
+      "mountPoints": [
+        {
+          "containerPath": "/var/www/djangoproject",
+          "sourceVolume": "_Dockerexample"
+        }
+      ],
+      "name": "celery"
+    },
+    {
+      "essential": true,
+      "image": "docker_tutorial_django",
+      "links": ["redis"],
+      "memory": 1000,
+      "mountPoints": [
+        {
+          "containerPath": "/var/www/djangoproject",
+          "sourceVolume": "_Dockerexample"
+        }
+      ],
+      "name": "django",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000
+        }
+      ]
+    },
+    {
+      "essential": true,
+      "image": "redis:latest",
+      "memory": 1000,
+      "name": "redis",
+      "portMappings": [
+        {
+          "containerPort": 6379,
+          "hostPort": 6379
+        }
+      ]
+    }
+  ],
+  "family": "",
+  "volumes": [
+    {
+      "host": {
+        "sourcePath": "./dockerexample"
+      },
+      "name": "_Dockerexample"
+    }
+  ]
+}
