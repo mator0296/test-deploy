@@ -10,8 +10,8 @@ from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
 from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
 from ..utils import format_permissions_for_display
+from .filters import AddressFilter, CustomerFilter, StaffUserFilter, RecipientsFilter
 from .enums import BankName
-from .filters import AddressFilter, CustomerFilter, StaffUserFilter
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -24,11 +24,16 @@ class StaffUserInput(FilterInputObjectType):
         filterset_class = StaffUserFilter
 
 
+class RecipientsFilterInput(FilterInputObjectType):
+    class Meta:
+        filterset_class = RecipientsFilter
+
+
 class AddressFilterInput(FilterInputObjectType):
     class Meta:
         filterset_class = AddressFilter
 
-
+        
 class AddressInput(graphene.InputObjectType):
     address_name = graphene.String(description="Address Name ID.")
     first_name = graphene.String(description="Given name.")
@@ -166,14 +171,17 @@ class Recipient(CountableDjangoObjectType):
     )
 
     class Meta:
-        description = "Represents recipient data."
+        description = "Represents user recipeint data."
+        filter_fields = ["first_name", "last_name", "email", "alias"]
         interfaces = [relay.Node]
         model = Recipient
-        only_fields = [
-            "first_name",
-            "last_name",
-            "alias",
-            "email",
-            "clabe",
-            "bank_name",
-        ]
+        only_fields = ["first_name", "last_name", "email", "alias"]
+
+
+class RecipientInput(graphene.InputObjectType):
+    first_name = graphene.String(description="Given name.")
+    last_name = graphene.String(description="Family name.")
+    alias = graphene.String(description="Pseudonym.")
+    email = graphene.String(description="The unique email address of the recipient.")
+    clabe = graphene.String(description="Bank account number in Mexico.")
+    bank_name = graphene.String(description="Bank Name in Mexico.")

@@ -45,6 +45,7 @@ ALLOWED_HOSTS = [
     "usa-production.mesada.io",
     "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com",
     "testserver",
+
 ]
 
 AUTH_USER_MODEL = "account.User"
@@ -168,3 +169,9 @@ CACHES = {"default": django_cache_url.config()}
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
 TWILIO_VERIFICATION_SID = os.environ.get("TWILIO_SERVICE")
+
+# Plaid credentials
+PLAID_CLIENT_ID = os.getenv("PLAID_CLIENT_ID")
+PLAID_SECRET = os.getenv("PLAID_SECRET")
+PLAID_ENVIRONMENT = os.getenv("PLAID_ENVIRONMENT")
+PLAID_PROCESSOR = os.getenv("PLAID_PROCESSOR")
