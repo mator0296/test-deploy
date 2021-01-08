@@ -1,12 +1,11 @@
 import graphene
 
 from ...core.utils import generate_idempotency_key
-from ...payment import create_card, create_link_token, processor_token_create
+from ...payment import create_card, create_link_token, processor_token_create, request_encryption_key
 from ...payment.models import paymentMethods, verificationAvs, verificationCvv
 from ..core.mutations import BaseMutation, ModelMutation
 from .types import BillingDetailsInput, PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
-from ...payment import request_encryption_key
 
 
 class CardInput(graphene.InputObjectType):
