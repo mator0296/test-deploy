@@ -46,7 +46,7 @@ def request_encryption_key():
     return data.get("keyId"), data.get("publicKey")
 
 
-def create_trasfer_by_blackchain(amount):
+def create_trasfer_by_blackchain(amount, user):
     """ Create a transfer by blockchain within the Circle API
     Args:
         amount: Amount to transfer.
