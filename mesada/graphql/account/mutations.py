@@ -18,7 +18,7 @@ from ...account.models import Recipient
 from ...core.permissions import get_permissions
 
 from ...core.twilio import check_code, send_code
-from ..account.types import (Address, AddressInput, Recipient, RecipientInput, User)
+from ..account.types import Address, AddressInput, Recipient, RecipientInput, User
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload

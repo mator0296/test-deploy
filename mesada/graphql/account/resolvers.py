@@ -25,7 +25,6 @@ RECIPIENT_SEARCH_FIELDS = ("alias", "email", "first_name", "last_name")
 ADDRESS_SEARCH_FIELDS = ("address_name", "postal_code")
 
 
-
 def resolve_customers(info, query):
     qs = models.User.objects.filter(Q(is_staff=False))
     qs = filter_by_query_param(
