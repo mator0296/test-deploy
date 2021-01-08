@@ -11,6 +11,7 @@ touch /var/log/gunicorn.log
 touch /var/log/access.log
 tail -n 0 -f /var/log/*.log &
 
+python manage.py migrate
 
 
 echo Starting Gunicorn.
