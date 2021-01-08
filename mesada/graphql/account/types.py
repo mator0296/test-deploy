@@ -5,12 +5,15 @@ from django.contrib.auth import get_user_model
 from graphene import relay
 from graphql_jwt.decorators import permission_required
 
-from ...account.models import Address, User
+from ...account.models import Address, Recipient, User
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
-from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
+from ..core.types import (CountryDisplay, FilterInputObjectType,
+                          PermissionDisplay)
 from ..utils import format_permissions_for_display
-from .filters import CustomerFilter, StaffUserFilter
+
+from .filters import AddressFilter, CustomerFilter, StaffUserFilter, RecipientsFilter
+from .enums import BankName
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -21,6 +24,16 @@ class CustomerFilterInput(FilterInputObjectType):
 class StaffUserInput(FilterInputObjectType):
     class Meta:
         filterset_class = StaffUserFilter
+
+
+class RecipientsFilterInput(FilterInputObjectType):
+    class Meta:
+        filterset_class = RecipientsFilter
+
+        
+class AddressFilterInput(FilterInputObjectType):
+    class Meta:
+        filterset_class = AddressFilter
 
 
 class AddressInput(graphene.InputObjectType):
@@ -35,6 +48,15 @@ class AddressInput(graphene.InputObjectType):
     postal_code = graphene.String(description="Postal code.")
     country = graphene.String(description="Country.")
     country_area = graphene.String(description="State or province.")
+
+
+class RecipientInput(graphene.InputObjectType):
+    first_name = graphene.String(description="Given name.")
+    last_name = graphene.String(description="Family name.")
+    alias = graphene.String(description="Pseudonym.")
+    email = graphene.String(description="The unique email address of the recipient.")
+    clabe = graphene.String(description="Bank account number in Mexico.")
+    bank_name = graphene.Field(BankName, description="Bank Name in Mexico.")
 
 
 class Address(CountableDjangoObjectType):
@@ -140,3 +162,26 @@ class AddressValidationData(graphene.ObjectType):
     postal_code_matchers = graphene.List(graphene.String)
     postal_code_examples = graphene.List(graphene.String)
     postal_code_prefix = graphene.String()
+
+
+class Recipient(CountableDjangoObjectType):
+    user_id = graphene.String(
+        description="ID of the user associated with the recipient."
+    )
+    user_email = graphene.String(
+        description="Email of the user associated with the recipient."
+    )
+
+
+    class Meta:
+        description = "Represents recipient data."
+        interfaces = [relay.Node]
+        model = Recipient
+        only_fields = [
+            "first_name",
+            "last_name",
+            "alias",
+            "email",
+            "clabe",
+            "bank_name",
+        ]
