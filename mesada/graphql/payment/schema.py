@@ -7,7 +7,7 @@ from .mutations import CreateCard, CreatePublicKey, ProcessorTokenCreate
 
 class PaymentMethodsQueries(graphene.ObjectType):
     payment_method = graphene.Field(PaymentMethod, id=graphene.Int(), description="Get payment method by id")
-    user_payment_methods = graphene.List(
+    payment_methods = graphene.List(
         PaymentMethod, user_id=graphene.Int(), description="Get list of payment methods of given user"
     )
 
