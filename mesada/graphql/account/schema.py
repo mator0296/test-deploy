@@ -1,13 +1,10 @@
 import graphene
-from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import permission_required
 
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
 from ..core.types import FilterInputObjectType
-
 from .filters import CustomerFilter, StaffUserFilter, AddressFilter, RecipientsFilter
-
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -21,6 +18,8 @@ from .mutations import (
     LoggedUserUpdate,
     PasswordReset,
     RecipientCreate,
+    RecipientUpdate,
+    RecipientDelete,
     SendPhoneVerificationSMS,
     SetNewPassword,
     SetPassword,
@@ -29,14 +28,20 @@ from .mutations import (
     StaffUpdate,
     VerifySMSCodeVerification,
 )
+
+from .types import Address, AddressValidationData, User, Recipient
+
 from .resolvers import (
     resolve_address,
     resolve_address_validator,
     resolve_addresses,
     resolve_customers,
     resolve_staff_users,
+    resolve_recipients_,
+    resolve_recipient_,
+    resolve_address,
+    resolve_addresses,
 )
-from .types import Address, AddressValidationData, User
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -86,7 +91,7 @@ class AccountQueries(graphene.ObjectType):
     )
     addresses = FilterInputConnectionField(
         Address,
-        # filter=AddressFilterInput(),
+        filter=AddressFilterInput(),
         description="List of addresses.",
         search=graphene.String(description="Address lookup string"),
         query=graphene.String(description="Addresses"),
@@ -122,7 +127,7 @@ class AccountQueries(graphene.ObjectType):
     @permission_required("account.manage_users")
     def resolve_user(self, info, id):
         return graphene.Node.get_node_from_global_id(info, id, User)
-      
+
     def resolve_recipient(self, info, id):
         return resolve_recipient_(info, id=id)
 
@@ -135,14 +140,7 @@ class AccountQueries(graphene.ObjectType):
     def resolve_addresses(self, info, search, query=None, **_kwargs):
         return resolve_addresses(info, search=search, query=query)
 
-
-    def resolve_recipient(self, info, id):
-        return resolve_recipient_(info, id=id)
-
-    def resolve_recipients(self, info, search, query=None, **_kwargs):
-        return resolve_recipients_(info, search=search, query=query)
-
-
+      
 class AccountMutations(graphene.ObjectType):
     password_reset = PasswordReset.Field()
     set_password = SetPassword.Field()

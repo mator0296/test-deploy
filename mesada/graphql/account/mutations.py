@@ -19,6 +19,7 @@ from ...core.permissions import get_permissions
 
 from ...core.twilio import check_code, send_code
 from ..account.types import Address, AddressInput, Recipient, RecipientInput, User
+
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload
@@ -711,36 +712,25 @@ class RecipientCreate(ModelMutation):
 
       
 class RecipientUpdate(ModelMutation):
-    recipient = graphene.Field(
-        Recipient, description="A user instance for which the recipient was edited."
-    )
+
+    recipient = graphene.Field(Recipient, description="A recipient instance updated.")
 
     class Arguments:
-        id = graphene.ID(description="ID of the recipient to update", required=True)
+        id = graphene.ID(description="ID of the recipient to updated", required=True)
         input = RecipientInput(
-            description="Fields required to update recipient", required=True
+            description="Fields required to updated recipient", required=True
         )
 
     class Meta:
-        description = "Updates an recipient"
+        description = "Update a recipient."
         model = models.Recipient
-        # exclude = ["user_addresses"]
-
-    @classmethod
-    def clean_input(cls, info, instance, data):
-        # Method check_permissions cannot be used for permission check, because
-        # it doesn't have the address instance.
-        if not can_edit_recipient(
-            info.context.user, instance, check_user_permission=False
-        ):
-            raise PermissionDenied()
-        return super().clean_input(info, instance, data)
 
     @classmethod
     def perform_mutation(cls, root, info, **data):
+        user = get_user_instance(info)
         response = super().perform_mutation(root, info, **data)
-        user = response.recipient.first()
-        response.user = user
+        response.recipient.user_id = user.id
+        response.recipient.user_email = user.email
         return response
 
 
@@ -757,43 +747,56 @@ class RecipientDelete(ModelDeleteMutation):
         model = models.Recipient
 
     @classmethod
-    def clean_instance(cls, info, instance):
-        # Method check_permissions cannot be used for permission check, because
-        # it doesn't have the address instance.
-        if not can_edit_address(
-            info.context.user, instance, check_user_permission=False
-        ):
-            raise PermissionDenied()
-        return super().clean_instance(info, instance)
-
-    @classmethod
     def perform_mutation(cls, _root, info, **data):
-        if not cls.check_permissions(info.context.user):
-            raise PermissionDenied()
-
         node_id = data.get("id")
-        instance = cls.get_node_or_error(info, node_id, Recipient)
+        instance = cls.get_node_or_error(info, node_id, Address)
         if instance:
             cls.clean_instance(info, instance)
 
         db_id = instance.id
 
         # Return the first user that the recipient is assigned to. There is M2M
-        # relation between users and recipients, but in most cases recipient is
+        # relation between users and recipientS, but in most cases recipient is
         # related to only one user.
-        user = instance.recipient.first()
+        # user = instance.id
 
-        instance.delete(user=user)
+        user = instance.delete()
 
         instance.id = db_id
 
         response = cls.success_response(instance)
 
-        # Refresh the user instance to clear the default recipient. If the
+        # Refresh the user instance to clear the default recipients. If the
         # deleted recipient was used as default, it would stay cached in the
         # user instance and the invalid ID returned in the response might cause
         # an error.
-        user.refresh_from_db()
 
         response.user = user
         return response
+
+
+class SendPhoneVerificationSMS(BaseMutation):
+    status = graphene.Field(ValidatePhoneStatusEnum)
+    
+    @classmethod
+    def perform_mutation(cls, _root, info, user_id):
+        user = graphene.Node.get_node_from_global_id(info, user_id, User)
+        if user is None:
+            raise ValidationError({"userID": "User with this ID doesn't exist"})
+        if user.is_phone_verified:
+            raise ValidationError(
+                {"isPhoneVerified": "Phone number of the user already verified"}
+            )
+        else:
+            try:
+                response = send_code(str(user.phone))
+            except TwilioRestException as e:
+                raise ValidationError({"twilio_service": e.msg})
+        if response.status == "pending" and response.valid is False:
+            status = ValidatePhoneStatusEnum.PROCEED
+        return cls(status=status)
+
+
+
+
+   
