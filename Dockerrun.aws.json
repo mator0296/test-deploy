@@ -13,7 +13,7 @@
       "essential": true,
       "image": "docker_tutorial_django",
       "links": ["redis"],
-      "memory": 1000,
+      "memory": 128,
       "mountPoints": [
         {
           "containerPath": "/var/www/djangoproject",
@@ -26,7 +26,7 @@
       "essential": true,
       "image": "docker_tutorial_django",
       "links": ["redis"],
-      "memory": 1000,
+      "memory": 128,
       "mountPoints": [
         {
           "containerPath": "/var/www/djangoproject",
@@ -44,7 +44,7 @@
     {
       "essential": true,
       "image": "redis:latest",
-      "memory": 1000,
+      "memory": 128,
       "name": "redis",
       "portMappings": [
         {
