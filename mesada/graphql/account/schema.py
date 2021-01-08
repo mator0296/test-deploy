@@ -32,12 +32,12 @@ from .types import Address, User, Recipient
 from graphql_jwt.decorators import permission_required
 
 from .resolvers import (
-    resolve_customers,
-    resolve_recipient_,
-    resolve_recipients_,
-    resolve_staff_users,
     resolve_address,
     resolve_addresses,
+    resolve_customers,
+    resolve_staff_users,
+    resolve_recipients_,
+    resolve_recipient_,
 )
 
 
@@ -160,9 +160,9 @@ class AccountMutations(graphene.ObjectType):
     address_delete = AddressDelete.Field()
     address_update = AddressUpdate.Field()
 
-    recipient_create = RecipientCreate.Field()
     recipient_update = RecipientUpdate.Field()
     recipient_delete = RecipientDelete.Field()
+    recipient_create = RecipientCreate.Field()
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
     verifySMSCodeVerification = VerifySMSCodeVerification.Field()

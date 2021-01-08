@@ -16,6 +16,8 @@ USER_SEARCH_FIELDS = (
     "default_address__country",
 )
 
+RECIPIENT_SEARCH_FIELDS = ("alias", "email", "first_name", "last_name")
+
 
 RECIPIENT_SEARCH_FIELDS = ("alias", "email", "first_name", "last_name")
 
@@ -92,6 +94,7 @@ def resolve_recipients_(info, search, query):
     qs = filter_by_query_param(
         queryset=qs, query=query, search_fields=RECIPIENT_SEARCH_FIELDS
     )
+
     return qs
 
 
