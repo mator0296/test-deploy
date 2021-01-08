@@ -2,6 +2,7 @@ from django.db import models
 from djmoney.models.fields import MoneyField
 
 from ..account.models import User
+
 # Create your models here.
 
 
@@ -21,11 +22,10 @@ class CircleTransferType(models.TextChoices):
 
 
 class CircleTransfer(models.Model):
-    ''' Model of a circle transfer '''
+    """ Model of a circle transfer """
+
     transfer_id = models.CharField(max_length=256, unique=True)
-    source_type = models.CharField(
-        max_length=10, choices=CircleTransferType.choices
-    )
+    source_type = models.CharField(max_length=10, choices=CircleTransferType.choices)
     source_id = models.CharField(max_length=10)
     destination_type = models.CharField(
         max_length=10, choices=CircleTransferType.choices
@@ -37,9 +37,7 @@ class CircleTransfer(models.Model):
         max_length=8, choices=CircleTransferStatus.choices, blank=False, null=False
     )
     create_date = models.DateField()
-    user_id = models.ForeignKey(
-        User, null=True, blank=True, on_delete=models.SET_NULL
-    )
+    user_id = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ("pk",)
