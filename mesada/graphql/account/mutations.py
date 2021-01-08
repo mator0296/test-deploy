@@ -698,7 +698,7 @@ class SendPhoneVerificationSMS(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 
     class Arguments:
-        user_id = graphene.String(
+        user_id = graphene.ID(
             description="User ID to submit the verification code.", required=True
         )
 
@@ -728,7 +728,7 @@ class VerifySMSCodeVerification(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 
     class Arguments:
-        user_id = graphene.String(
+        user_id = graphene.ID(
             description="User ID to submit the verification code.", required=True
         )
         code = graphene.String(description="Verification code.", required=True)
