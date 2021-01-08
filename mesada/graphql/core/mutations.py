@@ -3,8 +3,11 @@ from typing import Tuple
 
 import graphene
 from django.contrib.auth import get_user_model
-from django.core.exceptions import (NON_FIELD_ERRORS, ImproperlyConfigured,
-                                    ValidationError)
+from django.core.exceptions import (
+    NON_FIELD_ERRORS,
+    ImproperlyConfigured,
+    ValidationError,
+)
 from django.db.models.fields.files import FileField
 from django.utils.translation import pgettext_lazy
 from graphene.types.mutation import MutationOptions

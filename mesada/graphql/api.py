@@ -9,7 +9,9 @@ class Queries(AccountQueries, CoreQueries):
     node = graphene.Node.Field()
 
 
-class Mutations(AccountMutations, CoreMutations, PaymentMutations, PaymentMethodsMutations):
+class Mutations(
+    AccountMutations, CoreMutations, PaymentMutations, PaymentMethodsMutations
+):
     pass
 
 

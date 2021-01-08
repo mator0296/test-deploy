@@ -1,6 +1,5 @@
 import graphene
 import graphene_django_optimizer as gql_optimizer
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from graphene import relay
 from graphql_jwt.decorators import permission_required
@@ -8,8 +7,7 @@ from graphql_jwt.decorators import permission_required
 from ...account.models import Address, Recipient, User
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
-from ..core.types import (CountryDisplay, FilterInputObjectType,
-                          PermissionDisplay)
+from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
 from ..utils import format_permissions_for_display
 
 from .filters import AddressFilter, CustomerFilter, StaffUserFilter, RecipientsFilter
@@ -30,7 +28,7 @@ class RecipientsFilterInput(FilterInputObjectType):
     class Meta:
         filterset_class = RecipientsFilter
 
-        
+
 class AddressFilterInput(FilterInputObjectType):
     class Meta:
         filterset_class = AddressFilter
@@ -103,7 +101,7 @@ class Address(CountableDjangoObjectType):
         return False
 
 
-class User(CountableDjangoObjectType):
+class User(CountableDjangoObjectType): # noqa F811
     addresses = gql_optimizer.field(
         graphene.List(Address, description="List of all user's addresses."),
         model_field="addresses",
@@ -171,7 +169,6 @@ class Recipient(CountableDjangoObjectType):
     user_email = graphene.String(
         description="Email of the user associated with the recipient."
     )
-
 
     class Meta:
         description = "Represents recipient data."

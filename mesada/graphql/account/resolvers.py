@@ -1,6 +1,5 @@
 import graphene_django_optimizer as gql_optimizer
 from django.db.models import Q
-from django.utils.translation import pgettext_lazy
 
 from ...account import models
 from ...core.utils import get_client_ip, get_country_by_ip
@@ -21,7 +20,6 @@ USER_SEARCH_FIELDS = (
 RECIPIENT_SEARCH_FIELDS = ("alias", "email", "first_name", "last_name")
 
 ADDRESS_SEARCH_FIELDS = ("address_name", "postal_code")
-
 
 
 def resolve_customers(info, query):
@@ -52,7 +50,7 @@ def resolve_address_validator(info, country_code, country_area, city_area):
             country_code = country.code
         else:
             return None
-    params = {
+    params = {  # noqa: F841
         "country_code": country_code,
         "country_area": country_area,
         "city_area": city_area,
@@ -100,6 +98,7 @@ def resolve_recipients_(info, search, query):
         queryset=qs, query=query, search_fields=RECIPIENT_SEARCH_FIELDS
     )
     return qs
+
 
 def resolve_address(info, id):
     return models.Address.objects.get(pk=id)

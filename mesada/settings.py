@@ -43,6 +43,7 @@ BITSO_BLOCKCHAIN_ADDRESS = env("BITSO_BLOCKCHAIN_ADDRESS")
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    "127.0.0.1",
     "usa-testing.mesada.io",
     "usa.mesada.io",
     "localhost",

@@ -5,14 +5,12 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('payment', '0003_auto_20210106_1944'),
-    ]
+    dependencies = [("payment", "0003_auto_20210106_1944")]
 
     operations = [
         migrations.RenameField(
-            model_name='paymentmethods',
-            old_name='payment_token',
-            new_name='payment_method_token',
-        ),
+            model_name="paymentmethods",
+            old_name="payment_token",
+            new_name="payment_method_token",
+        )
     ]
