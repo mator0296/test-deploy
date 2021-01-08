@@ -693,6 +693,28 @@ class RecipientCreate(ModelMutation):
         return cls(recipient=None)
 
 
+class RecipientUpdate(ModelMutation):
+    recipient = graphene.Field(Recipient, description="A recipient instance updated.")
+
+    class Arguments:
+        id = graphene.ID(description="ID of the recipient to updated", required=True)
+        input = RecipientInput(
+            description="Fields required to updated recipient", required=True
+        )
+
+    class Meta:
+        description = "Update a recipient."
+        model = models.Recipient
+
+    @classmethod
+    def perform_mutation(cls, root, info, **data):
+        user = get_user_instance(info)
+        response = super().perform_mutation(root, info, **data)
+        response.recipient.user_id = user.id
+        response.recipient.user_email = user.email
+        return response
+
+      
 class SendPhoneVerificationSMS(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 
