@@ -38,9 +38,7 @@ def get_multipart_request_body(query, variables, file, file_name):
         "operations": json.dumps(
             {"query": query, "variables": variables}, cls=DjangoJSONEncoder
         ),
-        "map": json.dumps(
-            {file_name: ["variables.file"]}, cls=DjangoJSONEncoder
-            ),
+        "map": json.dumps({file_name: ["variables.file"]}, cls=DjangoJSONEncoder),
         file_name: file,
     }
 
