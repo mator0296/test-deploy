@@ -26,7 +26,7 @@ services:
   celery:
     image: docker_tutorial_django
     build: .
-    command: celery -A dockerexample worker -B --loglevel=DEBUG
+    command: celery -A mesada worker -B --loglevel=DEBUG
     volumes:
       - ./dockerexample:/var/www/djangoproject
     links:
