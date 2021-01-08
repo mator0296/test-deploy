@@ -29,18 +29,8 @@ from .mutations import (
     StaffUpdate,
     VerifySMSCodeVerification,
 )
-from .resolvers import (
-    resolve_address,
-    resolve_address_validator,
-    resolve_addresses,
-    resolve_customers,
-    resolve_staff_users,
-)
-from .types import Address, AddressValidationData, User
-    RecipientCreate,
-    SendPhoneVerificationSMS,
-    VerifySMSCodeVerification,
-)
+from .types import Address, AddressValidationData, User, Recipient
+
 from .resolvers import (
     resolve_address_validator,
     resolve_customers,
@@ -66,10 +56,10 @@ class RecipientsFilterInput(FilterInputObjectType):
     class Meta:
         filterset_class = RecipientsFilter
 
+
 # class AddressFilterInput(FilterInputObjectType):
 #     class Meta:
 #         filterset_class = AddressFilter
-
 
 
 class AccountQueries(graphene.ObjectType):
@@ -87,15 +77,9 @@ class AccountQueries(graphene.ObjectType):
         description="List of the shop's staff users.",
         query=graphene.String(description="Staff Users"),
     )
-    user = graphene.Field(
-        User,
-        id=graphene.Argument(graphene.ID, required=True),
-        description="Lookup an user by ID.",
-    )
+    user = graphene.Field(User, id=graphene.Argument(graphene.ID, required=True), description="Lookup an user by ID.")
     address = graphene.Field(
-        Address,
-        id=graphene.Argument(graphene.ID, required=True),
-        description="Lookup an address by ID.",
+        Address, id=graphene.Argument(graphene.ID, required=True), description="Lookup an address by ID."
     )
     addresses = FilterInputConnectionField(
         Address,
@@ -106,9 +90,7 @@ class AccountQueries(graphene.ObjectType):
     )
 
     recipient = graphene.Field(
-        Recipient,
-        id=graphene.Argument(graphene.ID, required=True),
-        description="Lookup an Recipient by ID.",
+        Recipient, id=graphene.Argument(graphene.ID, required=True), description="Lookup an Recipient by ID."
     )
 
     recipients = FilterInputConnectionField(
@@ -135,7 +117,7 @@ class AccountQueries(graphene.ObjectType):
     @permission_required("account.manage_users")
     def resolve_user(self, info, id):
         return graphene.Node.get_node_from_global_id(info, id, User)
-      
+
     def resolve_recipient(self, info, id):
         return resolve_recipient_(info, id=id)
 
@@ -147,7 +129,6 @@ class AccountQueries(graphene.ObjectType):
 
     def resolve_addresses(self, info, search, query=None, **_kwargs):
         return resolve_addresses(info, search=search, query=query)
-
 
 
 class AccountMutations(graphene.ObjectType):
@@ -175,7 +156,6 @@ class AccountMutations(graphene.ObjectType):
     recipient_create = RecipientCreate.Field()
     recipient_update = RecipientUpdate.Field()
     recipient_delete = RecipientDelete.Field()
-
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
     verifySMSCodeVerification = VerifySMSCodeVerification.Field()
