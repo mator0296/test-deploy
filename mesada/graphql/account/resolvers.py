@@ -1,6 +1,5 @@
 import graphene_django_optimizer as gql_optimizer
 from django.db.models import Q
-from django.utils.translation import pgettext_lazy
 
 from ...account import models
 from ...core.utils import get_client_ip, get_country_by_ip
@@ -51,11 +50,6 @@ def resolve_address_validator(info, country_code, country_area, city_area):
             country_code = country.code
         else:
             return None
-    params = {
-        "country_code": country_code,
-        "country_area": country_area,
-        "city_area": city_area,
-    }
     rules = {}
     return AddressValidationData(
         country_code=rules.country_code,
