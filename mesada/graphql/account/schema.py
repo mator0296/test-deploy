@@ -30,7 +30,6 @@ from .mutations import (
     VerifySMSCodeVerification,
 )
 from .types import Address, AddressValidationData, User, Recipient
-
 from .resolvers import (
     resolve_address_validator,
     resolve_customers,
