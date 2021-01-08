@@ -10,8 +10,9 @@ from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
 from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
 from ..utils import format_permissions_for_display
+
+from .filters import AddressFilter, CustomerFilter, StaffUserFilter, RecipientsFilter
 from .enums import BankName
-from .filters import AddressFilter, CustomerFilter, StaffUserFilter
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -22,6 +23,11 @@ class CustomerFilterInput(FilterInputObjectType):
 class StaffUserInput(FilterInputObjectType):
     class Meta:
         filterset_class = StaffUserFilter
+
+
+class RecipientsFilterInput(FilterInputObjectType):
+    class Meta:
+        filterset_class = RecipientsFilter
 
 
 class AddressFilterInput(FilterInputObjectType):

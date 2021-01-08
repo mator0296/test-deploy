@@ -17,6 +17,9 @@ USER_SEARCH_FIELDS = (
     "default_address__country",
 )
 
+
+RECIPIENT_SEARCH_FIELDS = ("alias", "email", "first_name", "last_name")
+
 ADDRESS_SEARCH_FIELDS = ("address_name", "postal_code")
 
 
@@ -79,6 +82,23 @@ def resolve_address_validator(info, country_code, country_area, city_area):
         postal_code_examples=rules.postal_code_examples,
         postal_code_prefix=rules.postal_code_prefix,
     )
+
+
+def resolve_recipient_(info, id):
+    qs = models.Recipient.objects.get(pk=id)
+    return qs
+
+
+def resolve_recipients_(info, search, query):
+    qs = models.Recipient.objects.filter(
+        Q(alias__icontains=search)
+        | Q(email__icontains=search)
+        | Q(first_name__icontains=search)
+    )
+    qs = filter_by_query_param(
+        queryset=qs, query=query, search_fields=RECIPIENT_SEARCH_FIELDS
+    )
+    return qs
 
 
 def resolve_address(info, id):

@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Count, Sum
 
-from ...account.models import Address, User
+from ...account.models import Recipient, User, Address
 from ..core.filters import EnumFilter, ObjectTypeFilter
 from ..core.types import DateRangeInput, IntRangeInput, PriceRangeInput
 from ..utils import filter_by_query_param
@@ -69,6 +69,13 @@ def filter_search(qs, _, value):
     return qs
 
 
+def filter_search_recipients(qs, _, value):
+    search_fields = ("email", "first_name", "last_name", "alias")
+    if value:
+        qs = filter_by_query_param(qs, value, search_fields)
+    return qs
+
+
 def filter_search_address(qs, _, value):
     search_fields = ("address_name", "postal_code")
     if value is not None:
@@ -97,6 +104,17 @@ class StaffUserFilter(django_filters.FilterSet):
     class Meta:
         model = User
         fields = ["status", "search"]
+
+
+class RecipientsFilter(django_filters.FilterSet):
+    search = django_filters.CharFilter(method=filter_search_recipients)
+
+    # TODO - Figure out after permision types
+    # department = ObjectTypeFilter
+
+    class Meta:
+        model = Recipient
+        fields = ["search"]
 
 
 class AddressFilter(django_filters.FilterSet):
