@@ -712,12 +712,11 @@ class RecipientCreate(ModelMutation):
 
 
 class RecipientUpdate(ModelMutation):
-    recipient = graphene.Field(
-        Recipient, description="A recipient instance updated.")
+
+    recipient = graphene.Field(Recipient, description="A recipient instance updated.")
 
     class Arguments:
-        id = graphene.ID(
-            description="ID of the recipient to updated", required=True)
+        id = graphene.ID(description="ID of the recipient to updated", required=True)
         input = RecipientInput(
             description="Fields required to updated recipient", required=True
         )
@@ -734,7 +733,7 @@ class RecipientUpdate(ModelMutation):
         response.recipient.user_email = user.email
         return response
 
-
+      
 class RecipientDelete(ModelDeleteMutation):
     recipient = graphene.Field(
         Recipient, description="A user instance for which the address was deleted."
@@ -758,7 +757,7 @@ class RecipientDelete(ModelDeleteMutation):
         db_id = instance.id
 
         # Return the first user that the recipient is assigned to. There is M2M
-        # relation between users and recipientS, but in most cases address is
+        # relation between users and recipientS, but in most cases recipient is
         # related to only one user.
         #user = instance.id
 
