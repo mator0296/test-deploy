@@ -10,13 +10,9 @@ from ...payment import request_encryption_key
 
 
 class CardInput(graphene.InputObjectType):
-    encrypted_data = graphene.String(
-        description="Card encrypted data", required=True
-    )
+    encrypted_data = graphene.String(description="Card encrypted data", required=True)
     key_id = graphene.String(description="Encryption key", required=True)
-    exp_month = graphene.Int(
-        description="Card expiration month", required=True
-    )
+    exp_month = graphene.Int(description="Card expiration month", required=True)
     exp_year = graphene.Int(description="Card expiration year", required=True)
     billing_details = BillingDetailsInput(description="Card billing details")
 
@@ -104,30 +100,22 @@ class CreatePublicKey(BaseMutation):
     to get the actual PGP public key.
     """
 
-    key_id = graphene.String(
-        description="Unique identifier for the public key"
-    )
-    public_key = graphene.String(
-        description="A PGP ascii-armor encoded public key"
-    )
+    key_id = graphene.String(description="Unique identifier for the public key")
+    public_key = graphene.String(description="A PGP ascii-armor encoded public key")
 
     class Meta:
-        description = (
-            "Request for a public encryption key from the Circle API."
-        )
+        description = "Request for a public encryption key from the Circle API."
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
         key_id, public_key = request_encryption_key()
         return cls(key_id=key_id, public_key=public_key)
 
+
 class ProcessorTokenInput(graphene.InputObjectType):
-    public_token = graphene.String(
-        description="Plaid public token", required=True)
+    public_token = graphene.String(description="Plaid public token", required=True)
     accounts = graphene.List(
-        graphene.JSONString,
-        description="List of client's accounts",
-        required=True
+        graphene.JSONString, description="List of client's accounts", required=True
     )
 
 
@@ -140,8 +128,7 @@ class ProcessorTokenCreate(ModelMutation):
 
     class Arguments:
         input = ProcessorTokenInput(
-            description="Fields required to create a processor token.",
-            required=True
+            description="Fields required to create a processor token.", required=True
         )
 
     class Meta:
@@ -159,9 +146,7 @@ class ProcessorTokenCreate(ModelMutation):
 
         if processor_token is not None:
             payment_method = paymentMethods.objects.create(
-                type="ACH",
-                processor_token=processor_token,
-                user=info.context.user
+                type="ACH", processor_token=processor_token, user=info.context.user
             )
             return cls(payment_method=payment_method, error=None, message=None)
 
