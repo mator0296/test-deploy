@@ -2,6 +2,7 @@ import django
 import pytest
 import random
 import string
+
 django.setup()  # noqa: E731
 from mesada.account.models import User  # noqa: E402
 from django.contrib.auth.models import Permission  # noqa: E402

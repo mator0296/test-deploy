@@ -58,7 +58,7 @@ def can_edit_recipient(user, recipient, check_user_permission=True):
     - users with proper permission (staff)
     - customers who "own" the given address.
     """
-    print("------------->",user)
+    
     belongs_to_user = recipient in recipient.all()
     if check_user_permission:
         has_perm = user.has_perm("account.manage_users")
@@ -695,7 +695,7 @@ class RecipientUpdate(ModelMutation):
     class Meta:
         description = "Updates an recipient"
         model = models.Recipient
-        #exclude = ["user_addresses"]
+        # exclude = ["user_addresses"]
 
     @classmethod
     def clean_input(cls, info, instance, data):
@@ -713,6 +713,7 @@ class RecipientUpdate(ModelMutation):
         user = response.recipient.first()
         response.user = user
         return response
+
 
 class RecipientDelete(ModelDeleteMutation):
     recipient = graphene.Field(
@@ -766,4 +767,4 @@ class RecipientDelete(ModelDeleteMutation):
         user.refresh_from_db()
 
         response.user = user
-        return response        
+        return response

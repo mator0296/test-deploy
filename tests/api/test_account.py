@@ -1,11 +1,7 @@
 from ..utils import get_graphql_content, assert_no_permission
 
 
-def test_query_customers(
-        staff_api_client,
-        user_api_client,
-        permission_manage_users
-        ):
+def test_query_customers(staff_api_client, user_api_client, permission_manage_users):
     query = """
     query Users {
         customers(first: 20) {

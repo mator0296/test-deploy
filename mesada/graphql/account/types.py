@@ -148,6 +148,13 @@ class AddressValidationData(graphene.ObjectType):
 
 
 class Recipient(CountableDjangoObjectType):
+    user_id = graphene.String(
+        description="ID of the user associated with the recipient."
+    )
+    user_email = graphene.String(
+        description="Email of the user associated with the recipient."
+    )
+
     class Meta:
         description = "Represents user recipeint data."
         filter_fields = ["first_name", "last_name", "email", "alias"]
