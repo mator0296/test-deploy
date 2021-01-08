@@ -4,11 +4,8 @@ import graphene
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db import IntegrityError
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from graphql.error import GraphQLError
-from graphql_jwt.decorators import staff_member_required
 from graphql_jwt.exceptions import PermissionDenied
 from graphql_jwt.shortcuts import get_token
 from twilio.base.exceptions import TwilioRestException
@@ -20,7 +17,6 @@ from ..account.types import Address, AddressInput, Recipient, RecipientInput, Us
 
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
-from ..core.types import Upload
 from ..core.utils import get_user_instance
 from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
@@ -29,7 +25,7 @@ ADDRESS_FIELD = "billing_address"
 
 
 def send_user_password_reset_email(user, site):
-    context = {
+    context = {  # noqa: F841
         "email": user.email,
         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
         "token": default_token_generator.make_token(user),
@@ -150,7 +146,7 @@ class CustomerCreate(ModelMutation):
         cleaned_input = super().clean_input(info, instance, data)
 
         if address_data:
-            shipping_address = cls.validate_address(
+            shipping_address = cls.validate_address(  # noqa: F841
                 address_data, instance=getattr(instance, ADDRESS_FIELD)
             )
             cleaned_input[ADDRESS_FIELD] = address_data
@@ -169,7 +165,7 @@ class CustomerCreate(ModelMutation):
             address_data.save()
             instance.address_data = address_data
 
-        is_creation = instance.pk is None
+        is_creation = instance.pk is None  # noqa: F841
         super().save(info, instance, cleaned_input)
 
 
@@ -191,13 +187,13 @@ class CustomerUpdate(CustomerCreate):
         cls, info, old_instance: models.User, new_instance: models.User
     ):
         # Retrieve the event base data
-        staff_user = info.context.user
+        staff_user = info.context.user  # noqa: F841
         new_email = new_instance.email
         new_fullname = new_instance.get_full_name()
 
         # Compare the data
-        has_new_name = old_instance.get_full_name() != new_fullname
-        has_new_email = old_instance.email != new_email
+        has_new_name = old_instance.get_full_name() != new_fullname  # noqa: F841
+        has_new_email = old_instance.email != new_email  # noqa: F841
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
@@ -683,7 +679,7 @@ class RecipientCreate(ModelMutation):
     @classmethod
     def perform_mutation(cls, root, info, **data):
         user = get_user_instance(info)
-        input_data = data.get("input")
+        input_data = data.get("input")  # noqa: F841
         response = super().perform_mutation(root, info, **data)
         if not response.errors:
             response.recipient.user_id = user.id
@@ -771,9 +767,8 @@ class SendPhoneVerificationSMS(BaseMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, user_id):
-        try:
-            user = models.User.objects.get(id=user_id)
-        except ObjectDoesNotExist:
+        user = graphene.Node.get_node_from_global_id(info, user_id, User)
+        if user is None:
             raise ValidationError({"userID": "User with this ID doesn't exist"})
         if user.is_phone_verified:
             raise ValidationError(
@@ -803,9 +798,8 @@ class VerifySMSCodeVerification(BaseMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, user_id, code):
-        try:
-            user = models.User.objects.get(id=user_id)
-        except ObjectDoesNotExist:
+        user = graphene.Node.get_node_from_global_id(info, user_id, User)
+        if user is None:
             raise ValidationError({"userID": "User with this ID doesn't exist"})
         if user.is_phone_verified:
             raise ValidationError(
