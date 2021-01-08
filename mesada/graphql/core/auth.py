@@ -1,6 +1,7 @@
 from functools import wraps
 
 import django_cache_url
+
 # import redis
 from graphql_jwt import exceptions
 from graphql_jwt.decorators import context
