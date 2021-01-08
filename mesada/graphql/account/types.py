@@ -8,8 +8,7 @@ from graphql_jwt.decorators import permission_required
 from ...account.models import Address, Recipient, User
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
-from ..core.types import (CountryDisplay, FilterInputObjectType,
-                          PermissionDisplay)
+from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
 from ..utils import format_permissions_for_display
 
 from .filters import AddressFilter, CustomerFilter, StaffUserFilter, RecipientsFilter
@@ -30,7 +29,7 @@ class RecipientsFilterInput(FilterInputObjectType):
     class Meta:
         filterset_class = RecipientsFilter
 
-        
+
 class AddressFilterInput(FilterInputObjectType):
     class Meta:
         filterset_class = AddressFilter
@@ -171,7 +170,6 @@ class Recipient(CountableDjangoObjectType):
     user_email = graphene.String(
         description="Email of the user associated with the recipient."
     )
-
 
     class Meta:
         description = "Represents recipient data."

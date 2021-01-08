@@ -7,7 +7,7 @@ def processor_token_create(public_token, account_id):
     client = ClientPlaid(
         client_id=settings.PLAID_CLIENT_ID,
         secret=settings.PLAID_SECRET,
-        environment=settings.PLAID_ENVIRONMENT
+        environment=settings.PLAID_ENVIRONMENT,
     )
     try:
         # Exchange the public token for a Plaid access token.
@@ -16,7 +16,7 @@ def processor_token_create(public_token, account_id):
 
         # Fetch the client's accounts list, should only have 1.
         accounts_response = client.Accounts.get(access_token)
-        accounts = accounts_response['accounts']
+        accounts = accounts_response["accounts"]
         account_id = accounts[0]["account_id"]
 
         # Create a processor token for the account found using the access token
