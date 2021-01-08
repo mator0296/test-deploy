@@ -5,9 +5,7 @@ from graphql_jwt.decorators import permission_required
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
 from ..core.types import FilterInputObjectType
-
 from .filters import CustomerFilter, StaffUserFilter, AddressFilter, RecipientsFilter
-
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -20,11 +18,25 @@ from .mutations import (
     CustomerUpdate,
     LoggedUserUpdate,
     PasswordReset,
+    RecipientCreate,
+    RecipientUpdate,
+    RecipientDelete,
+    SendPhoneVerificationSMS,
     SetNewPassword,
     SetPassword,
     StaffCreate,
     StaffDelete,
     StaffUpdate,
+    VerifySMSCodeVerification,
+)
+from .resolvers import (
+    resolve_address,
+    resolve_address_validator,
+    resolve_addresses,
+    resolve_customers,
+    resolve_staff_users,
+)
+from .types import Address, AddressValidationData, User
     RecipientCreate,
     SendPhoneVerificationSMS,
     VerifySMSCodeVerification,
@@ -38,7 +50,6 @@ from .resolvers import (
     resolve_address,
     resolve_addresses,
 )
-from .types import AddressValidationData, Recipient, User, Address
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -162,6 +173,9 @@ class AccountMutations(graphene.ObjectType):
     address_update = AddressUpdate.Field()
 
     recipient_create = RecipientCreate.Field()
+    recipient_update = RecipientUpdate.Field()
+    recipient_delete = RecipientDelete.Field()
+
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
     verifySMSCodeVerification = VerifySMSCodeVerification.Field()
