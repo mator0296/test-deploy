@@ -7,20 +7,23 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from graphql.error import GraphQLError
 from graphql_jwt.decorators import staff_member_required
 from graphql_jwt.exceptions import PermissionDenied
 from graphql_jwt.shortcuts import get_token
-
-from graphql.error import GraphQLError
+from twilio.base.exceptions import TwilioRestException
 
 from ...account import models
 from ...account.models import Recipient
 from ...core.permissions import get_permissions
-from ..account.types import Address, AddressInput, User, RecipientInput
+
+from ...core.twilio import check_code, send_code
+from ..account.types import (Address, AddressInput, Recipient, RecipientInput, User)
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload
 from ..core.utils import get_user_instance
+from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
 
 ADDRESS_FIELD = "billing_address"
@@ -679,8 +682,34 @@ class AddressDelete(ModelDeleteMutation):
 
         response.user = user
         return response
+      
+      
+class RecipientCreate(ModelMutation):
+    recipient = graphene.Field(Recipient, description="A recipient instance created.")
 
+    class Arguments:
+        input = RecipientInput(
+            description="Fields required to create recipient", required=True
+        )
 
+    class Meta:
+        description = "Create a recipient."
+        model = models.Recipient
+
+    @classmethod
+    def perform_mutation(cls, root, info, **data):
+        user = get_user_instance(info)
+        input_data = data.get("input")
+        response = super().perform_mutation(root, info, **data)
+        if not response.errors:
+            response.recipient.user_id = user.id
+            response.recipient.user_email = user.email
+            user.recipients = response.recipient
+            user.save()
+            return response
+        return cls(recipient=None)
+
+      
 class RecipientUpdate(ModelMutation):
     recipient = graphene.Field(
         Recipient, description="A user instance for which the recipient was edited."
@@ -749,8 +778,8 @@ class RecipientDelete(ModelDeleteMutation):
 
         db_id = instance.id
 
-        # Return the first user that the address is assigned to. There is M2M
-        # relation between users and addresses, but in most cases address is
+        # Return the first user that the recipient is assigned to. There is M2M
+        # relation between users and recipients, but in most cases recipient is
         # related to only one user.
         user = instance.recipient.first()
 
@@ -760,8 +789,8 @@ class RecipientDelete(ModelDeleteMutation):
 
         response = cls.success_response(instance)
 
-        # Refresh the user instance to clear the default addresses. If the
-        # deleted address was used as default, it would stay cached in the
+        # Refresh the user instance to clear the default recipient. If the
+        # deleted recipient was used as default, it would stay cached in the
         # user instance and the invalid ID returned in the response might cause
         # an error.
         user.refresh_from_db()
