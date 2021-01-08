@@ -98,6 +98,8 @@ def resolve_recipients_(info, search, query):
     )
     qs = filter_by_query_param(
         queryset=qs, query=query, search_fields=RECIPIENT_SEARCH_FIELDS
+    )
+    return qs
 
 def resolve_address(info, id):
     return models.Address.objects.get(pk=id)
