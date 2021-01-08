@@ -1,5 +1,4 @@
 import graphene
-from graphene_django.types import ObjectType
 from ..core.auth import login_required
 from ...payment.models import PaymentMethods
 from .types import PaymentMethod
