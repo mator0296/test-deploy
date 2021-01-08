@@ -698,7 +698,7 @@ class SendPhoneVerificationSMS(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 
     class Arguments:
-        user_id = graphene.ID(
+        user_id = graphene.String(
             description="User ID to submit the verification code.", required=True
         )
 
@@ -707,9 +707,8 @@ class SendPhoneVerificationSMS(BaseMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, user_id):
-        try:
-            user = models.User.objects.get(id=user_id)
-        except ObjectDoesNotExist:
+        user = graphene.Node.get_node_from_global_id(info, user_id, User)
+        if user is None:
             raise ValidationError({"userID": "User with this ID doesn't exist"})
         if user.is_phone_verified:
             raise ValidationError(
@@ -729,7 +728,7 @@ class VerifySMSCodeVerification(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 
     class Arguments:
-        user_id = graphene.ID(
+        user_id = graphene.String(
             description="User ID to submit the verification code.", required=True
         )
         code = graphene.String(description="Verification code.", required=True)
@@ -739,9 +738,8 @@ class VerifySMSCodeVerification(BaseMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, user_id, code):
-        try:
-            user = models.User.objects.get(id=user_id)
-        except ObjectDoesNotExist:
+        user = graphene.Node.get_node_from_global_id(info, user_id, User)
+        if user is None:
             raise ValidationError({"userID": "User with this ID doesn't exist"})
         if user.is_phone_verified:
             raise ValidationError(
