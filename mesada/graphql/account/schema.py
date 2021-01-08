@@ -1,11 +1,9 @@
 import graphene
-from graphene_django import DjangoObjectType
-from graphql_jwt.decorators import permission_required
 
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
-from ..core.types import FilterInputObjectType
 from .filters import CustomerFilter, StaffUserFilter, AddressFilter, RecipientsFilter
+from ..core.types import FilterInputObjectType
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -29,9 +27,11 @@ from .mutations import (
     StaffUpdate,
     VerifySMSCodeVerification,
 )
-from .types import Address, AddressValidationData, User, Recipient
+from .types import Address, User, Recipient
+
+from graphql_jwt.decorators import permission_required
+
 from .resolvers import (
-    resolve_address_validator,
     resolve_customers,
     resolve_recipient_,
     resolve_recipients_,
@@ -56,9 +56,9 @@ class RecipientsFilterInput(FilterInputObjectType):
         filterset_class = RecipientsFilter
 
 
-# class AddressFilterInput(FilterInputObjectType):
-#     class Meta:
-#         filterset_class = AddressFilter
+class AddressFilterInput(FilterInputObjectType):
+    class Meta:
+        filterset_class = AddressFilter
 
 
 class AccountQueries(graphene.ObjectType):
@@ -76,20 +76,28 @@ class AccountQueries(graphene.ObjectType):
         description="List of the shop's staff users.",
         query=graphene.String(description="Staff Users"),
     )
-    user = graphene.Field(User, id=graphene.Argument(graphene.ID, required=True), description="Lookup an user by ID.")
+    user = graphene.Field(
+        User,
+        id=graphene.Argument(graphene.ID, required=True),
+        description="Lookup an user by ID.",
+    )
     address = graphene.Field(
-        Address, id=graphene.Argument(graphene.ID, required=True), description="Lookup an address by ID."
+        Address,
+        id=graphene.Argument(graphene.ID, required=True),
+        description="Lookup an address by ID.",
     )
     addresses = FilterInputConnectionField(
         Address,
-        # filter=AddressFilterInput(),
+        filter=AddressFilterInput(),
         description="List of addresses.",
         search=graphene.String(description="Address lookup string"),
         query=graphene.String(description="Addresses"),
     )
 
     recipient = graphene.Field(
-        Recipient, id=graphene.Argument(graphene.ID, required=True), description="Lookup an Recipient by ID."
+        Recipient,
+        id=graphene.Argument(graphene.ID, required=True),
+        description="Lookup an Recipient by ID.",
     )
 
     recipients = FilterInputConnectionField(

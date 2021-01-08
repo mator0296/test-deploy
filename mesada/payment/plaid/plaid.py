@@ -19,9 +19,7 @@ client = ClientPlaid(
 def processor_token_create(public_token, account_id):
     try:
         # Exchange the public token for a Plaid access token.
-        exchange_token_response = client.Item.public_token.exchange(
-            public_token
-        )
+        exchange_token_response = client.Item.public_token.exchange(public_token)
         access_token = exchange_token_response["access_token"]
 
         # Fetch the client's accounts list, should only have 1.
