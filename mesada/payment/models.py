@@ -4,11 +4,8 @@ from django.utils import timezone
 from django_countries.fields import CountryField
 from django_enumfield import enum
 from djmoney.models.fields import MoneyField
-
 from ..account.models import User
 from . import PaymentErrorCode, PaymentStatus
-
-from ..account.models import User
 
 
 class verificationAvs(enum.Enum):
@@ -51,18 +48,12 @@ class PaymentMethods(models.Model):
     exp_month = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(12)], null=True, blank=True
     )
-    exp_year = models.PositiveIntegerField(
-        validators=[MaxValueValidator(2050)], null=True, blank=True
-    )
+    exp_year = models.PositiveIntegerField(validators=[MaxValueValidator(2050)], null=True, blank=True)
     network = models.CharField(max_length=50, blank=True)
     last_digits = models.CharField(max_length=4, blank=True)
     fingerprint = models.CharField(max_length=36, blank=True)
-    verification_cvv = enum.EnumField(
-        verificationCvv, default=verificationCvv.NOT_REQUESTED
-    )
-    verification_avs = enum.EnumField(
-        verificationAvs, default=verificationAvs.NOT_REQUESTED
-    )
+    verification_cvv = enum.EnumField(verificationCvv, default=verificationCvv.NOT_REQUESTED)
+    verification_avs = enum.EnumField(verificationAvs, default=verificationAvs.NOT_REQUESTED)
     phonenumber = models.CharField(max_length=15, blank=True)
     email = models.EmailField(max_length=256, blank=True)
     name = models.CharField(max_length=256, blank=True)
@@ -76,13 +67,7 @@ class PaymentMethods(models.Model):
     updated = models.DateTimeField(auto_now=True)
     payment_method_token = models.CharField(max_length=256, blank=True)
     processor_token = models.CharField(max_length=256, blank=True)
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="payment_methods",
-        null=True,
-        blank=True,
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="payment_methods", null=True, blank=True)
 
     @property
     def __str__(self):
@@ -101,17 +86,13 @@ class Payment(models.Model):
     amount = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
     source = models.JSONField()
     description = models.TextField(blank=True, default="")
-    status = models.CharField(
-        max_length=9, choices=PaymentStatus.choices, default=PaymentStatus.PENDING
-    )
+    status = models.CharField(max_length=9, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
     verification = models.JSONField()
     cancel = models.JSONField()
     refunds = models.JSONField()
     fees = models.JSONField()
     tracking_ref = models.CharField(max_length=256, null=True)
-    error_code = models.CharField(
-        max_length=256, null=True, choices=PaymentErrorCode.choices
-    )
+    error_code = models.CharField(max_length=256, null=True, choices=PaymentErrorCode.choices)
     metadata = models.JSONField()
     risk_evaluation = models.JSONField()
     create_date = models.DateTimeField(auto_now_add=True)

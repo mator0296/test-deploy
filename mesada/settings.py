@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "mesada.account",
-    "mesada.payment",
     "mesada.core",
     "mesada.graphql",
     "mesada.payment",
@@ -100,9 +99,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "string_if_invalid": '<< MISSING VARIABLE "%s" >>'
-            if DEBUG
-            else "",
+            "string_if_invalid": '<< MISSING VARIABLE "%s" >>' if DEBUG else "",
         },
     }
 ]
@@ -120,21 +117,10 @@ DATABASES = {"default": env.db("DATABASE_URL")}
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "UserAttributeSimilarityValidator"
-        )
-    },
+    {"NAME": ("django.contrib.auth.password_validation." "UserAttributeSimilarityValidator")},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {
-        "NAME": (
-            "django.contrib.auth.password_validation.CommonPasswordValidator"
-        )
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
-    },
+    {"NAME": ("django.contrib.auth.password_validation.CommonPasswordValidator")},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
@@ -159,10 +145,7 @@ STATIC_URL = "/static/"
 
 ALLOWED_GRAPHQL_ORIGINS = os.environ.get("ALLOWED_GRAPHQL_ORIGINS", "*")
 
-AUTHENTICATION_BACKENDS = [
-    "graphql_jwt.backends.JSONWebTokenBackend",
-    "django.contrib.auth.backends.ModelBackend",
-]
+AUTHENTICATION_BACKENDS = ["graphql_jwt.backends.JSONWebTokenBackend", "django.contrib.auth.backends.ModelBackend"]
 
 GRAPHENE = {
     "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"],

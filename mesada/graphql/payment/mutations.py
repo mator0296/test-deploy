@@ -2,7 +2,7 @@ import graphene
 
 from ...core.utils import generate_idempotency_key
 from ...payment import create_card, processor_token_create
-from ...payment.models import paymentMethods, verificationAvs, verificationCvv
+from ...payment.models import PaymentMethods, verificationAvs, verificationCvv
 from ..core.mutations import ModelMutation, BaseMutation
 from .types import BillingDetailsInput, PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
@@ -24,7 +24,7 @@ class CreateCard(ModelMutation):
 
     class Meta:
         description = "Save a new card withing the Circle API."
-        model = paymentMethods
+        model = PaymentMethods
 
     class Arguments:
         input = CardInput(description="Card input", required=True)
@@ -67,7 +67,7 @@ class CreateCard(ModelMutation):
         verification = response.get("verification")
         metadata = response.get("metadata")
 
-        payment_method = paymentMethods.objects.create(
+        payment_method = PaymentMethods.objects.create(
             type="CARD",
             exp_month=response.get("expMonth"),
             exp_year=response.get("expYear"),
@@ -80,9 +80,7 @@ class CreateCard(ModelMutation):
             email=metadata.get("email"),
             name=billing_details.get("name"),
             address_line_1=billing_details.get("line1"),
-            address_line_2=billing_details.get("line2")
-            if billing_details.get("line2")
-            else "",
+            address_line_2=billing_details.get("line2") if billing_details.get("line2") else "",
             postal_code=billing_details.get("postalCode"),
             city=billing_details.get("city"),
             district=billing_details.get("district"),
@@ -114,9 +112,7 @@ class CreatePublicKey(BaseMutation):
 
 class ProcessorTokenInput(graphene.InputObjectType):
     public_token = graphene.String(description="Plaid public token", required=True)
-    accounts = graphene.List(
-        graphene.JSONString, description="List of client's accounts", required=True
-    )
+    accounts = graphene.List(graphene.JSONString, description="List of client's accounts", required=True)
 
 
 class ProcessorTokenCreate(ModelMutation):
@@ -127,25 +123,21 @@ class ProcessorTokenCreate(ModelMutation):
     message = graphene.String(description="Plaid error user friendly message")
 
     class Arguments:
-        input = ProcessorTokenInput(
-            description="Fields required to create a processor token.", required=True
-        )
+        input = ProcessorTokenInput(description="Fields required to create a processor token.", required=True)
 
     class Meta:
         description = "Creates a new processor token."
-        model = paymentMethods
+        model = PaymentMethods
 
     @classmethod
     def perform_mutation(cls, _root, info, input):
         access_token = input.get("public_token")
         account_id = input.get("accounts")[0]["account_id"]
 
-        processor_token, error, message = processor_token_create(
-            access_token, account_id
-        )
+        processor_token, error, message = processor_token_create(access_token, account_id)
 
         if processor_token is not None:
-            payment_method = paymentMethods.objects.create(
+            payment_method = PaymentMethods.objects.create(
                 type="ACH", processor_token=processor_token, user=info.context.user
             )
             return cls(payment_method=payment_method, error=None, message=None)
