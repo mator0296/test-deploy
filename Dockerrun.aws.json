@@ -16,7 +16,7 @@
       "memory": 128,
       "mountPoints": [
         {
-          "containerPath": "/var/www/djangoproject",
+          "containerPath": "/app/mesada",
           "sourceVolume": "Dockerexample"
         }
       ],
@@ -29,7 +29,7 @@
       "memory": 128,
       "mountPoints": [
         {
-          "containerPath": "/var/www/djangoproject",
+          "containerPath": "/app/mesada",
           "sourceVolume": "Dockerexample"
         }
       ],
@@ -58,7 +58,7 @@
   "volumes": [
     {
       "host": {
-        "sourcePath": "./dockerexample"
+        "sourcePath": "/app/mesada"
       },
       "name": "Dockerexample"
     }
