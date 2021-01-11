@@ -114,6 +114,7 @@ class RecipientsFilter(django_filters.FilterSet):
 
     class Meta:
         model = Recipient
+        fields = ["first_name", "last_name"]
 
 
 class AddressFilter(django_filters.FilterSet):

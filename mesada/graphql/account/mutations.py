@@ -818,6 +818,9 @@ class VerifySMSCodeVerification(BaseMutation):
         )
         code = graphene.String(description="Verification code.", required=True)
 
+    class Meta:
+        description = "Send a code to verify SMS code"
+
     @classmethod
     def perform_mutation(cls, _root, info, user_id, code):
         user = graphene.Node.get_node_from_global_id(info, user_id, User)
