@@ -29,13 +29,16 @@ from .mutations import (
     VerifySMSCodeVerification,
 )
 
-from .types import Address, User, Recipient
+from .types import Address, AddressValidationData, User, Recipient
 
 from .resolvers import (
+    resolve_address,
+    resolve_address_validator,
+    resolve_addresses,
     resolve_customers,
-    resolve_recipient_,
-    resolve_recipients_,
     resolve_staff_users,
+    resolve_recipients_,
+    resolve_recipient_,
     resolve_address,
     resolve_addresses,
 )
@@ -160,9 +163,9 @@ class AccountMutations(graphene.ObjectType):
     address_delete = AddressDelete.Field()
     address_update = AddressUpdate.Field()
 
-    recipient_create = RecipientCreate.Field()
     recipient_update = RecipientUpdate.Field()
     recipient_delete = RecipientDelete.Field()
+    recipient_create = RecipientCreate.Field()
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
     verifySMSCodeVerification = VerifySMSCodeVerification.Field()

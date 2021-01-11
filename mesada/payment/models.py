@@ -4,7 +4,6 @@ from django.utils import timezone
 from django_countries.fields import CountryField
 from django_enumfield import enum
 from djmoney.models.fields import MoneyField
-
 from ..account.models import User
 from . import PaymentErrorCode, PaymentStatus
 
@@ -43,7 +42,7 @@ class verificationCvv(enum.Enum):
     PENDING = 4
 
 
-class paymentMethods(models.Model):
+class PaymentMethods(models.Model):
 
     type = models.CharField(max_length=50, blank=False)
     exp_month = models.PositiveIntegerField(

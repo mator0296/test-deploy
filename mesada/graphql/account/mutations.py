@@ -14,10 +14,11 @@ from graphql_jwt.shortcuts import get_token
 from twilio.base.exceptions import TwilioRestException
 
 from ...account import models
+from ...account.models import Recipient
 from ...core.permissions import get_permissions
+
 from ...core.twilio import check_code, send_code
 from ..account.types import Address, AddressInput, Recipient, RecipientInput, User
-
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.types import Upload
@@ -47,6 +48,21 @@ def can_edit_address(user, address, check_user_permission=True):
     - customers who "own" the given address.
     """
     belongs_to_user = address in user.addresses.all()
+    if check_user_permission:
+        has_perm = user.has_perm("account.manage_users")
+        return has_perm or belongs_to_user
+    return belongs_to_user
+
+
+def can_edit_recipient(user, recipient, check_user_permission=True):
+    """Determine whether the user can edit the given recipient.
+
+    This method assumes that an address can be edited by:
+    - users with proper permission (staff)
+    - customers who "own" the given address.
+    """
+
+    belongs_to_user = recipient in recipient.all()
     if check_user_permission:
         has_perm = user.has_perm("account.manage_users")
         return has_perm or belongs_to_user
@@ -798,7 +814,7 @@ class VerifySMSCodeVerification(BaseMutation):
         code = graphene.String(description="Verification code.", required=True)
 
     class Meta:
-        description = "check the code to validate the phone number"
+        description = "Send a code to verify SMS code"
 
     @classmethod
     def perform_mutation(cls, _root, info, user_id, code):
