@@ -24,8 +24,10 @@ services:
 
   celery:
     image: python
-    build: .
-    command: celery -A mesada worker -B --loglevel=DEBUG
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python -m celery -A mesada worker -B --loglevel=DEBUG
     links:
       - redis
     #mem_limit: 1000m
