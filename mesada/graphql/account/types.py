@@ -1,11 +1,10 @@
 import graphene
 import graphene_django_optimizer as gql_optimizer
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from graphene import relay
 from graphql_jwt.decorators import permission_required
 
-from ...account.models import Address, Recipient, User
+from ...account.models import Address, Recipient
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
 from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
