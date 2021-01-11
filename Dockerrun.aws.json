@@ -17,7 +17,7 @@
       "mountPoints": [
         {
           "containerPath": "/var/www/djangoproject",
-          "sourceVolume": "_Dockerexample"
+          "sourceVolume": "Dockerexample"
         }
       ],
       "name": "celery"
@@ -30,7 +30,7 @@
       "mountPoints": [
         {
           "containerPath": "/var/www/djangoproject",
-          "sourceVolume": "_Dockerexample"
+          "sourceVolume": "Dockerexample"
         }
       ],
       "name": "django",
@@ -60,7 +60,7 @@
       "host": {
         "sourcePath": "./dockerexample"
       },
-      "name": "_Dockerexample"
+      "name": "Dockerexample"
     }
   ]
 }
