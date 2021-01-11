@@ -13,7 +13,7 @@
         "-B",
         "--loglevel=DEBUG"
       ],
-      "essential": true,
+      "essential": false,
       "image": "python",
       "links": ["redis"],
       "memory": 128,
