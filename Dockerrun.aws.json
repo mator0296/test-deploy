@@ -3,7 +3,16 @@
 
   "containerDefinitions": [
     {
-      "command": ["celery", "-A", "mesada", "worker", "-B", "--loglevel=DEBUG"],
+      "command": [
+        "python",
+        "-m",
+        "celery",
+        "-A",
+        "mesada",
+        "worker",
+        "-B",
+        "--loglevel=DEBUG"
+      ],
       "essential": true,
       "image": "python",
       "links": ["redis"],
