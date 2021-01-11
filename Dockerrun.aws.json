@@ -52,7 +52,7 @@
   "volumes": [
     {
       "host": {
-        "sourcePath": "./django_server"
+        "sourcePath": "django_server"
       },
       "name": "Django_Server"
     }
