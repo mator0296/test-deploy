@@ -3,7 +3,7 @@ import graphene
 from ...core.utils import generate_idempotency_key
 from ...payment.plaid.plaid_token import processor_token_create
 from ...payment.circle.circle import create_card, request_encryption_key
-from ...payment.models import paymentMethods, verificationAvs, verificationCvv
+from ...payment.models import PaymentMethods, verificationAvs, verificationCvv
 from ..core.mutations import ModelMutation, BaseMutation
 from .types import BillingDetailsInput, PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
@@ -80,7 +80,9 @@ class CreateCard(ModelMutation):
             email=metadata.get("email"),
             name=billing_details.get("name"),
             address_line_1=billing_details.get("line1"),
-            address_line_2=billing_details.get("line2") if billing_details.get("line2") else "",
+            address_line_2=billing_details.get("line2")
+            if billing_details.get("line2")
+            else "",
             postal_code=billing_details.get("postalCode"),
             city=billing_details.get("city"),
             district=billing_details.get("district"),
@@ -112,7 +114,9 @@ class CreatePublicKey(BaseMutation):
 
 class ProcessorTokenInput(graphene.InputObjectType):
     public_token = graphene.String(description="Plaid public token", required=True)
-    accounts = graphene.List(graphene.JSONString, description="List of client's accounts", required=True)
+    accounts = graphene.List(
+        graphene.JSONString, description="List of client's accounts", required=True
+    )
 
 
 class ProcessorTokenCreate(ModelMutation):
@@ -123,7 +127,9 @@ class ProcessorTokenCreate(ModelMutation):
     message = graphene.String(description="Plaid error user friendly message")
 
     class Arguments:
-        input = ProcessorTokenInput(description="Fields required to create a processor token.", required=True)
+        input = ProcessorTokenInput(
+            description="Fields required to create a processor token.", required=True
+        )
 
     class Meta:
         description = "Creates a new processor token."
@@ -134,7 +140,9 @@ class ProcessorTokenCreate(ModelMutation):
         access_token = input.get("public_token")
         account_id = input.get("accounts")[0]["account_id"]
 
-        processor_token, error, message = processor_token_create(access_token, account_id)
+        processor_token, error, message = processor_token_create(
+            access_token, account_id
+        )
 
         if processor_token is not None:
             payment_method = PaymentMethods.objects.create(

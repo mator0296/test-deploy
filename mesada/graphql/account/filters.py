@@ -75,12 +75,13 @@ def filter_search_recipients(qs, _, value):
         qs = filter_by_query_param(qs, value, search_fields)
     return qs
 
-  
+
 def filter_search_address(qs, _, value):
     search_fields = ("address_name", "postal_code")
     if value is not None:
         qs = filter_by_query_param(qs, value, search_fields)
     return qs
+
 
 class CustomerFilter(django_filters.FilterSet):
     date_joined = ObjectTypeFilter(
@@ -113,8 +114,9 @@ class RecipientsFilter(django_filters.FilterSet):
 
     class Meta:
         model = Recipient
+        fields = ["first_name", "last_name"]
 
-        
+
 class AddressFilter(django_filters.FilterSet):
     search = django_filters.CharFilter(method=filter_search)
 

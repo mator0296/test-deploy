@@ -45,7 +45,6 @@ ALLOWED_HOSTS = [
     "usa-production.mesada.io",
     "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com",
     "testserver",
-
 ]
 
 AUTH_USER_MODEL = "account.User"
@@ -119,7 +118,12 @@ DATABASES = {"default": env.db("DATABASE_URL")}
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": ("django.contrib.auth.password_validation." "UserAttributeSimilarityValidator")},
+    {
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        )
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": ("django.contrib.auth.password_validation.CommonPasswordValidator")},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -147,7 +151,10 @@ STATIC_URL = "/static/"
 
 ALLOWED_GRAPHQL_ORIGINS = os.environ.get("ALLOWED_GRAPHQL_ORIGINS", "*")
 
-AUTHENTICATION_BACKENDS = ["graphql_jwt.backends.JSONWebTokenBackend", "django.contrib.auth.backends.ModelBackend"]
+AUTHENTICATION_BACKENDS = [
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 GRAPHENE = {
     "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"],

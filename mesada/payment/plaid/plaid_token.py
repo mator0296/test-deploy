@@ -5,7 +5,9 @@ from plaid.errors import PlaidError
 
 def processor_token_create(public_token, account_id):
     client = ClientPlaid(
-        client_id=settings.PLAID_CLIENT_ID, secret=settings.PLAID_SECRET, environment=settings.PLAID_ENVIRONMENT
+        client_id=settings.PLAID_CLIENT_ID,
+        secret=settings.PLAID_SECRET,
+        environment=settings.PLAID_ENVIRONMENT,
     )
     try:
         # Exchange the public token for a Plaid access token.
@@ -18,7 +20,9 @@ def processor_token_create(public_token, account_id):
         account_id = accounts[0]["account_id"]
 
         # Create a processor token for the account found using the access token
-        create_response = client.Processor.tokenCreate(access_token, account_id, settings.PLAID_PROCESSOR)
+        create_response = client.Processor.tokenCreate(
+            access_token, account_id, settings.PLAID_PROCESSOR
+        )
         return create_response["processor_token"], None, None
     except PlaidError as e:
         return None, e.code, e.message

@@ -14,7 +14,8 @@ class BillingDetailsInput(graphene.InputObjectType):
     name = graphene.String(description="Full name of the card holder", required=True)
     city = graphene.String(required=True)
     country = graphene.String(
-        description="Country portion of the address. Formatted as a two-letter country code", required=True
+        description="Country portion of the address. Formatted as a two-letter country code",
+        required=True,
     )
     line1 = graphene.String(description="Line one of the street address", required=True)
     line2 = graphene.String(description="Line two of the street address")

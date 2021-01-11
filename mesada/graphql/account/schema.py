@@ -140,7 +140,7 @@ class AccountQueries(graphene.ObjectType):
     def resolve_addresses(self, info, search, query=None, **_kwargs):
         return resolve_addresses(info, search=search, query=query)
 
-      
+
 class AccountMutations(graphene.ObjectType):
     password_reset = PasswordReset.Field()
     set_password = SetPassword.Field()
@@ -169,4 +169,3 @@ class AccountMutations(graphene.ObjectType):
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
     verifySMSCodeVerification = VerifySMSCodeVerification.Field()
-

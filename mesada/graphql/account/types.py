@@ -33,7 +33,7 @@ class AddressFilterInput(FilterInputObjectType):
     class Meta:
         filterset_class = AddressFilter
 
-        
+
 class AddressInput(graphene.InputObjectType):
     address_name = graphene.String(description="Address Name ID.")
     first_name = graphene.String(description="Given name.")

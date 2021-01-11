@@ -97,7 +97,7 @@ def resolve_recipients_(info, search, query):
 
     return qs
 
-  
+
 def resolve_address(info, id):
     return models.Address.objects.get(pk=id)
 

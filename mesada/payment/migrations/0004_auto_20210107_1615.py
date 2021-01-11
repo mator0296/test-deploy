@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [("payment", "0003_auto_20210106_1944")]
+    dependencies = [("payment", "0001_initial")]
 
     operations = [
         migrations.RenameField(
