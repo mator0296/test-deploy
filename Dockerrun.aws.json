@@ -16,7 +16,13 @@
       "image": "python",
       "links": ["redis"],
       "memory": 128,
-      "name": "celery"
+      "name": "celery",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000
+        }
+      ]
     },
     {
       "essential": true,

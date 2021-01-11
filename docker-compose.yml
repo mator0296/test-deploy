@@ -7,7 +7,7 @@ services:
     ports:
       - "6379:6379"
     mem_limit: 128m
-  django:
+  django: &server
     container_name: django_server
     build:
       context: .
@@ -23,10 +23,7 @@ services:
     mem_limit: 128m
 
   celery:
-    image: python
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *server
     command: python -m celery -A mesada worker -B --loglevel=DEBUG
     links:
       - redis
