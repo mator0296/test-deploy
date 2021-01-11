@@ -7,6 +7,8 @@ https://developers.circle.com/docs/getting-started-with-the-circle-payments-api
 
 import requests
 from django.conf import settings
+from ...core.utils import generate_idempotency_key
+
 
 CIRCLE_API_KEY = settings.CIRCLE_API_KEY
 CIRCLE_BASE_URL = settings.CIRCLE_BASE_URL
@@ -43,3 +45,29 @@ def request_encryption_key():
     data = response.json().get("data")
 
     return data.get("keyId"), data.get("publicKey")
+
+
+def register_ach(payment_method):
+    """Register an ACH payment within the Circle API.
+
+    Args:
+        payment_method (PaymentMethod): ACH payment method instance.
+    """
+    url = f"{CIRCLE_BASE_URL}/banks/ach"
+    body = {
+        "idempotencyKey": generate_idempotency_key(),
+        "plaidProcessorToken": payment_method.processor_toekn,
+        "billingDetails": {
+            "name": payment_method.name,
+            "line1": payment_method.address_line_1,
+            "line2": payment_method.address_line_2,
+            "city": payment_method.city,
+            "district": payment_method.district,
+            "country": payment_method.country_code,
+            "postalCode": payment_method.postal_code,
+        },
+    }
+    response = requests.request("POST", url, headers=HEADERS, json=body)
+    response.raise_for_status()
+
+    return response.json().get("data")
