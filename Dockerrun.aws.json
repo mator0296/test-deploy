@@ -17,12 +17,7 @@
       "links": ["redis"],
       "memory": 128,
       "name": "celery",
-      "portMappings": [
-        {
-          "containerPort": 8000,
-          "hostPort": 8000
-        }
-      ]
+      "portMappings": []
     },
     {
       "essential": true,
