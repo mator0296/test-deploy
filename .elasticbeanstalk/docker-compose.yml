@@ -1,18 +1,3 @@
-celery:
-  command:
-  - python
-  - -m
-  - celery
-  - -A
-  - mesada
-  - worker
-  - -B
-  - --loglevel=DEBUG
-  image: python
-  links:
-  - redis:redis
-  volumes:
-  - django_server:/app
 django:
   image: python
   links:
