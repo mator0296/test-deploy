@@ -7,6 +7,9 @@ https://developers.circle.com/docs/getting-started-with-the-circle-payments-api
 
 import requests
 from django.conf import settings
+from django.utils import dateparse
+from django.core.exceptions import ValidationError
+from ...transfer.models import CircleTransfer
 from ...core.utils import generate_idempotency_key
 
 HEADERS = {
@@ -56,7 +59,7 @@ def create_trasfer_by_blackchain(amount, user):
             "address": f"{settings.BITSO_BLOCKCHAIN_ADDRESS}",
             "chain": f"{settings.CIRCLE_BLOCKCHAIN_CHAIN}",
         },
-        "amount": {"amount": f"{amount}", "currency": "USD"},
+        "amount": {"amount": "{:.2f}".format(amount), "currency": "USD"},
         "idempotencyKey": generate_idempotency_key(),
     }
 
@@ -64,4 +67,21 @@ def create_trasfer_by_blackchain(amount, user):
     response = requests.request("POST", url, headers=HEADERS, json=payload)
     response.raise_for_status()
 
-    return response
+    try:
+        transfer = CircleTransfer(
+            transfer_id = response.json()["data"]["id"],
+            source_type = response.json()["data"]["source"]["type"],
+            source_id = response.json()["data"]["source"]["id"],
+            destination_type = response.json()["data"]["destination"]["type"],
+            destination_address = response.json()["data"]["destination"]["address"],
+            destination_chain = response.json()["data"]["destination"]["chain"],
+            amount = (response.json()["data"]["amount"]["amount"],response.json()["data"]["amount"]["currency"]),
+            status = response.json()["data"]["status"],
+            create_date = dateparse.parse_datetime(response.json()["data"]["createDate"]),
+            user_id = user
+        )
+        transfer.save()
+    except:
+        raise ValidationError({"CircleTransfer": "Error in Circle response from transfer"})
+
+    return response.json()["data"]["id"]
