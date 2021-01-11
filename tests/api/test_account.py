@@ -1,11 +1,8 @@
 import pytest
 from ..utils import assert_no_permission, get_graphql_content
 
-<<<<<<< HEAD
-=======
 
 @pytest.mark.django_db
->>>>>>> 2c01e79357b0fd697ffa35308c63563a23895fb9
 def test_query_customers(staff_api_client, user_api_client, permission_manage_users):
     query = """
     query Users {
