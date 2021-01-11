@@ -2,23 +2,19 @@ celery:
   command:
   - celery
   - -A
-  - dockerexample
+  - mesada
   - worker
   - -B
   - --loglevel=DEBUG
-  image: docker_tutorial_django
+  image: python
   links:
   - redis:redis
-  volumes:
-  - ./dockerexample:/var/www/djangoproject
 django:
-  image: docker_tutorial_django
+  image: python
   links:
   - redis:redis
   ports:
   - 8000:8000
-  volumes:
-  - ./dockerexample:/var/www/djangoproject
 redis:
   image: redis:latest
   ports:
