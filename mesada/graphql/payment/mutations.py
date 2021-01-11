@@ -1,10 +1,14 @@
 import graphene
 
 from ...core.utils import generate_idempotency_key
-from ...payment.plaid.plaid_token import processor_token_create
-from ...payment.circle.circle import create_card, request_encryption_key
+from ...payment import (
+    create_card,
+    create_link_token,
+    processor_token_create,
+    request_encryption_key,
+)
 from ...payment.models import PaymentMethods, verificationAvs, verificationCvv
-from ..core.mutations import ModelMutation, BaseMutation
+from ..core.mutations import BaseMutation, ModelMutation
 from .types import BillingDetailsInput, PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
 
@@ -92,6 +96,27 @@ class CreateCard(ModelMutation):
         )
 
         return cls(payment_method=payment_method)
+
+
+class CreateLinkToken(BaseMutation):
+    """Request a link token from the Plaid API."""
+
+    expiration = graphene.String()
+    link_token = graphene.String()
+    request_id = graphene.String()
+
+    class Meta:
+        description = "Request a link token."
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        response = create_link_token(info.context.user)
+
+        return CreateLinkToken(
+            expiration=response.get("expiration"),
+            link_token=response.get("link_token"),
+            request_id=response.get("request_id"),
+        )
 
 
 class CreatePublicKey(BaseMutation):
