@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -8,6 +9,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.forms.models import model_to_dict
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import pgettext_lazy
 from django_countries.fields import Country, CountryField
@@ -156,7 +158,7 @@ class Recipient(models.Model):
         max_length=18,
         validators=[
             RegexValidator(
-                regex=r"\d{18}",
+                regex="\d{18}",
                 message="Clabe must have 18 digits",
                 code="invalid_clabe",
             )

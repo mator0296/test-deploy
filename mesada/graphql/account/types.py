@@ -100,7 +100,7 @@ class Address(CountableDjangoObjectType):
         return False
 
 
-class User(CountableDjangoObjectType):  # noqa F811
+class User(CountableDjangoObjectType):
     addresses = gql_optimizer.field(
         graphene.List(Address, description="List of all user's addresses."),
         model_field="addresses",

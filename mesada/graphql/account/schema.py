@@ -39,7 +39,6 @@ from .resolvers import (
     resolve_recipients_,
     resolve_recipient_,
 )
-from .types import Address, User, Recipient
 
 
 class CustomerFilterInput(FilterInputObjectType):

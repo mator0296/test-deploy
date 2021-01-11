@@ -19,12 +19,12 @@ class verificationAvs(enum.Enum):
     E = 6
     F = 7
     G = 8
-    I = 9  # noqa: E741
+    I = 9
     K = 10
     L = 11
     M = 12
     N = 13
-    O = 14  # noqa: E741
+    O = 14
     P = 15
     R = 16
     S = 17
