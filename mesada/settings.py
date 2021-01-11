@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "mesada.core",
     "mesada.graphql",
     "mesada.payment",
+    "mesada.transfer",
     "django_extensions",
     "graphene_django",
     "django_filters",
@@ -167,13 +168,23 @@ GRAPHENE = {
 
 CACHES = {"default": django_cache_url.config()}
 
+# CIRCLE
+CIRCLE_API_KEY = env("CIRCLE_API_KEY")
+CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
+
 # Verify Twilio
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
 TWILIO_VERIFICATION_SID = os.environ.get("TWILIO_SERVICE")
 
 # Plaid credentials
-PLAID_CLIENT_ID = os.getenv("PLAID_CLIENT_ID")
-PLAID_SECRET = os.getenv("PLAID_SECRET")
+PLAID_CLIENT_ID = env("PLAID_CLIENT_ID")
+PLAID_SECRET_KEY = env("PLAID_SECRET_KEY")
 PLAID_ENVIRONMENT = os.getenv("PLAID_ENVIRONMENT")
 PLAID_PROCESSOR = os.getenv("PLAID_PROCESSOR")
+
+# Plaid countries array
+PLAID_COUNTRIES = ["US"]
+
+# Plaid products array
+PLAID_PRODUCTS = ["auth"]

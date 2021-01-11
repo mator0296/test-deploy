@@ -4,12 +4,11 @@ from django.contrib.auth import get_user_model
 from graphene import relay
 from graphql_jwt.decorators import permission_required
 
-from ...account.models import Address, Recipient, User
+from ...account.models import Address, Recipient
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
 from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
 from ..utils import format_permissions_for_display
-
 from .filters import AddressFilter, CustomerFilter, StaffUserFilter, RecipientsFilter
 from .enums import BankName
 
@@ -126,6 +125,7 @@ class User(CountableDjangoObjectType):  # noqa F811
             "last_login",
             "last_name",
             "note",
+            "is_phone_verified",
         ]
 
     def resolve_addresses(self, _info, **_kwargs):
@@ -171,14 +171,17 @@ class Recipient(CountableDjangoObjectType):
     )
 
     class Meta:
-        description = "Represents recipient data."
+        description = "Represents user recipeint data."
+        filter_fields = ["first_name", "last_name", "email", "alias"]
         interfaces = [relay.Node]
         model = Recipient
-        only_fields = [
-            "first_name",
-            "last_name",
-            "alias",
-            "email",
-            "clabe",
-            "bank_name",
-        ]
+        only_fields = ["first_name", "last_name", "email", "alias"]
+
+
+class RecipientInput(graphene.InputObjectType):
+    first_name = graphene.String(description="Given name.")
+    last_name = graphene.String(description="Family name.")
+    alias = graphene.String(description="Pseudonym.")
+    email = graphene.String(description="The unique email address of the recipient.")
+    clabe = graphene.String(description="Bank account number in Mexico.")
+    bank_name = graphene.String(description="Bank Name in Mexico.")

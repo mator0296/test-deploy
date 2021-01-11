@@ -16,6 +16,8 @@ USER_SEARCH_FIELDS = (
     "default_address__country",
 )
 
+RECIPIENT_SEARCH_FIELDS = ("alias", "email", "first_name", "last_name")
+
 
 RECIPIENT_SEARCH_FIELDS = ("alias", "email", "first_name", "last_name")
 
@@ -50,11 +52,6 @@ def resolve_address_validator(info, country_code, country_area, city_area):
             country_code = country.code
         else:
             return None
-    params = {  # noqa: F841
-        "country_code": country_code,
-        "country_area": country_area,
-        "city_area": city_area,
-    }
     rules = {}
     return AddressValidationData(
         country_code=rules.country_code,
@@ -97,6 +94,7 @@ def resolve_recipients_(info, search, query):
     qs = filter_by_query_param(
         queryset=qs, query=query, search_fields=RECIPIENT_SEARCH_FIELDS
     )
+
     return qs
 
 

@@ -1,8 +1,13 @@
 import graphene
+from graphene_django.types import DjangoObjectType
+from ...payment.models import PaymentMethods
 
-from ...payment.models import paymentMethods
-from ..account.types import User
-from ..core.connection import CountableDjangoObjectType
+
+class PaymentMethod(DjangoObjectType):
+    class Meta:
+        description = "Represents a Payment Method"
+        model = PaymentMethods
+        fields = "__all__"
 
 
 class BillingDetailsInput(graphene.InputObjectType):
@@ -15,34 +20,9 @@ class BillingDetailsInput(graphene.InputObjectType):
     line1 = graphene.String(description="Line one of the street address", required=True)
     line2 = graphene.String(description="Line two of the street address")
     district = graphene.String(
-        description="Region portion of the address. If the country is US or Canada district is required and should use \
-            the two-letter code for the subdivision."
+        description=(
+            "Region portion of the address. If the country is US or Canada district is required and should use"
+            " the two-letter code for the subdivision."
+        )
     )
     postalCode = graphene.String(description="ZIP code of the address", required=True)
-
-
-class PaymentMethod(CountableDjangoObjectType):
-    type = graphene.String()
-    exp_month = graphene.Int()
-    exp_year = graphene.Int()
-    network = graphene.String()
-    last_digits = graphene.String()
-    fingerprint = graphene.String()
-    verification_cvv = graphene.Int()
-    verification_avs = graphene.Int()
-    phonenumber = graphene.String()
-    email = graphene.String()
-    name = graphene.String()
-    address_line_1 = graphene.String()
-    address_line_2 = graphene.String()
-    postal_code = graphene.String()
-    city = graphene.String()
-    district = graphene.String()
-    country_code = graphene.String()
-    created = graphene.DateTime()
-    updated = graphene.DateTime()
-    user = graphene.Field(User)
-
-    class Meta:
-        description = "Represents a Payment Method"
-        model = paymentMethods

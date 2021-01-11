@@ -1,12 +1,16 @@
 import graphene
 
 from ...core.utils import generate_idempotency_key
-from ...payment import create_card, processor_token_create
-from ...payment.models import paymentMethods, verificationAvs, verificationCvv
-from ..core.mutations import ModelMutation, BaseMutation
+from ...payment import (
+    create_card,
+    create_link_token,
+    processor_token_create,
+    request_encryption_key,
+)
+from ...payment.models import PaymentMethods, verificationAvs, verificationCvv
+from ..core.mutations import BaseMutation, ModelMutation
 from .types import BillingDetailsInput, PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
-from ...payment import request_encryption_key
 
 
 class CardInput(graphene.InputObjectType):
@@ -24,7 +28,7 @@ class CreateCard(ModelMutation):
 
     class Meta:
         description = "Save a new card withing the Circle API."
-        model = paymentMethods
+        model = PaymentMethods
 
     class Arguments:
         input = CardInput(description="Card input", required=True)
@@ -67,7 +71,7 @@ class CreateCard(ModelMutation):
         verification = response.get("verification")
         metadata = response.get("metadata")
 
-        payment_method = paymentMethods.objects.create(
+        payment_method = PaymentMethods.objects.create(
             type="CARD",
             exp_month=response.get("expMonth"),
             exp_year=response.get("expYear"),
@@ -92,6 +96,27 @@ class CreateCard(ModelMutation):
         )
 
         return cls(payment_method=payment_method)
+
+
+class CreateLinkToken(BaseMutation):
+    """Request a link token from the Plaid API."""
+
+    expiration = graphene.String()
+    link_token = graphene.String()
+    request_id = graphene.String()
+
+    class Meta:
+        description = "Request a link token."
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        response = create_link_token(info.context.user)
+
+        return CreateLinkToken(
+            expiration=response.get("expiration"),
+            link_token=response.get("link_token"),
+            request_id=response.get("request_id"),
+        )
 
 
 class CreatePublicKey(BaseMutation):
@@ -133,7 +158,7 @@ class ProcessorTokenCreate(ModelMutation):
 
     class Meta:
         description = "Creates a new processor token."
-        model = paymentMethods
+        model = PaymentMethods
 
     @classmethod
     def perform_mutation(cls, _root, info, input):
@@ -145,7 +170,7 @@ class ProcessorTokenCreate(ModelMutation):
         )
 
         if processor_token is not None:
-            payment_method = paymentMethods.objects.create(
+            payment_method = PaymentMethods.objects.create(
                 type="ACH", processor_token=processor_token, user=info.context.user
             )
             return cls(payment_method=payment_method, error=None, message=None)

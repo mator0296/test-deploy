@@ -12,9 +12,15 @@ from twilio.base.exceptions import TwilioRestException
 
 from ...account import models
 from ...core.permissions import get_permissions
-from ...core.twilio import check_code, send_code
-from ..account.types import Address, AddressInput, Recipient, RecipientInput, User
 
+from ...core.twilio import check_code, send_code
+from ..account.types import (
+    Address,
+    AddressInput,
+    Recipient as RecipientType,
+    RecipientInput,
+    User,
+)
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.utils import get_user_instance
@@ -43,6 +49,21 @@ def can_edit_address(user, address, check_user_permission=True):
     - customers who "own" the given address.
     """
     belongs_to_user = address in user.addresses.all()
+    if check_user_permission:
+        has_perm = user.has_perm("account.manage_users")
+        return has_perm or belongs_to_user
+    return belongs_to_user
+
+
+def can_edit_recipient(user, recipient, check_user_permission=True):
+    """Determine whether the user can edit the given recipient.
+
+    This method assumes that an address can be edited by:
+    - users with proper permission (staff)
+    - customers who "own" the given address.
+    """
+
+    belongs_to_user = recipient in recipient.all()
     if check_user_permission:
         has_perm = user.has_perm("account.manage_users")
         return has_perm or belongs_to_user
@@ -665,7 +686,9 @@ class AddressDelete(ModelDeleteMutation):
 
 
 class RecipientCreate(ModelMutation):
-    recipient = graphene.Field(Recipient, description="A recipient instance created.")
+    recipient = graphene.Field(
+        RecipientType, description="A recipient instance created."
+    )
 
     class Arguments:
         input = RecipientInput(
@@ -692,7 +715,9 @@ class RecipientCreate(ModelMutation):
 
 class RecipientUpdate(ModelMutation):
 
-    recipient = graphene.Field(Recipient, description="A recipient instance updated.")
+    recipient = graphene.Field(
+        RecipientType, description="A recipient instance updated."
+    )
 
     class Arguments:
         id = graphene.ID(description="ID of the recipient to updated", required=True)
@@ -715,7 +740,7 @@ class RecipientUpdate(ModelMutation):
 
 class RecipientDelete(ModelDeleteMutation):
     recipient = graphene.Field(
-        Recipient, description="A user instance for which the address was deleted."
+        RecipientType, description="A user instance for which the address was deleted."
     )
 
     class Arguments:
@@ -767,9 +792,8 @@ class SendPhoneVerificationSMS(BaseMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, user_id):
-        try:
-            user = models.User.objects.get(id=user_id)
-        except ObjectDoesNotExist:
+        user = graphene.Node.get_node_from_global_id(info, user_id, User)
+        if user is None:
             raise ValidationError({"userID": "User with this ID doesn't exist"})
         if user.is_phone_verified:
             raise ValidationError(
@@ -795,13 +819,12 @@ class VerifySMSCodeVerification(BaseMutation):
         code = graphene.String(description="Verification code.", required=True)
 
     class Meta:
-        description = "check the code to validate the phone number"
+        description = "Send a code to verify SMS code"
 
     @classmethod
     def perform_mutation(cls, _root, info, user_id, code):
-        try:
-            user = models.User.objects.get(id=user_id)
-        except ObjectDoesNotExist:
+        user = graphene.Node.get_node_from_global_id(info, user_id, User)
+        if user is None:
             raise ValidationError({"userID": "User with this ID doesn't exist"})
         if user.is_phone_verified:
             raise ValidationError(
