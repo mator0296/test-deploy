@@ -1,6 +1,6 @@
 import random
 import string
-
+import django
 django.setup()  # noqa: E731
 from django.contrib.auth.models import Permission  # noqa: E402
 

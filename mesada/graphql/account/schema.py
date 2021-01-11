@@ -1,10 +1,9 @@
 import graphene
-from graphql_jwt.decorators import permission_required
 
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
-from ..core.types import FilterInputObjectType
 from .filters import CustomerFilter, StaffUserFilter, AddressFilter, RecipientsFilter
+from ..core.types import FilterInputObjectType
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -28,19 +27,17 @@ from .mutations import (
     StaffUpdate,
     VerifySMSCodeVerification,
 )
+from .types import Address, User, Recipient
 
-from .types import Address, AddressValidationData, User, Recipient
+from graphql_jwt.decorators import permission_required
 
 from .resolvers import (
     resolve_address,
-    resolve_address_validator,
     resolve_addresses,
     resolve_customers,
     resolve_staff_users,
     resolve_recipients_,
     resolve_recipient_,
-    resolve_address,
-    resolve_addresses,
 )
 
 
