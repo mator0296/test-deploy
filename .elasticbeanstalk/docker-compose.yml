@@ -1,5 +1,7 @@
 celery:
   command:
+  - python
+  - -m
   - celery
   - -A
   - mesada

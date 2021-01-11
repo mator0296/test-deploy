@@ -6,7 +6,7 @@ services:
     container_name: rd01
     ports:
       - "6379:6379"
-    #mem_limit: 1000m
+    mem_limit: 128m
   django:
     container_name: django_server
     build:
@@ -20,7 +20,7 @@ services:
       - redis
     depends_on:
       - celery
-    #mem_limit: 1000m
+    mem_limit: 128m
 
   celery:
     image: python
@@ -30,4 +30,4 @@ services:
     command: python -m celery -A mesada worker -B --loglevel=DEBUG
     links:
       - redis
-    #mem_limit: 1000m
+    mem_limit: 128m
