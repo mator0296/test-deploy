@@ -2,33 +2,10 @@
   "AWSEBDockerrunVersion": 2,
   "containerDefinitions": [
     {
-      "command": [
-        "python",
-        "-m",
-        "celery",
-        "-A",
-        "mesada",
-        "worker",
-        "-B",
-        "--loglevel=DEBUG"
-      ],
-      "essential": false,
-      "image": "python",
-      "links": ["redis"],
-      "memory": 128,
-      "mountPoints": [
-        {
-          "containerPath": "/app",
-          "sourceVolume": "Django_Server"
-        }
-      ],
-      "name": "celery"
-    },
-    {
       "essential": true,
       "image": "python",
       "links": ["redis"],
-      "memory": 128,
+      "memory": 1000,
       "mountPoints": [
         {
           "containerPath": "/app",
@@ -46,7 +23,7 @@
     {
       "essential": true,
       "image": "redis:latest",
-      "memory": 128,
+      "memory": 1000,
       "name": "redis",
       "portMappings": [
         {
