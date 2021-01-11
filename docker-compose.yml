@@ -12,9 +12,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: docker_tutorial_django
+    image: python
     volumes:
-      - ./dockerexample:/var/www/djangoproject
+      - ./dockerexample:/app/mesada
     ports:
       - "8000:8000"
     links:
@@ -24,11 +24,11 @@ services:
     #mem_limit: 1000m
 
   celery:
-    image: docker_tutorial_django
+    image: python
     build: .
     command: celery -A mesada worker -B --loglevel=DEBUG
     volumes:
-      - ./dockerexample:/var/www/djangoproject
+      - ./dockerexample:/app/mesada
     links:
       - redis
     #mem_limit: 1000m

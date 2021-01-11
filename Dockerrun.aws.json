@@ -11,7 +11,7 @@
         "--loglevel=DEBUG"
       ],
       "essential": true,
-      "image": "docker_tutorial_django",
+      "image": "python",
       "links": ["redis"],
       "memory": 128,
       "mountPoints": [
@@ -24,7 +24,7 @@
     },
     {
       "essential": true,
-      "image": "docker_tutorial_django",
+      "image": "python",
       "links": ["redis"],
       "memory": 128,
       "mountPoints": [
