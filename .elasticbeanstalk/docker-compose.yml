@@ -11,12 +11,16 @@ celery:
   image: python
   links:
   - redis:redis
+  volumes:
+  - django_server:/app
 django:
   image: python
   links:
   - redis:redis
   ports:
   - 8000:8000
+  volumes:
+  - django_server:/app
 redis:
   image: redis:latest
   ports:
