@@ -11,7 +11,7 @@
       "mountPoints": [
         {
           "containerPath": "/app",
-          "sourceVolume": "_Django_Server"
+          "sourceVolume": "Django_Server"
         }
       ],
       "name": "celery"
@@ -24,7 +24,7 @@
       "mountPoints": [
         {
           "containerPath": "/app",
-          "sourceVolume": "_Django_Server"
+          "sourceVolume": "Django_Server"
         }
       ],
       "name": "django",
@@ -54,7 +54,7 @@
       "host": {
         "sourcePath": "./django_server"
       },
-      "name": "_Django_Server"
+      "name": "Django_Server"
     }
   ]
 }
