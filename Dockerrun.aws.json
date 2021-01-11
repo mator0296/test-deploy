@@ -6,14 +6,14 @@
       "essential": true,
       "image": "python",
       "links": ["redis"],
-      "memory": 1000,
+      "memory": 128,
       "name": "celery"
     },
     {
       "essential": true,
       "image": "python",
       "links": ["redis"],
-      "memory": 1000,
+      "memory": 128,
       "name": "django",
       "portMappings": [
         {
@@ -25,7 +25,7 @@
     {
       "essential": true,
       "image": "redis:latest",
-      "memory": 1000,
+      "memory": 128,
       "name": "redis",
       "portMappings": [
         {
