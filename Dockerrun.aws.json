@@ -1,69 +1,60 @@
 {
-    "containerDefinitions": [
+  "AWSEBDockerrunVersion": 2,
+
+  "containerDefinitions": [
+    {
+      "command": ["celery", "-A", "mesada", "worker", "-B", "--loglevel=DEBUG"],
+      "essential": true,
+      "image": "python",
+      "links": ["redis"],
+      "memory": 128,
+      "mountPoints": [
         {
-            "command": [
-                "celery",
-                "-A",
-                "mesada",
-                "worker",
-                "-B",
-                "--loglevel=DEBUG"
-            ],
-            "essential": true,
-            "image": "python",
-            "links": [
-                "redis"
-            ],
-            "memory": 128,
-            "mountPoints": [
-                {
-                    "containerPath": "/app",
-                    "sourceVolume": "_Django_Server"
-                }
-            ],
-            "name": "celery"
-        },
-        {
-            "essential": true,
-            "image": "python",
-            "links": [
-                "redis"
-            ],
-            "memory": 128,
-            "mountPoints": [
-                {
-                    "containerPath": "/app",
-                    "sourceVolume": "_Django_Server"
-                }
-            ],
-            "name": "django",
-            "portMappings": [
-                {
-                    "containerPort": 8000,
-                    "hostPort": 8000
-                }
-            ]
-        },
-        {
-            "essential": true,
-            "image": "redis:latest",
-            "memory": 128,
-            "name": "redis",
-            "portMappings": [
-                {
-                    "containerPort": 6379,
-                    "hostPort": 6379
-                }
-            ]
+          "containerPath": "/app",
+          "sourceVolume": "_Django_Server"
         }
-    ],
-    "family": "",
-    "volumes": [
+      ],
+      "name": "celery"
+    },
+    {
+      "essential": true,
+      "image": "python",
+      "links": ["redis"],
+      "memory": 128,
+      "mountPoints": [
         {
-            "host": {
-                "sourcePath": "./django_server"
-            },
-            "name": "_Django_Server"
+          "containerPath": "/app",
+          "sourceVolume": "_Django_Server"
         }
-    ]
+      ],
+      "name": "django",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000
+        }
+      ]
+    },
+    {
+      "essential": true,
+      "image": "redis:latest",
+      "memory": 128,
+      "name": "redis",
+      "portMappings": [
+        {
+          "containerPort": 6379,
+          "hostPort": 6379
+        }
+      ]
+    }
+  ],
+  "family": "",
+  "volumes": [
+    {
+      "host": {
+        "sourcePath": "./django_server"
+      },
+      "name": "_Django_Server"
+    }
+  ]
 }
