@@ -13,8 +13,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: python
-    volumes:
-      - ./dockerexample:/app/mesada
+
     ports:
       - "8000:8000"
     links:
@@ -27,8 +26,6 @@ services:
     image: python
     build: .
     command: celery -A mesada worker -B --loglevel=DEBUG
-    volumes:
-      - ./dockerexample:/app/mesada
     links:
       - redis
     #mem_limit: 1000m

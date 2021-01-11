@@ -1,66 +1,50 @@
 {
-  "AWSEBDockerrunVersion": 2,
-  "containerDefinitions": [
-    {
-      "command": [
-        "celery",
-        "-A",
-        "dockerexample",
-        "worker",
-        "-B",
-        "--loglevel=DEBUG"
-      ],
-      "essential": true,
-      "image": "python",
-      "links": ["redis"],
-      "memory": 128,
-      "mountPoints": [
+    "containerDefinitions": [
         {
-          "containerPath": "/app/mesada",
-          "sourceVolume": "Dockerexample"
-        }
-      ],
-      "name": "celery"
-    },
-    {
-      "essential": true,
-      "image": "python",
-      "links": ["redis"],
-      "memory": 128,
-      "mountPoints": [
+            "command": [
+                "celery",
+                "-A",
+                "mesada",
+                "worker",
+                "-B",
+                "--loglevel=DEBUG"
+            ],
+            "essential": true,
+            "image": "python",
+            "links": [
+                "redis"
+            ],
+            "memory": 1000,
+            "name": "celery"
+        },
         {
-          "containerPath": "/app/mesada",
-          "sourceVolume": "Dockerexample"
-        }
-      ],
-      "name": "django",
-      "portMappings": [
+            "essential": true,
+            "image": "python",
+            "links": [
+                "redis"
+            ],
+            "memory": 1000,
+            "name": "django",
+            "portMappings": [
+                {
+                    "containerPort": 8000,
+                    "hostPort": 8000
+                }
+            ]
+        },
         {
-          "containerPort": 8000,
-          "hostPort": 8000
+            "essential": true,
+            "image": "redis:latest",
+            "memory": 1000,
+            "name": "redis",
+            "portMappings": [
+                {
+                    "containerPort": 6379,
+                    "hostPort": 6379
+                }
+            ]
         }
-      ]
-    },
-    {
-      "essential": true,
-      "image": "redis:latest",
-      "memory": 128,
-      "name": "redis",
-      "portMappings": [
-        {
-          "containerPort": 6379,
-          "hostPort": 6379
-        }
-      ]
-    }
-  ],
-  "family": "",
-  "volumes": [
-    {
-      "host": {
-        "sourcePath": "/app/mesada"
-      },
-      "name": "Dockerexample"
-    }
-  ]
+    ],
+    "family": "",
+    "volumes": []
 }
