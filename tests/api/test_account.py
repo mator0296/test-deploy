@@ -1,5 +1,3 @@
-
-
 from ..utils import assert_no_permission, get_graphql_content
 
 
