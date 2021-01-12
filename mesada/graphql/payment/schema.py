@@ -7,6 +7,7 @@ from .mutations import (
     CreatePublicKey,
     ProcessorTokenCreate,
     CreateLinkToken,
+    CreatePayment,
 )
 
 
@@ -34,6 +35,7 @@ class PaymentMutations(graphene.ObjectType):
     create_card = CreateCard.Field()
     create_link_token = CreateLinkToken.Field()
     create_public_key = CreatePublicKey.Field()
+    create_payment = CreatePayment.Field()
 
 
 class PaymentMethodsMutations(graphene.ObjectType):
