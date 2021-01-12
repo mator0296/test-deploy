@@ -30,19 +30,10 @@ SOURCE_DIR=$(dirname "${BASH_SOURCE[0]}")
 
 BASE_BRANCH="origin/dev"
 echo ""
-
-set +e
 MODIFIED_PY_FILES=$(git status -s | grep -E '\.py$' | cut -c 4- 2>&1)
-if [[ $MODIFIED_PY_FILES != "" ]]; then
-    echo $MODIFIED_PY_FILES | xargs flake8
-else
-    printf "Running flake8 ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
-fi
-set -e
-
 set +e
 if [[ $MODIFIED_PY_FILES != "" ]]; then
-    echo $MODIFIED_PY_FILES | no_log_if_successful xargs isort 
+    echo $MODIFIED_PY_FILES | no_log_if_successful xargs isort -c
     set +e
 else
     printf "Running isort ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
@@ -50,3 +41,14 @@ fi
 set -e
 
 no_log_if_successful black mesada tests
+
+if [[ $MODIFIED_PY_FILES != "" ]]; then
+    printf "Running flake8 ... \n"
+    echo $MODIFIED_PY_FILES | xargs flake8
+else
+    printf "Running flake8 ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
+fi
+
+
+
+
