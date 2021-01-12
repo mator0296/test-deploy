@@ -1,5 +1,5 @@
 
-set -e
+
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -22,6 +22,7 @@ function no_log_if_successful {
     return $EXIT_CODE
 }
 
+set -e
 
 SOURCE=$(basename "${BASH_SOURCE[0]}")
 SOURCE_DIR=$(dirname "${BASH_SOURCE[0]}")
@@ -31,9 +32,9 @@ BASE_BRANCH="origin/dev"
 echo ""
 
 set +e
-MODIFIED_PY_FILES=$(git status -s | grep -E '\.py$' | cut -c 4-)
+MODIFIED_PY_FILES=$(git status -s | grep -E '\.py$' | cut -c 4- 2>&1)
 if [[ $MODIFIED_PY_FILES != "" ]]; then
-    echo $MODIFIED_PY_FILES | no_log_if_successful xargs flake8
+    echo $MODIFIED_PY_FILES | xargs flake8
 else
     printf "Running flake8 ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
 fi
