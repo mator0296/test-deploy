@@ -30,15 +30,16 @@ SOURCE_DIR=$(dirname "${BASH_SOURCE[0]}")
 
 BASE_BRANCH="origin/dev"
 echo ""
-MODIFIED_PY_FILES=$(git status -s | grep -E '\.py$' | cut -c 4- 2>&1)
-set +e
+MODIFIED_PY_FILES=$(git status -s | grep -E '\.py$' | cut -c 4- )
+
 if [[ $MODIFIED_PY_FILES != "" ]]; then
-    echo $MODIFIED_PY_FILES | no_log_if_successful xargs isort -c
-    set +e
+    printf "Running isort ... \n"
+    echo $MODIFIED_PY_FILES | xargs isort 
+
 else
     printf "Running isort ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
 fi
-set -e
+
 
 no_log_if_successful black mesada tests
 
