@@ -19,12 +19,12 @@ class verificationAvs(enum.Enum):
     E = 6
     F = 7
     G = 8
-    I = 9
+    I = 9  # noqa: E741
     K = 10
     L = 11
     M = 12
     N = 13
-    O = 14
+    O = 14  # noqa: E741
     P = 15
     R = 16
     S = 17
@@ -94,24 +94,25 @@ class PaymentMethods(models.Model):
 class Payment(models.Model):
 
     type = models.CharField(max_length=256)
-    merchant_id = models.CharField(max_length=256, unique=True)
-    merchant_wallet_id = models.CharField(max_length=256, unique=True)
+    merchant_id = models.CharField(max_length=256)
+    merchant_wallet_id = models.CharField(max_length=256)
     amount = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
     source = models.JSONField()
     description = models.TextField(blank=True, default="")
     status = models.CharField(
         max_length=9, choices=PaymentStatus.choices, default=PaymentStatus.PENDING
     )
-    verification = models.JSONField()
-    cancel = models.JSONField()
-    refunds = models.JSONField()
-    fees = models.JSONField()
+    verification = models.JSONField(null=True)
+    cancel = models.JSONField(null=True)
+    refunds = models.JSONField(null=True)
+    fees = models.JSONField(null=True)
     tracking_ref = models.CharField(max_length=256, null=True)
     error_code = models.CharField(
         max_length=256, null=True, choices=PaymentErrorCode.choices
     )
     metadata = models.JSONField()
-    risk_evaluation = models.JSONField()
+    risk_evaluation = models.JSONField(null=True)
+    payment_token = models.CharField(max_length=256, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="payment")
