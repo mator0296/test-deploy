@@ -38,6 +38,7 @@ if [[ $MODIFIED_PY_FILES != "" ]]; then
 else
     printf "Running flake8 ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
 fi
+set -e
 
 if [[ $MODIFIED_PY_FILES != "" ]]; then
     echo $MODIFIED_PY_FILES | no_log_if_successful isort 
@@ -45,5 +46,6 @@ if [[ $MODIFIED_PY_FILES != "" ]]; then
 else
     printf "Running isort ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
 fi
+set -e
 
 no_log_if_successful black mesada tests
