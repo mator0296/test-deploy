@@ -1,5 +1,5 @@
 
-set +e
+set -e
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -32,10 +32,8 @@ echo ""
 
 set +e
 MODIFIED_PY_FILES=$(git status -s | grep -E '\.py$' | cut -c 4-)
-
 if [[ $MODIFIED_PY_FILES != "" ]]; then
     echo $MODIFIED_PY_FILES | no_log_if_successful xargs flake8
-    set +e
 else
     printf "Running flake8 ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
 fi
@@ -43,7 +41,7 @@ set -e
 
 set +e
 if [[ $MODIFIED_PY_FILES != "" ]]; then
-    echo $MODIFIED_PY_FILES | no_log_if_successful isort 
+    echo $MODIFIED_PY_FILES | no_log_if_successful xargs isort 
     set +e
 else
     printf "Running isort ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
