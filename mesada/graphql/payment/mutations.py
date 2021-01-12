@@ -142,6 +142,7 @@ class ProcessorTokenInput(graphene.InputObjectType):
     accounts = graphene.List(
         graphene.JSONString, description="List of client's accounts", required=True
     )
+    billing_details = BillingDetailsInput(description="Billing details", required=True)
 
 
 class ProcessorTokenCreate(ModelMutation):
@@ -162,16 +163,25 @@ class ProcessorTokenCreate(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, input):
-        access_token = input.get("public_token")
+        public_token = input.get("public_token")
         account_id = input.get("accounts")[0]["account_id"]
+        billing_details = input.get("billing_details")
 
         processor_token, error, message = processor_token_create(
-            access_token, account_id
+            public_token, account_id
         )
-
         if processor_token is not None:
             payment_method = PaymentMethods.objects.create(
-                type="ACH", processor_token=processor_token, user=info.context.user
+                type="ACH",
+                processor_token=processor_token,
+                user=info.context.user,
+                name=billing_details.get("name"),
+                address_line_1=billing_details.get("line1"),
+                address_line_2=billing_details.get("line2", ""),
+                postal_code=billing_details.get("postalCode"),
+                city=billing_details.get("city"),
+                district=billing_details.get("district"),
+                country_code=billing_details.get("country"),
             )
             return cls(payment_method=payment_method, error=None, message=None)
 
