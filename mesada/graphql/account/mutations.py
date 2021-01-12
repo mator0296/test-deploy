@@ -702,7 +702,6 @@ class RecipientCreate(ModelMutation):
     @classmethod
     def perform_mutation(cls, root, info, **data):
         user = get_user_instance(info)
-        input_data = data.get("input")  # noqa: F841
         response = super().perform_mutation(root, info, **data)
         if not response.errors:
             response.recipient.user_id = user.id
