@@ -7,10 +7,12 @@ from graphql_jwt.decorators import permission_required
 from ...account.models import Address, Recipient
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
-from ..core.types import CountryDisplay, FilterInputObjectType, PermissionDisplay
+from ..core.types import (CountryDisplay, FilterInputObjectType,
+                          PermissionDisplay)
 from ..utils import format_permissions_for_display
-from .filters import AddressFilter, CustomerFilter, StaffUserFilter, RecipientsFilter
 from .enums import BankName
+from .filters import (AddressFilter, CustomerFilter, RecipientsFilter,
+                      StaffUserFilter)
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -176,12 +178,3 @@ class Recipient(CountableDjangoObjectType):
         interfaces = [relay.Node]
         model = Recipient
         only_fields = ["first_name", "last_name", "email", "alias"]
-
-
-class RecipientInput(graphene.InputObjectType):
-    first_name = graphene.String(description="Given name.")
-    last_name = graphene.String(description="Family name.")
-    alias = graphene.String(description="Pseudonym.")
-    email = graphene.String(description="The unique email address of the recipient.")
-    clabe = graphene.String(description="Bank account number in Mexico.")
-    bank_name = graphene.String(description="Bank Name in Mexico.")

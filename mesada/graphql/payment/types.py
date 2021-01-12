@@ -1,6 +1,7 @@
 import graphene
 from graphene_django.types import DjangoObjectType
-from ...payment.models import PaymentMethods, Payment
+
+from ...payment.models import Payment, PaymentMethods
 
 
 class PaymentMethod(DjangoObjectType):

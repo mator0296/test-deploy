@@ -32,6 +32,7 @@ def processor_token_create(public_token, account_id):
             access_token, account_id, settings.PLAID_PROCESSOR
         )
         return create_response["processor_token"], None, None
+
     except PlaidError as e:
         return None, e.code, e.message
 
@@ -59,5 +60,7 @@ def create_link_token(user):
         response = client.LinkToken.create(body)
 
         return response
+
     except PlaidError as e:
+        # TODO: Double check this
         raise PlaidError(e)

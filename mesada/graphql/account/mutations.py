@@ -12,15 +12,10 @@ from twilio.base.exceptions import TwilioRestException
 
 from ...account import models
 from ...core.permissions import get_permissions
-
 from ...core.twilio import check_code, send_code
-from ..account.types import (
-    Address,
-    AddressInput,
-    Recipient as RecipientType,
-    RecipientInput,
-    User,
-)
+from ..account.types import Address, AddressInput
+from ..account.types import Recipient as RecipientType
+from ..account.types import RecipientInput, User
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.utils import get_user_instance
