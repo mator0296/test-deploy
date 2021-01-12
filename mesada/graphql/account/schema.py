@@ -108,8 +108,7 @@ class AccountQueries(graphene.ObjectType):
         query=graphene.String(description="Recipient Users"),
     )
 
-    # @permission_required("account.manage_users")
-
+    @permission_required("account.manage_users")
     def resolve_customers(self, info, query=None, **_kwargs):
         return resolve_customers(info, query=query)
 
