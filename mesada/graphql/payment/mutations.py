@@ -1,11 +1,17 @@
 import graphene
 
+from djmoney.money import Money
 from ...core.utils import generate_idempotency_key
-from ...payment.plaid.plaid_token import processor_token_create
-from ...payment.circle.circle import create_card, request_encryption_key
-from ...payment.models import PaymentMethods, verificationAvs, verificationCvv
-from ..core.mutations import ModelMutation, BaseMutation
-from .types import BillingDetailsInput, PaymentMethod
+from ...payment import (
+    create_card,
+    create_link_token,
+    processor_token_create,
+    request_encryption_key,
+    create_payment,
+)
+from ...payment.models import PaymentMethods, verificationAvs, verificationCvv, Payment
+from ..core.mutations import BaseMutation, ModelMutation
+from .types import BillingDetailsInput, PaymentMethod, Payment as PaymentType
 from .utils import get_default_billing_details, hash_session_id
 
 
@@ -94,6 +100,27 @@ class CreateCard(ModelMutation):
         return cls(payment_method=payment_method)
 
 
+class CreateLinkToken(BaseMutation):
+    """Request a link token from the Plaid API."""
+
+    expiration = graphene.String()
+    link_token = graphene.String()
+    request_id = graphene.String()
+
+    class Meta:
+        description = "Request a link token."
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        response = create_link_token(info.context.user)
+
+        return CreateLinkToken(
+            expiration=response.get("expiration"),
+            link_token=response.get("link_token"),
+            request_id=response.get("request_id"),
+        )
+
+
 class CreatePublicKey(BaseMutation):
     """
     The key retrieved is an RSA public key that needs to be b64 decoded
@@ -117,6 +144,7 @@ class ProcessorTokenInput(graphene.InputObjectType):
     accounts = graphene.List(
         graphene.JSONString, description="List of client's accounts", required=True
     )
+    billing_details = BillingDetailsInput(description="Billing details", required=True)
 
 
 class ProcessorTokenCreate(ModelMutation):
@@ -137,17 +165,102 @@ class ProcessorTokenCreate(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, input):
-        access_token = input.get("public_token")
+        public_token = input.get("public_token")
         account_id = input.get("accounts")[0]["account_id"]
+        billing_details = input.get("billing_details")
 
         processor_token, error, message = processor_token_create(
-            access_token, account_id
+            public_token, account_id
         )
-
         if processor_token is not None:
             payment_method = PaymentMethods.objects.create(
-                type="ACH", processor_token=processor_token, user=info.context.user
+                type="ACH",
+                processor_token=processor_token,
+                user=info.context.user,
+                name=billing_details.get("name"),
+                address_line_1=billing_details.get("line1"),
+                address_line_2=billing_details.get("line2", ""),
+                postal_code=billing_details.get("postalCode"),
+                city=billing_details.get("city"),
+                district=billing_details.get("district"),
+                country_code=billing_details.get("country"),
             )
             return cls(payment_method=payment_method, error=None, message=None)
 
         return cls(payment_method=None, error=error, message=message)
+
+
+class CreatePayment(ModelMutation):
+    """Create a payment using the Circle API."""
+
+    payment = graphene.Field(PaymentType)
+
+    class Arguments:
+        type = graphene.String(
+            description="Type of the transfer. Possible values are CARD or ACH.",
+            required=True,
+        )
+        payment_method = graphene.Int(description="Payment method ID.", required=True)
+        amount = graphene.Float(description="Amount of the payment.", required=True)
+        currency = graphene.String(
+            description="Payment currency. Defaults to USD.", default_value="USD"
+        )
+        description = graphene.String(
+            description="A description of the payment to be performed. This is an optional param.",
+            default_value="New Payment",
+        )
+
+    class Meta:
+        description = "Create a new Payment."
+        model = Payment
+
+    @classmethod
+    def perform_mutation(
+        cls, _root, info, amount, currency, description, payment_method, type
+    ):
+        if not info.context.session.session_key:
+            info.context.session.save()
+
+        ip_address = info.context.META.get("REMOTE_ADDR")
+        hashed_session_id = hash_session_id(info.context.session.session_key)
+
+        payment_method = PaymentMethods.objects.get(pk=payment_method)
+
+        body = {
+            "idempotencyKey": generate_idempotency_key(),
+            "amount": {"amount": str(amount), "currency": currency},
+            "source": {"id": payment_method.payment_method_token, "type": type.lower()},
+            "description": description,
+            "metadata": {
+                "email": payment_method.email,
+                "phoneNumber": payment_method.phonenumber,
+                "sessionId": hashed_session_id,
+                "ipAddress": ip_address,
+            },
+            "verification": "none",
+        }
+
+        response = create_payment(body)
+        amount = response.get("amount")
+
+        payment = Payment.objects.create(
+            type=response.get("type"),
+            merchant_id=response.get("merchantId"),
+            merchant_wallet_id=response.get("merchantWalletId"),
+            amount=Money(amount.get("amount"), amount.get("currency")),
+            source=response.get("source"),
+            description=response.get("description"),
+            status=response.get("status").upper(),
+            metadata=response.get("metadata"),
+            payment_token=response.get("id"),
+            verification=response.get("verification"),
+            cancel=response.get("cancel"),
+            refunds=response.get("refunds"),
+            fees=response.get("fees"),
+            tracking_ref=response.get("trackingRef"),
+            error_code=response.get("errorCode"),
+            risk_evaluation=response.get("riskEvaluation"),
+            user=info.context.user,
+        )
+
+        return cls(payment=payment)
