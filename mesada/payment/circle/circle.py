@@ -9,7 +9,6 @@ import requests
 from django.conf import settings
 from django.utils import dateparse
 from django.core.exceptions import ValidationError
-from ...transfer.models import CircleTransfer
 from ...core.utils import generate_idempotency_key
 
 HEADERS = {
@@ -52,6 +51,11 @@ def create_trasfer_by_blackchain(amount, user):
     Args:
         amount: Amount to transfer.
     """
+    try:
+        from ...transfer.models import CircleTransfer
+    except:
+        raise ValidationError({"CircleTransferModel": "Error in the import of the CircleTransfer model"})
+    
     payload = {
         "source": {"type": "wallet", "id": f"{settings.CIRCLE_WALLET_ID}"},
         "destination": {
@@ -62,7 +66,7 @@ def create_trasfer_by_blackchain(amount, user):
         "amount": {"amount": "{:.2f}".format(amount), "currency": "USD"},
         "idempotencyKey": generate_idempotency_key(),
     }
-
+    
     url = f"{settings.CIRCLE_BASE_URL}/transfers"
     response = requests.request("POST", url, headers=HEADERS, json=payload)
     response.raise_for_status()
@@ -83,5 +87,5 @@ def create_trasfer_by_blackchain(amount, user):
         transfer.save()
     except:
         raise ValidationError({"CircleTransfer": "Error in Circle response from transfer"})
-
+    
     return response.json()["data"]["id"]
