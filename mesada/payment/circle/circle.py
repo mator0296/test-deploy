@@ -41,3 +41,16 @@ def request_encryption_key():
     data = response.json().get("data")
 
     return data.get("keyId"), data.get("publicKey")
+
+
+def create_payment(body):
+    """Send a POST request to create a payment using the Circle's Payments API
+
+    Args:
+        body (dict): Request body.
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/payments"
+    response = requests.request("POST", url, headers=HEADERS, json=body)
+    response.raise_for_status()
+
+    return response.json().get("data")
