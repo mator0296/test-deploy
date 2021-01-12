@@ -176,4 +176,3 @@ class Recipient(CountableDjangoObjectType):
         interfaces = [relay.Node]
         model = Recipient
         only_fields = ["first_name", "last_name", "email", "alias"]
-
