@@ -32,6 +32,7 @@ def processor_token_create(public_token, account_id):
             access_token, account_id, settings.PLAID_PROCESSOR
         )
         return create_response["processor_token"], None, None
+
     except PlaidError as e:
         return None, e.code, e.message
 
@@ -42,22 +43,19 @@ def create_link_token(user):
     Args:
         user (User): Current user in session.
     """
-    try:
-        body = {
-            "client_name": "Mesada",
-            "country_codes": settings.PLAID_COUNTRIES,
-            "language": "en",
-            "user": {
-                "client_user_id": str(user.id),
-                "legal_name": f"{user.first_name} {user.last_name}",
-                "phone_number": str(user.phone),
-                "email_address": user.email,
-            },
-            "products": settings.PLAID_PRODUCTS,
-        }
+    body = {
+        "client_name": "Mesada",
+        "country_codes": settings.PLAID_COUNTRIES,
+        "language": "en",
+        "user": {
+            "client_user_id": str(user.id),
+            "legal_name": f"{user.first_name} {user.last_name}",
+            "phone_number": str(user.phone),
+            "email_address": user.email,
+        },
+        "products": settings.PLAID_PRODUCTS,
+    }
 
-        response = client.LinkToken.create(body)
+    response = client.LinkToken.create(body)
 
-        return response
-    except PlaidError as e:
-        raise PlaidError(e)
+    return response
