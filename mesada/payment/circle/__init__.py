@@ -9,8 +9,8 @@ from typing import Tuple
 
 import requests
 from django.conf import settings
-from ...core.utils import generate_idempotency_key
 
+from ...core.utils import generate_idempotency_key
 
 HEADERS = {
     "Accept": "application/json",

@@ -7,12 +7,19 @@ from graphql_jwt.decorators import permission_required
 from ...account.models import Address, Recipient
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
-from ..core.types import (CountryDisplay, FilterInputObjectType,
-                          PermissionDisplay)
+from ..core.types import (
+    CountryDisplay,
+    FilterInputObjectType,
+    PermissionDisplay
+)
 from ..utils import format_permissions_for_display
 from .enums import BankName
-from .filters import (AddressFilter, CustomerFilter, RecipientsFilter,
-                      StaffUserFilter)
+from .filters import (
+    AddressFilter,
+    CustomerFilter,
+    RecipientsFilter,
+    StaffUserFilter
+)
 
 
 class CustomerFilterInput(FilterInputObjectType):
