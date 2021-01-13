@@ -52,3 +52,14 @@ def create_payment(body: dict):
     response.raise_for_status()
 
     return response.json().get("data")
+
+
+def get_circle_transfer_status(transfer_id):
+    """
+    Get the status of a transfer using a get request to the circle api
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/transfers/{transfer_id}"
+    response = requests.request("GET", url, headers=HEADERS, json=body)
+    response.raise_for_status()
+
+    return response.json()["data"]["status"]
