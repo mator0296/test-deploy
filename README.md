@@ -8,4 +8,4 @@
 
     Open a New Terminal and Start a worker
 
-    celery -A mesada worket -B -l INFO
+    celery -A mesada worker -B -l INFO
