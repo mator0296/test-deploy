@@ -1,18 +1,21 @@
 import graphene
-
 from djmoney.money import Money
+
 from ...core.utils import generate_idempotency_key
-from ...payment import (
-    create_card,
-    create_link_token,
-    processor_token_create,
-    request_encryption_key,
-    create_payment,
+from ...payment.models import (
+    Payment,
+    PaymentMethods,
+    VerificationAvsEnum,
+    VerificationCvvEnum,
 )
-from ...payment.models import PaymentMethods, verificationAvs, verificationCvv, Payment
 from ..core.mutations import BaseMutation, ModelMutation
-from .types import BillingDetailsInput, PaymentMethod, Payment as PaymentType
+from .types import BillingDetailsInput
+from .types import Payment as PaymentType
+from .types import PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
+
+from mesada.payment.circle import create_card, create_payment, request_encryption_key
+from mesada.payment.plaid import create_link_token, processor_token_create
 
 
 class CardInput(graphene.InputObjectType):
@@ -80,8 +83,8 @@ class CreateCard(ModelMutation):
             network=response.get("network"),
             last_digits=response.get("last4"),
             fingerprint=response.get("fingerprint"),
-            verification_cvv=verificationCvv[verification.get("cvv").upper()],
-            verification_avs=verificationAvs[verification.get("avs").upper()],
+            verification_cvv=VerificationCvvEnum[verification.get("cvv").upper()],
+            verification_avs=VerificationAvsEnum[verification.get("avs").upper()],
             phonenumber=metadata.get("phoneNumber"),
             email=metadata.get("email"),
             name=billing_details.get("name"),
