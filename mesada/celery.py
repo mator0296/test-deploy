@@ -20,4 +20,8 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     # calls check_payment_status every minute.
-    sender.add_periodic_task(settings.CELERY_CHECK_PAYMENT_STATUS, check_payment_status.s(), name="check status every minute")
+    sender.add_periodic_task(
+        settings.CELERY_CHECK_PAYMENT_STATUS,
+        check_payment_status.s(),
+        name="check status every minute",
+    )
