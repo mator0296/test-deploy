@@ -13,34 +13,22 @@
         "-B",
         "--loglevel=DEBUG"
       ],
-      "essential": false,
-      "image": "python",
+      "essential": true,
+      "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
       "links": ["redis"],
       "memory": 128,
-      "mountPoints": [
-        {
-          "containerPath": "/app",
-          "sourceVolume": "Django_Server"
-        }
-      ],
       "name": "celery"
     },
     {
       "essential": true,
-      "image": "python",
+      "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
       "links": ["redis"],
       "memory": 128,
-      "mountPoints": [
-        {
-          "containerPath": "/app",
-          "sourceVolume": "Django_Server"
-        }
-      ],
       "name": "django",
       "portMappings": [
         {
           "containerPort": 8000,
-          "hostPort": 8000
+          "hostPort": 80
         }
       ]
     },
@@ -58,12 +46,5 @@
     }
   ],
   "family": "",
-  "volumes": [
-    {
-      "host": {
-        "sourcePath": "django_server"
-      },
-      "name": "Django_Server"
-    }
-  ]
+  "volumes": []
 }
