@@ -1,7 +1,22 @@
 {
   "AWSEBDockerrunVersion": 2,
-
   "containerDefinitions": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "celery",
+        "-A",
+        "mesada",
+        "beat",
+        "--loglevel=DEBUG"
+      ],
+      "essential": true,
+      "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
+      "links": ["redis", "celery"],
+      "memory": 128,
+      "name": "beat"
+    },
     {
       "command": [
         "python",
@@ -28,7 +43,30 @@
       "portMappings": [
         {
           "containerPort": 8000,
-          "hostPort": 80
+          "hostPort": 8000
+        }
+      ]
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "celery",
+        "-A",
+        "mesada",
+        "flower",
+        "-B",
+        "--loglevel=DEBUG"
+      ],
+      "essential": true,
+      "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
+      "links": ["redis", "celery"],
+      "memory": 128,
+      "name": "flower",
+      "portMappings": [
+        {
+          "containerPort": 5555,
+          "hostPort": 5555
         }
       ]
     },
