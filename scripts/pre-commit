@@ -1,3 +1,55 @@
-isort --diff -c $(git status -s | grep -E '\.py$' | cut -c 4-)
-black mesada tests
-flake8 $(git status -s | grep -E '\.py$' | cut -c 4-)
+
+
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+RESET='\033[0m'
+
+function no_log_if_successful {
+    set +e
+    COMMAND=$@
+    printf "Running $COMMAND ... "
+
+    OUTPUT=$($@ 2>&1)
+    EXIT_CODE=$?
+    if [[ $EXIT_CODE -gt 0 ]]; then
+        printf "${RED}Failed${RESET} 😢\n"
+        printf "%s\n\n" "${OUTPUT}"
+    else
+        printf "${GREEN}Success!${RESET}\n"
+    fi
+    set -e
+    return $EXIT_CODE
+}
+
+set -e
+
+SOURCE=$(basename "${BASH_SOURCE[0]}")
+SOURCE_DIR=$(dirname "${BASH_SOURCE[0]}")
+
+
+BASE_BRANCH="origin/dev"
+echo ""
+MODIFIED_PY_FILES=$(git status -s | grep -E '\.py$' | cut -c 4- )
+
+if [[ $MODIFIED_PY_FILES != "" ]]; then
+    printf "Running isort ... \n"
+    echo $MODIFIED_PY_FILES | xargs isort 
+
+else
+    printf "Running isort ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
+fi
+
+
+no_log_if_successful black mesada tests
+
+if [[ $MODIFIED_PY_FILES != "" ]]; then
+    printf "Running flake8 ... \n"
+    echo $MODIFIED_PY_FILES | xargs flake8
+else
+    printf "Running flake8 ... ${GREEN}Ignored!${RESET} (no *.py files with changes)\n"
+fi
+
+
+
+

@@ -1,9 +1,10 @@
 import graphene
+from graphql_jwt.decorators import permission_required
 
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
-from .filters import CustomerFilter, StaffUserFilter, AddressFilter, RecipientsFilter
 from ..core.types import FilterInputObjectType
+from .filters import AddressFilter, CustomerFilter, RecipientsFilter, StaffUserFilter
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -17,8 +18,8 @@ from .mutations import (
     LoggedUserUpdate,
     PasswordReset,
     RecipientCreate,
-    RecipientUpdate,
     RecipientDelete,
+    RecipientUpdate,
     SendPhoneVerificationSMS,
     SetNewPassword,
     SetPassword,
@@ -27,18 +28,15 @@ from .mutations import (
     StaffUpdate,
     VerifySMSCodeVerification,
 )
-from .types import Address, User, Recipient
-
-from graphql_jwt.decorators import permission_required
-
 from .resolvers import (
     resolve_address,
     resolve_addresses,
     resolve_customers,
-    resolve_staff_users,
-    resolve_recipients_,
     resolve_recipient_,
+    resolve_recipients_,
+    resolve_staff_users,
 )
+from .types import Address, Recipient, User
 
 
 class CustomerFilterInput(FilterInputObjectType):
@@ -108,8 +106,7 @@ class AccountQueries(graphene.ObjectType):
         query=graphene.String(description="Recipient Users"),
     )
 
-    # @permission_required("account.manage_users")
-
+    @permission_required("account.manage_users")
     def resolve_customers(self, info, query=None, **_kwargs):
         return resolve_customers(info, query=query)
 

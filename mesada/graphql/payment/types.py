@@ -1,6 +1,7 @@
 import graphene
 from graphene_django.types import DjangoObjectType
-from ...payment.models import PaymentMethods
+
+from ...payment.models import Payment, PaymentMethods
 
 
 class PaymentMethod(DjangoObjectType):
@@ -26,3 +27,12 @@ class BillingDetailsInput(graphene.InputObjectType):
         )
     )
     postalCode = graphene.String(description="ZIP code of the address", required=True)
+
+
+class Payment(DjangoObjectType):
+    amount = graphene.String()
+
+    class Meta:
+        description = "Represents a Payment type"
+        model = Payment
+        fields = "__all__"
