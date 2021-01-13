@@ -9,7 +9,7 @@ from ..account.models import User
 from . import PaymentErrorCode, PaymentStatus
 
 
-class verificationAvs(enum.Enum):
+class VerificationAvsEnum(enum.Enum):
     NOT_REQUESTED = 0
     PENDING = 1
     A = 2
@@ -35,7 +35,7 @@ class verificationAvs(enum.Enum):
     Z = 22
 
 
-class verificationCvv(enum.Enum):
+class VerificationCvvEnum(enum.Enum):
     NOT_REQUESTED = 0
     PASS = 1
     FAIL = 2
@@ -56,10 +56,10 @@ class PaymentMethods(models.Model):
     last_digits = models.CharField(max_length=4, blank=True)
     fingerprint = models.CharField(max_length=36, blank=True)
     verification_cvv = enum.EnumField(
-        verificationCvv, default=verificationCvv.NOT_REQUESTED
+        VerificationCvvEnum, default=VerificationCvvEnum.NOT_REQUESTED
     )
     verification_avs = enum.EnumField(
-        verificationAvs, default=verificationAvs.NOT_REQUESTED
+        VerificationAvsEnum, default=VerificationAvsEnum.NOT_REQUESTED
     )
     phonenumber = models.CharField(max_length=15, blank=True)
     email = models.EmailField(max_length=256, blank=True)

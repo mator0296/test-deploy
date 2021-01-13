@@ -57,13 +57,13 @@ class Migration(migrations.Migration):
                 (
                     "verification_cvv",
                     django_enumfield.db.fields.EnumField(
-                        default=0, enum=mesada.payment.models.verificationCvv
+                        default=0, enum=mesada.payment.models.VerificationCvvEnum
                     ),
                 ),
                 (
                     "verification_avs",
                     django_enumfield.db.fields.EnumField(
-                        default=0, enum=mesada.payment.models.verificationAvs
+                        default=0, enum=mesada.payment.models.VerificationAvsEnum
                     ),
                 ),
                 ("phonenumber", models.CharField(blank=True, max_length=15)),
