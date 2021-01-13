@@ -80,20 +80,16 @@ def create_transfer_by_blockchain(amount, user):
     response.raise_for_status()
     data = response.json()["data"]
 
-    try:
-        transfer = CircleTransfer.objects.create(
-            transfer_id = data["id"],
-            source_type = data["source"]["type"],
-            source_id = data["source"]["id"],
-            destination_type = data["destination"]["type"],
-            destination_address = data["destination"]["address"],
-            destination_chain = data["destination"]["chain"],
-            amount = (data["amount"]["amount"],data["amount"]["currency"]),
-            status = data["status"],
-            create_date = dateparse.parse_datetime(data["createDate"]),
-            user_id = user
-        )
-    except:
-        raise ValidationError({"CircleTransfer": "Error in Circle response from transfer"})
+    transfer = CircleTransfer.objects.create(
+        transfer_id = data["id"],
+        source_type = data["source"]["type"],
+        source_id = data["source"]["id"],
+        destination_type = data["destination"]["type"],
+        destination_address = data["destination"]["address"],
+        destination_chain = data["destination"]["chain"],
+        amount = (data["amount"]["amount"],data["amount"]["currency"]),
+        status = data["status"],
+        create_date = dateparse.parse_datetime(data["createDate"]),
+        user_id = user)
 
     return data["id"]
