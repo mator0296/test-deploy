@@ -31,14 +31,6 @@ PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "3w4x62a8bdkdv%z@1z7t9y7gf=ircv!bdj9q9rm%6)_f#t3k5t"
 
-# CIRCLE API KEY AND BASE URL
-CIRCLE_API_KEY = env("CIRCLE_API_KEY")
-CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
-
-CIRCLE_WALLET_ID = env("CIRCLE_WALLET_ID")
-CIRCLE_BLOCKCHAIN_CHAIN = env("CIRCLE_BLOCKCHAIN_CHAIN")
-BITSO_BLOCKCHAIN_ADDRESS = env("BITSO_BLOCKCHAIN_ADDRESS")
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -171,6 +163,9 @@ CACHES = {"default": django_cache_url.config()}
 # CIRCLE
 CIRCLE_API_KEY = env("CIRCLE_API_KEY")
 CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
+CIRCLE_WALLET_ID = env("CIRCLE_WALLET_ID")
+CIRCLE_BLOCKCHAIN_CHAIN = env("CIRCLE_BLOCKCHAIN_CHAIN")
+BITSO_BLOCKCHAIN_ADDRESS = env("BITSO_BLOCKCHAIN_ADDRESS")
 
 # Verify Twilio
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
