@@ -2,6 +2,7 @@ from django.db import models
 from djmoney.models.fields import MoneyField
 
 from ..account.models import User
+
 # Create your models here.
 
 
@@ -21,7 +22,5 @@ class BitsoSpeiWithdrawal(models.Model):
     amount = MoneyField(max_digits=19, decimal_places=4, default_currency="BTC")
     details = models.JSONField(null=True)
     user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="bitso_spei_withdrawal"
+        User, on_delete=models.CASCADE, related_name="bitso_spei_withdrawal"
     )
