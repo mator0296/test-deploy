@@ -1,9 +1,11 @@
 # solaria
 
-## Pre Push
+## Celery Local Config
 
-on mesada directory:
+    Open a New Terminal and Start a beat of celery
 
-    isort -y
-    black .
-    flake8 
+    celery -A mesada beat -l INFO
+
+    Open a New Terminal and Start a worker
+
+    celery -A mesada worket -B -l INFO
