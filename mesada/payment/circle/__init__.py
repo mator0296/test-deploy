@@ -78,22 +78,22 @@ def create_transfer_by_blockchain(amount, user):
     url = f"{settings.CIRCLE_BASE_URL}/transfers"
     response = requests.request("POST", url, headers=HEADERS, json=payload)
     response.raise_for_status()
+    data = response.json()["data"]
 
     try:
-        transfer = CircleTransfer(
-            transfer_id = response.json()["data"]["id"],
-            source_type = response.json()["data"]["source"]["type"],
-            source_id = response.json()["data"]["source"]["id"],
-            destination_type = response.json()["data"]["destination"]["type"],
-            destination_address = response.json()["data"]["destination"]["address"],
-            destination_chain = response.json()["data"]["destination"]["chain"],
-            amount = (response.json()["data"]["amount"]["amount"],response.json()["data"]["amount"]["currency"]),
-            status = response.json()["data"]["status"],
-            create_date = dateparse.parse_datetime(response.json()["data"]["createDate"]),
+        transfer = CircleTransfer.objects.create(
+            transfer_id = data["id"],
+            source_type = data["source"]["type"],
+            source_id = data["source"]["id"],
+            destination_type = data["destination"]["type"],
+            destination_address = data["destination"]["address"],
+            destination_chain = data["destination"]["chain"],
+            amount = (data["amount"]["amount"],data["amount"]["currency"]),
+            status = data["status"],
+            create_date = dateparse.parse_datetime(data["createDate"]),
             user_id = user
         )
-        transfer.save()
     except:
         raise ValidationError({"CircleTransfer": "Error in Circle response from transfer"})
 
-    return response.json()["data"]["id"]
+    return data["id"]
