@@ -64,7 +64,6 @@ INSTALLED_APPS = [
     "django_filters",
     "phonenumber_field",
     "djmoney",
-    # "django_celery_beat",
 ]
 
 MIDDLEWARE = [
