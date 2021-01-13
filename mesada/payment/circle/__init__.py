@@ -10,7 +10,6 @@ from typing import Tuple
 import requests
 from django.conf import settings
 from django.utils import dateparse
-from django.core.exceptions import ValidationError
 from mesada.transfer.models import CircleTransfer
 from ...core.utils import generate_idempotency_key
 
