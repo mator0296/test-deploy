@@ -15,4 +15,4 @@ python manage.py migrate
 
 
 echo Starting Gunicorn.
-exec gunicorn --reload mesada.wsgi --bind 0.0.0.0:8000
+exec gunicorn --reload mesada.wsgi --bind 0.0.0.0:8080
