@@ -9,12 +9,7 @@ services:
     mem_limit: 128m
   django:
     container_name: django_server
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: python
-    volumes:
-      - ./django_server:/app
+    image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
     ports:
       - "8000:8000"
     links:
@@ -24,11 +19,24 @@ services:
     mem_limit: 128m
 
   celery:
-    image: python
-    build: .
+    image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
     command: python -m celery -A mesada worker -B --loglevel=DEBUG
-    volumes:
-      - ./django_server:/app
     links:
       - redis
+    mem_limit: 128m
+  beat:
+    image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
+    command: python -m celery -A mesada beat --loglevel=DEBUG
+    links:
+      - redis
+      - celery
+    mem_limit: 128m
+  flower:
+    image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
+    ports:
+      - "5555:5555"
+    command: python -m celery -A mesada flower -B --loglevel=DEBUG
+    links:
+      - redis
+      - celery
     mem_limit: 128m
