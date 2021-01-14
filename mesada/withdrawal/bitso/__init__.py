@@ -1,5 +1,3 @@
-import json
-
 from bitso import Api as BitsoAPI
 from bitso.errors import ApiError
 from django.conf import settings
@@ -13,6 +11,5 @@ def make_bitso_spei_withdrawal(clabe, first_name, last_name, amount):
         )
         return withdrawal
 
-    except ApiError as e:
-        #error_code = json.loads(str(e).replace("'", "\""))["code"]
+    except ApiError:
         return None
