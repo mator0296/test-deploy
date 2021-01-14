@@ -1,13 +1,15 @@
 import graphene
-from ..core.auth import login_required
+
 from ...payment.models import PaymentMethods
-from .types import PaymentMethod
+from ..core.auth import login_required
 from .mutations import (
     CreateCard,
+    CreateLinkToken,
+    CreatePayment,
     CreatePublicKey,
     ProcessorTokenCreate,
-    CreateLinkToken,
 )
+from .types import PaymentMethod
 
 
 class PaymentMethodsQueries(graphene.ObjectType):
@@ -34,6 +36,7 @@ class PaymentMutations(graphene.ObjectType):
     create_card = CreateCard.Field()
     create_link_token = CreateLinkToken.Field()
     create_public_key = CreatePublicKey.Field()
+    create_payment = CreatePayment.Field()
 
 
 class PaymentMethodsMutations(graphene.ObjectType):
