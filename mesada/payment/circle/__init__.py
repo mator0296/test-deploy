@@ -80,3 +80,17 @@ def register_ach(payment_method):
     response.raise_for_status()
 
     return response.json().get("data")
+
+
+def get_payment_status(payment_token: str) -> str:
+    """
+    Send a GET request to get the status of a payment using the Circle's Payments API
+
+    Args:
+        payment_token: Unique circle system generated identifier for the payment item.
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
+    response = requests.get(url, headers=HEADERS)
+    response.raise_for_status()
+
+    return response.json()["data"]["status"]
