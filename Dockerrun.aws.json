@@ -1,5 +1,6 @@
 {
   "AWSEBDockerrunVersion": 2,
+
   "containerDefinitions": [
     {
       "command": [
@@ -13,7 +14,6 @@
       ],
       "essential": true,
       "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
-      "links": ["redis", "celery"],
       "memory": 128,
       "name": "beat"
     },
@@ -60,7 +60,6 @@
       ],
       "essential": true,
       "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
-      "links": ["redis", "celery"],
       "memory": 128,
       "name": "flower",
       "portMappings": [
