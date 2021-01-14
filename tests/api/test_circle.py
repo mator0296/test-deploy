@@ -57,13 +57,13 @@ def test_create_card(mock_hash_session_id, mock_idempotency_key, mock_requests, 
             },
         }
     }
-    user_api_client.post_graphql(query, variables_values)
+    response = user_api_client.post_graphql(query, variables_values)
     variables_values["input"]["idempotencyKey"] = mock_idempotency_key.return_value
     variables_values["input"]["metadata"] = {
         "email": user_api_client.user.email,
         "phoneNumber": str(user_api_client.user.phone),
         "sessionId": mock_hash_session_id.return_value,
-        "ipAddress": "127.0.0.1",
+        "ipAddress": response.wsgi_request.META["REMOTE_ADDR"],
     }
     url = f"{settings.CIRCLE_BASE_URL}/cards"
     mock_requests.request.assert_called_once_with("POST", url, headers=HEADERS, json=variables_values["input"])
