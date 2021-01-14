@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
     "usa.mesada.io",
     "localhost",
     "usa-production.mesada.io",
-    "mesada-test-provitional.eba-aw53wdis.us-east-1.elasticbeanstalk.com",
+    "mesada-usa-testing.eba-aw53wdis.us-east-1.elasticbeanstalk.com",
     "testserver",
 ]
 
@@ -164,6 +164,9 @@ CACHES = {"default": django_cache_url.config()}
 # CIRCLE
 CIRCLE_API_KEY = env("CIRCLE_API_KEY")
 CIRCLE_BASE_URL = env("CIRCLE_BASE_URL")
+CIRCLE_WALLET_ID = env("CIRCLE_WALLET_ID")
+CIRCLE_BLOCKCHAIN_CHAIN = env("CIRCLE_BLOCKCHAIN_CHAIN")
+BITSO_BLOCKCHAIN_ADDRESS = env("BITSO_BLOCKCHAIN_ADDRESS")
 
 # Verify Twilio
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
