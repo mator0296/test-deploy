@@ -42,7 +42,7 @@ def test_create_card(mock_hash_session_id, mock_idempotency_key, mock_requests, 
     """
     variables_values = {
         "input": {
-            "encryptedData": "wcBMA0XWSFlFRpVhAQf+IXmsnGTySkDGR6EdOmL+e9FDCZxmKjkDk4oW27FpQ38JgkZmV7lokS42wxotWqNGWmOGH3UPKiqtYJhtqAR7kjqLeAJHJPloqxBqJy3lotmufuX0dtznRuAdVygQ2z0Dks5OwQe86fEX28YBxf7z75+FGUhaNYNtEH0hbsQrrsAKWzEeA75nyhGMpitkO3XdgVJ4ZD/98FJuRcInjnWLggvOaEIjJrhaLGJtlTAeJNtWtrhzRgjyYFEedXdUi4AuPv9lo7qs0iIhDOp8HfqyKtGpSbhdllx0K5e8iIx0AaPZJ99At4ODjItAyE1jt8efraNKMg3Vv+agGOzNvTdvQtJYAWmgLGcxCP8JpOiqs5CjJHh4Brrz3w5TmK6U6RIgiGRArcDB7eUqWohdoRmG9vUgj/IzHj08zGcnAxKnTtuYtc18ZM0ScjdnCcrcc1YkAvplNLbNcZDFJQ==",
+            "encryptedData": "wcBMA0XWSFlFRpVhAQf+IXmsnGTySkDGR6EdOmL+e9FDCZxmKjkDk4oW27FpQ38JgkZmV7lokS42wxotWqNGWmOGH3UPKiqtYJhtqAR7kjqLeAJHJPloqxBqJy3lotmufuX0dtznRuAdVygQ2z0Dks5OwQe86fEX28YBxf7z75+FGUhaNYNtEH0hbsQrrsAKWzEeA75nyhGMpitkO3XdgVJ4ZD/98FJuRcInjnWLggvOaEIjJrhaLGJtlTAeJNtWtrhzRgjyYFEedXdUi4AuPv9lo7qs0iIhDOp8HfqyKtGpSbhdllx0K5e8iIx0AaPZJ99At4ODjItAyE1jt8efraNKMg3Vv+agGOzNvTdvQtJYAWmgLGcxCP8JpOiqs5CjJHh4Brrz3w5TmK6U6RIgiGRArcDB7eUqWohdoRmG9vUgj/IzHj08zGcnAxKnTtuYtc18ZM0ScjdnCcrcc1YkAvplNLbNcZDFJQ==",  # noqa: E501
             "keyId": "key1",
             "expMonth": 4,
             "expYear": 2026,
