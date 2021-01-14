@@ -4,7 +4,8 @@ from django.contrib.auth import get_user_model
 from graphene import relay
 from graphql_jwt.decorators import permission_required
 
-from ...account.models import Address, Recipient
+from ...account.models import Address
+from ...account.models import Recipient as RecipientModel
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
 from ..core.types import (
@@ -180,8 +181,14 @@ class Recipient(CountableDjangoObjectType):
     )
 
     class Meta:
-        description = "Represents user recipeint data."
-        filter_fields = ["first_name", "last_name", "email", "alias"]
+        description = "Represents recipient data."
         interfaces = [relay.Node]
-        model = Recipient
-        only_fields = ["first_name", "last_name", "email", "alias"]
+        model = RecipientModel
+        only_fields = [
+            "first_name",
+            "last_name",
+            "alias",
+            "email",
+            "clabe",
+            "bank_name",
+        ]
