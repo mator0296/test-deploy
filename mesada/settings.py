@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "mesada.graphql",
     "mesada.payment",
     "mesada.transfer",
+    "mesada.withdrawal",
     "django_extensions",
     "graphene_django",
     "django_filters",
