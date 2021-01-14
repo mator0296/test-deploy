@@ -1,87 +1,95 @@
 {
-  "AWSEBDockerrunVersion": 2,
-
-  "containerDefinitions": [
-    {
-      "command": [
-        "python",
-        "-m",
-        "celery",
-        "-A",
-        "mesada",
-        "beat",
-        "--loglevel=DEBUG"
-      ],
-      "essential": true,
-      "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
-      "memory": 128,
-      "name": "beat"
-    },
-    {
-      "command": [
-        "python",
-        "-m",
-        "celery",
-        "-A",
-        "mesada",
-        "worker",
-        "-B",
-        "--loglevel=DEBUG"
-      ],
-      "essential": true,
-      "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
-      "links": ["redis"],
-      "memory": 128,
-      "name": "celery"
-    },
-    {
-      "essential": true,
-      "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
-      "links": ["redis"],
-      "memory": 128,
-      "name": "django",
-      "portMappings": [
+    "containerDefinitions": [
         {
-          "containerPort": 8000,
-          "hostPort": 8000
-        }
-      ]
-    },
-    {
-      "command": [
-        "python",
-        "-m",
-        "celery",
-        "-A",
-        "mesada",
-        "flower",
-        "-B",
-        "--loglevel=DEBUG"
-      ],
-      "essential": true,
-      "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
-      "memory": 128,
-      "name": "flower",
-      "portMappings": [
+            "command": [
+                "python",
+                "-m",
+                "celery",
+                "-A",
+                "mesada",
+                "beat",
+                "--loglevel=DEBUG"
+            ],
+            "essential": true,
+            "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
+            "links": [
+                "redis"
+            ],
+            "memory": 128,
+            "name": "beat"
+        },
         {
-          "containerPort": 5555,
-          "hostPort": 5555
-        }
-      ]
-    },
-    {
-      "essential": true,
-      "image": "redis:latest",
-      "memory": 128,
-      "name": "redis",
-      "portMappings": [
+            "command": [
+                "python",
+                "-m",
+                "celery",
+                "-A",
+                "mesada",
+                "worker",
+                "-B",
+                "--loglevel=DEBUG"
+            ],
+            "essential": true,
+            "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
+            "links": [
+                "redis"
+            ],
+            "memory": 128,
+            "name": "celery"
+        },
         {
-          "containerPort": 6379,
-          "hostPort": 6379
+            "essential": true,
+            "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
+            "links": [
+                "redis"
+            ],
+            "memory": 128,
+            "name": "django",
+            "portMappings": [
+                {
+                    "containerPort": 8000,
+                    "hostPort": 8000
+                }
+            ]
+        },
+        {
+            "command": [
+                "python",
+                "-m",
+                "celery",
+                "-A",
+                "mesada",
+                "flower",
+                "-B",
+                "--loglevel=DEBUG"
+            ],
+            "essential": true,
+            "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
+            "links": [
+                "redis"
+            ],
+            "memory": 128,
+            "name": "flower",
+            "portMappings": [
+                {
+                    "containerPort": 5555,
+                    "hostPort": 5555
+                }
+            ]
+        },
+        {
+            "essential": true,
+            "image": "redis:latest",
+            "memory": 128,
+            "name": "redis",
+            "portMappings": [
+                {
+                    "containerPort": 6379,
+                    "hostPort": 6379
+                }
+            ]
         }
-      ]
-    }
-  ],
-  "family": "",
-  "volumes": []
+    ],
+    "family": "",
+    "volumes": []
 }

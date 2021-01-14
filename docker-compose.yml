@@ -27,6 +27,8 @@ services:
   beat:
     image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
     command: python -m celery -A mesada beat --loglevel=DEBUG
+    links:
+      - redis
     depends_on:
       - celery
     mem_limit: 128m
@@ -35,6 +37,8 @@ services:
     ports:
       - "5555:5555"
     command: python -m celery -A mesada flower -B --loglevel=DEBUG
+    links:
+      - redis
     depends_on:
       - celery
     mem_limit: 128m
