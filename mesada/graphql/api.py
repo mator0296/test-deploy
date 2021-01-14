@@ -5,7 +5,7 @@ from .core.schema import CoreMutations, CoreQueries
 from .payment.schema import (
     PaymentMethodsMutations,
     PaymentMethodsQueries,
-    PaymentMutations,
+    PaymentMutations
 )
 
 
