@@ -1,6 +1,7 @@
 from celery import shared_task
-from .models import Payment as PaymentModel
+
 from .circle import get_payment_status
+from .models import Payment as PaymentModel
 
 
 @shared_task
