@@ -9,6 +9,11 @@ from typing import Tuple
 
 import requests
 from django.conf import settings
+from django.utils import dateparse
+from mesada.transfer.models import CircleTransfer
+from ...core.utils import generate_idempotency_key
+
+from ...core.utils import generate_idempotency_key
 
 HEADERS = {
     "Accept": "application/json",
@@ -48,6 +53,69 @@ def create_payment(body: dict):
     Send a POST request to create a payment using the Circle's Payments API
     """
     url = f"{settings.CIRCLE_BASE_URL}/payments"
+    response = requests.request("POST", url, headers=HEADERS, json=body)
+    response.raise_for_status()
+
+    return response.json().get("data")
+
+
+def create_transfer_by_blockchain(amount, user):
+    """ Create a transfer by blockchain within the Circle API
+    Args:
+        amount: Amount to transfer.
+        user: User to which the foreign key will be associated in the CreateTransfer model.
+    """
+    payload = {
+        "source": {"type": "wallet", "id": f"{settings.CIRCLE_WALLET_ID}"},
+        "destination": {
+            "type": "blockchain",
+            "address": f"{settings.BITSO_BLOCKCHAIN_ADDRESS}",
+            "chain": f"{settings.CIRCLE_BLOCKCHAIN_CHAIN}",
+        },
+        "amount": {"amount": "{:.2f}".format(amount), "currency": "USD"},
+        "idempotencyKey": generate_idempotency_key(),
+    }
+
+    url = f"{settings.CIRCLE_BASE_URL}/transfers"
+    response = requests.request("POST", url, headers=HEADERS, json=payload)
+    response.raise_for_status()
+    data = response.json()["data"]
+
+    transfer = CircleTransfer.objects.create(
+        transfer_id = data["id"],
+        source_type = data["source"]["type"],
+        source_id = data["source"]["id"],
+        destination_type = data["destination"]["type"],
+        destination_address = data["destination"]["address"],
+        destination_chain = data["destination"]["chain"],
+        amount = (data["amount"]["amount"],data["amount"]["currency"]),
+        status = data["status"],
+        create_date = dateparse.parse_datetime(data["createDate"]),
+        user_id = user)
+
+    return data["id"]
+
+
+def register_ach(payment_method):
+    """Register an ACH payment within the Circle API.
+
+    Args:
+        payment_method (PaymentMethod): ACH payment method instance.
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/banks/ach"
+    body = {
+        "idempotencyKey": generate_idempotency_key(),
+        "plaidProcessorToken": payment_method.processor_token,
+        "billingDetails": {
+            "name": payment_method.name,
+            "city": payment_method.city,
+            "country": payment_method.country_code.code,
+            "line1": payment_method.address_line_1,
+            "line2": payment_method.address_line_2,
+            "district": payment_method.district,
+            "postalCode": payment_method.postal_code,
+        },
+    }
     response = requests.request("POST", url, headers=HEADERS, json=body)
     response.raise_for_status()
 
