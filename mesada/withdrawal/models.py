@@ -15,10 +15,14 @@ class BitsoWithdrawalStatus(models.TextChoices):
 
 class BitsoSpeiWithdrawal(models.Model):
     wid = models.CharField(max_length=256, unique=True)
-    status = models.CharField(max_length=8, choices=BitsoWithdrawalStatus.choices)
+    status = models.CharField(
+        max_length=8,
+        choices=BitsoWithdrawalStatus.choices,
+        default=BitsoWithdrawalStatus.PENDING,
+    )
     created_at = models.DateField()
     currency = models.CharField(max_length=10)
-    method = models.CharField(max_length=10)
+    method = models.CharField(max_length=10, default="sp")
     amount = MoneyField(max_digits=19, decimal_places=4, default_currency="BTC")
     details = models.JSONField(null=True)
     user = models.ForeignKey(
