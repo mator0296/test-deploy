@@ -21,6 +21,7 @@ from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.utils import get_user_instance
 from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
+from django.core.validators import validate_email
 
 ADDRESS_FIELD = "billing_address"
 
@@ -89,7 +90,18 @@ class CustomerRegister(ModelMutation):
         model = models.User
 
     @classmethod
+    def validate_data(cls, data):
+        email = data.get("email")
+        validate_email(email)
+
+        is_email_taken = models.User.objects.filter(email=email).exists()
+
+        if is_email_taken is True:
+            raise ValidationError("This email is already taken.")
+
+    @classmethod
     def clean_input(cls, info, instance, data):
+        cls.validate_data(data)
         cleaned_input = super().clean_input(info, instance, data)
         return cleaned_input
 
@@ -697,7 +709,6 @@ class RecipientCreate(ModelMutation):
     @classmethod
     def perform_mutation(cls, root, info, **data):
         user = get_user_instance(info)
-        input_data = data.get("input")  # noqa: F841
         response = super().perform_mutation(root, info, **data)
         if not response.errors:
             response.recipient.user_id = user.id
