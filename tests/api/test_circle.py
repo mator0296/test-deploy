@@ -134,7 +134,7 @@ def mocked_create(**kwargs):
 @patch("mesada.payment.circle.dateparse")
 @patch.object(CircleTransfer.objects, "create", side_effect=mocked_create)
 def test_create_transfer_by_blockchain(mock_CircleTransfer, mock_dateparse, mock_idempotency_key, mock_requests):
-    user = User.objects.get(pk=1)
+    user = User()
     amount = 100
 
     payload = {
