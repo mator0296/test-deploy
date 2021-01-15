@@ -5,4 +5,5 @@
 .vscode
 db.sqlite3
 *.pytest_cache
-
+celerybeat-schedule
+celerybeat-schedule.db
