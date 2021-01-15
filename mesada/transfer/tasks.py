@@ -5,7 +5,6 @@ from .models import CircleTransfer
 
 @shared_task
 def check_transfer_status():
-
     transfers = CircleTransfer.objects.filter(status="pending")
     for transfer in transfers:
         status = get_circle_transfer_status(transfer.transfer_id)
