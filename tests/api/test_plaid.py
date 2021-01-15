@@ -13,10 +13,6 @@ def test_create_link_token(mock_client, user_api_client):
             linkToken
             expiration
             requestId
-            errors {
-            field
-            message
-            }
         }
     }
     """
