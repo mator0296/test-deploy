@@ -95,8 +95,8 @@ def create_transfer_by_blockchain(amount, user):
     )
 
     return data["id"]
-  
-  
+
+
 def register_ach(payment_method):
     """Register an ACH payment within the Circle API.
 
@@ -121,8 +121,8 @@ def register_ach(payment_method):
     response.raise_for_status()
 
     return response.json().get("data")
-  
-  
+
+
 def get_circle_transfer_status(transfer_id):
     """
     Get the status of a transfer using a get request to the circle api
