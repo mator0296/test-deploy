@@ -14,6 +14,7 @@ from django.utils import dateparse
 # from mesada.transfer.models import CircleTransfer
 from ...core.utils import generate_idempotency_key
 
+from mesada.transfer.models import CircleTransfer
 
 HEADERS = {
     "Accept": "application/json",
@@ -81,7 +82,7 @@ def create_transfer_by_blockchain(amount, user):
     response.raise_for_status()
     data = response.json()["data"]
 
-    transfer = CircleTransfer.objects.create(
+    CircleTransfer.objects.create(
         transfer_id=data["id"],
         source_type=data["source"]["type"],
         source_id=data["source"]["id"],
@@ -132,6 +133,17 @@ def get_payment_status(payment_token: str) -> str:
     """
     url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
     response = requests.get(url, headers=HEADERS)
-    response.raise_for_status()
+    return response.json()["data"]["status"]
 
+
+def get_circle_transfer_status(transfer_id):
+    """
+    Get the status of a transfer using a get request to the circle api
+
+    Args:
+        transfer_id: Id of the transfer in circle
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/transfers/{transfer_id}"
+    response = requests.request("GET", url, headers=HEADERS)
+    response.raise_for_status()
     return response.json()["data"]["status"]

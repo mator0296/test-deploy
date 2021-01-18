@@ -6,7 +6,7 @@ from ...payment.models import (
     Payment,
     PaymentMethods,
     VerificationAvsEnum,
-    VerificationCvvEnum
+    VerificationCvvEnum,
 )
 from ..core.mutations import BaseMutation, ModelMutation
 from .types import BillingDetailsInput
@@ -14,11 +14,7 @@ from .types import Payment as PaymentType
 from .types import PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
 
-from mesada.payment.circle import (
-    create_card,
-    create_payment,
-    request_encryption_key
-)
+from mesada.payment.circle import create_card, create_payment, request_encryption_key
 from mesada.payment.plaid import create_link_token, processor_token_create
 
 

@@ -1,13 +1,13 @@
-from celery import shared_task
+from ..celery import app
 
 from .circle import get_payment_status
 
-# from .models import Payment as PaymentModel
+from .models import Payment as PaymentModel
+from . import PaymentStatus
 
 
-@shared_task
+@app.task
 def check_payment_status():
-    from .models import Payment as PaymentModel
 
     """
     Get all pending payments, and update their state according to Circle
