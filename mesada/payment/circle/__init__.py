@@ -10,8 +10,8 @@ from typing import Tuple
 import requests
 from django.conf import settings
 from django.utils import dateparse
+from .. import PaymentStatus
 
-# from mesada.transfer.models import CircleTransfer
 from ...core.utils import generate_idempotency_key
 
 from mesada.transfer.models import CircleTransfer
@@ -133,7 +133,7 @@ def get_payment_status(payment_token: str) -> str:
     """
     url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
     response = requests.get(url, headers=HEADERS)
-    return response.json()["data"]["status"]
+    return PaymentStatus(response.json()["data"]["status"])
 
 
 def get_circle_transfer_status(transfer_id):
