@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import (
     NON_FIELD_ERRORS,
     ImproperlyConfigured,
-    ValidationError,
+    ValidationError
 )
 from django.db.models.fields.files import FileField
 from django.utils.translation import pgettext_lazy

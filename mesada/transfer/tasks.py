@@ -1,8 +1,6 @@
 from ..celery import app
 from .models import CircleTransfer
 
-from .models import CircleTransfer
-
 from mesada.payment.circle import get_circle_transfer_status
 
 
