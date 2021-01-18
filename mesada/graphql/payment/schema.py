@@ -7,7 +7,7 @@ from .mutations import (
     CreateLinkToken,
     CreatePayment,
     CreatePublicKey,
-    ProcessorTokenCreate
+    ProcessorTokenCreate,
 )
 from .types import PaymentMethod
 
