@@ -6,6 +6,7 @@ from celery import Celery
 from django.conf import settings
 
 from mesada.payment.tasks import check_payment_status
+from mesada.transfer.tasks import check_transfer_status
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mesada.settings")
@@ -24,4 +25,9 @@ def setup_periodic_tasks(sender, **kwargs):
         settings.CELERY_CHECK_PAYMENT_STATUS,
         check_payment_status.s(),
         name="check status every minute",
+    )
+    sender.add_periodic_task(
+        settings.CELERY_CHECK_TRANSFER_STATUS,
+        check_transfer_status.s(),
+        name="check transfer status every minute",
     )

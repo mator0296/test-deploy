@@ -121,3 +121,17 @@ def register_ach(payment_method):
     response.raise_for_status()
 
     return response.json().get("data")
+
+
+def get_circle_transfer_status(transfer_id):
+    """
+    Get the status of a transfer using a get request to the circle api
+
+    Args:
+        transfer_id: Id of the transfer in circle
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/transfers/{transfer_id}"
+    response = requests.request("GET", url, headers=HEADERS)
+    response.raise_for_status()
+
+    return response.json()["data"]["status"]
