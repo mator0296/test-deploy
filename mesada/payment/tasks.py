@@ -1,6 +1,6 @@
-from celery import shared_task
+from ..celery import app
 
 
-@shared_task
+@app.task
 def check_payment_status():
-    print("Status Checked---- call api")
+    print("Status Checked---- call api {}".format("test"))
