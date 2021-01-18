@@ -196,6 +196,8 @@ CELERY_TIMEZONE = "America/Mexico_City"
 # Task Beat Time Configuration
 
 CELERY_CHECK_PAYMENT_STATUS = 60.0
+CELERY_CHECK_TRANSFER_STATUS = 60.0
+
 
 # Bitso credentials
 BITSO_API_KEY = os.getenv("BITSO_API_KEY")
