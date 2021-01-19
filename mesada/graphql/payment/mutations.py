@@ -180,9 +180,10 @@ class RegisterAchPayment(ModelMutation):
         processor_token, error, message = processor_token_create(
             public_token, account_id
         )
-        circle_response = register_ach(processor_token, billing_details)
 
         if processor_token is not None:
+            circle_response = register_ach(processor_token, billing_details)
+
             payment_method = PaymentMethods.objects.create(
                 type="ACH",
                 status=circle_response.get("status"),
