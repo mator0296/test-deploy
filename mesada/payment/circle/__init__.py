@@ -113,7 +113,7 @@ def register_ach(processor_token, billing_details):
             "city": billing_details.get("city"),
             "country": billing_details.get("country"),
             "line1": billing_details.get("line1"),
-            "line2": billing_details.get("line2"),
+            "line2": billing_details.get("line2", ""),
             "district": billing_details.get("district"),
             "postalCode": billing_details.get("postalCode"),
         },
