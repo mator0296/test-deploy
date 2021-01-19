@@ -12,6 +12,7 @@ from django.conf import settings
 from django.utils import dateparse
 
 from ...core.utils import generate_idempotency_key
+from . import PaymentMethodStatus
 
 from mesada.transfer.models import CircleTransfer
 
@@ -135,3 +136,15 @@ def get_circle_transfer_status(transfer_id):
     response.raise_for_status()
 
     return response.json()["data"]["status"]
+
+
+def get_ach_status(payment_method_token: str) -> str:
+    """
+    Send a GET request to get the status of a ach payment method using the Circle's Banks API
+    Args:
+        payment_method_token: unique identifier of the bank account for ACH transfers.
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/banks/ach/{payment_method_token}"
+    response = requests.get(url, headers=HEADERS)
+    return response.json()["data"]["status"]
+    return PaymentMethodStatus(response.json()["data"]["status"])

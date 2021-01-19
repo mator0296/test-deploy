@@ -16,7 +16,7 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
     # tasks imports
-    from mesada.payment.tasks import check_payment_status
+    from mesada.payment.tasks import check_payment_status, check_ach_status
     from mesada.transfer.tasks import check_transfer_status
 
     sender.add_periodic_task(
@@ -28,4 +28,9 @@ def setup_periodic_tasks(sender, **kwargs):
         settings.CELERY_CHECK_TRANSFER_STATUS,
         check_transfer_status.s(),
         name="check transfer status every minute",
+    )
+    sender.add_periodic_task(
+        settings.CELERY_CHECK_ACH_STATUS,
+        check_ach_status.s(),
+        name="check ACH payment methods status every minute",
     )
