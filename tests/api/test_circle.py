@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from django.conf import settings
 
-from mesada.payment.circle import HEADERS
+from mesada.payment.circle import HEADERS, get_circle_transfer_status
 from mesada.payment.models import PaymentMethods
 
 
@@ -134,3 +134,12 @@ def test_create_payment(
     mock_requests.request.assert_called_once_with(
         "POST", url, headers=HEADERS, json=body
     )
+
+
+@pytest.mark.integration
+@patch("mesada.payment.circle.requests")
+def test_get_transfer_status(mock_requests, user_api_client):
+    transfer_id = "11652dfa-8511-40fd-99bb-a76d6869d71c"
+    get_circle_transfer_status(transfer_id)
+    url = f"{settings.CIRCLE_BASE_URL}/transfers/{transfer_id}"
+    mock_requests.request.assert_called_once_with("GET", url, headers=HEADERS)
