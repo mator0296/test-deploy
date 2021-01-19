@@ -6,7 +6,12 @@ from django_enumfield import enum
 from djmoney.models.fields import MoneyField
 
 from ..account.models import User
-from . import PaymentErrorCode, PaymentStatus
+from . import (
+    PaymentErrorCode,
+    PaymentMethodStatus,
+    PaymentMethodTypes,
+    PaymentStatus
+)
 
 
 class VerificationAvsEnum(enum.Enum):
@@ -45,7 +50,12 @@ class VerificationCvvEnum(enum.Enum):
 
 class PaymentMethods(models.Model):
 
-    type = models.CharField(max_length=50, blank=False)
+    type = models.CharField(
+        max_length=50,
+        choices=PaymentMethodTypes.choices,
+        default=PaymentMethodTypes.CARD,
+    )
+    models.CharField(max_length=50, blank=False)
     exp_month = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(12)], null=True, blank=True
     )
@@ -74,6 +84,11 @@ class PaymentMethods(models.Model):
     updated = models.DateTimeField(auto_now=True)
     payment_method_token = models.CharField(max_length=256, blank=True)
     processor_token = models.CharField(max_length=256, blank=True)
+    status = models.CharField(
+        max_length=50,
+        choices=PaymentMethodStatus.choices,
+        default=PaymentMethodStatus.PENDING,
+    )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

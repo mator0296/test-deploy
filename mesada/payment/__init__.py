@@ -1,6 +1,17 @@
 from django.db import models
 
 
+class PaymentMethodTypes(models.TextChoices):
+    ACH = "ach"
+    CARD = "card"
+
+
+class PaymentMethodStatus(models.TextChoices):
+    PENDING = "pending"
+    COMPLETE = "complete"
+    FAILED = "failed"
+
+
 class PaymentStatus(models.TextChoices):
     PENDING = "pending"
     CONFIRMED = "confirmed"
