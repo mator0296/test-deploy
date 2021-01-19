@@ -97,24 +97,25 @@ def create_transfer_by_blockchain(amount, user):
     return data["id"]
 
 
-def register_ach(payment_method):
+def register_ach(processor_token, billing_details):
     """Register an ACH payment within the Circle API.
 
     Args:
-        payment_method (PaymentMethod): ACH payment method instance.
+        processor_token: A Circle processor token generated via Plaid's API.
+        billing_details: Client's billind details.
     """
     url = f"{settings.CIRCLE_BASE_URL}/banks/ach"
     body = {
         "idempotencyKey": generate_idempotency_key(),
-        "plaidProcessorToken": payment_method.processor_token,
+        "plaidProcessorToken": processor_token,
         "billingDetails": {
-            "name": payment_method.name,
-            "city": payment_method.city,
-            "country": payment_method.country_code.code,
-            "line1": payment_method.address_line_1,
-            "line2": payment_method.address_line_2,
-            "district": payment_method.district,
-            "postalCode": payment_method.postal_code,
+            "name": billing_details.get("name"),
+            "city": billing_details.get("city"),
+            "country": billing_details.get("country"),
+            "line1": billing_details.get("line1"),
+            "line2": billing_details.get("line2"),
+            "district": billing_details.get("district"),
+            "postalCode": billing_details.get("postalCode"),
         },
     }
     response = requests.request("POST", url, headers=HEADERS, json=body)
