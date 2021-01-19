@@ -4,7 +4,12 @@ from graphql_jwt.decorators import permission_required
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
 from ..core.types import FilterInputObjectType
-from .filters import AddressFilter, CustomerFilter, RecipientsFilter, StaffUserFilter
+from .filters import (
+    AddressFilter,
+    CustomerFilter,
+    RecipientsFilter,
+    StaffUserFilter
+)
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -26,7 +31,7 @@ from .mutations import (
     StaffCreate,
     StaffDelete,
     StaffUpdate,
-    VerifySMSCodeVerification,
+    VerifySMSCodeVerification
 )
 from .resolvers import (
     resolve_address,
@@ -34,7 +39,7 @@ from .resolvers import (
     resolve_customers,
     resolve_recipient_,
     resolve_recipients_,
-    resolve_staff_users,
+    resolve_staff_users
 )
 from .types import Address, Recipient, User
 
