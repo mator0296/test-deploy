@@ -220,5 +220,5 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     @property
-    def profile_complete(self):
+    def is_profile_complete(self):
         return self.first_name is not None and self.last_name is not None

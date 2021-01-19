@@ -119,7 +119,7 @@ class User(CountableDjangoObjectType):
     permissions = graphene.List(
         PermissionDisplay, description="List of user's permissions."
     )
-    profile_complete = graphene.Boolean(
+    is_profile_complete = graphene.Boolean(
         description="Indicates if the user has completed it's profile."
     )
 
@@ -157,7 +157,7 @@ class User(CountableDjangoObjectType):
     def resolve_note(self, _info):
         return self.note
 
-    def resolve_profile_complete(self, _info, **_kwargs):
+    def resolve_is_profile_complete(self, _info, **_kwargs):
         return self.profile_complete
 
 
