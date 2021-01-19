@@ -6,7 +6,7 @@ from ...payment.models import (
     Payment,
     PaymentMethods,
     VerificationAvsEnum,
-    VerificationCvvEnum,
+    VerificationCvvEnum
 )
 from ..core.mutations import BaseMutation, ModelMutation
 from .types import BillingDetailsInput
@@ -14,7 +14,12 @@ from .types import Payment as PaymentType
 from .types import PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
 
-from mesada.payment.circle import create_card, create_payment, request_encryption_key
+from mesada.payment import PaymentMethodTypes
+from mesada.payment.circle import (
+    create_card,
+    create_payment,
+    request_encryption_key
+)
 from mesada.payment.plaid import create_link_token, processor_token_create
 
 
@@ -77,7 +82,7 @@ class CreateCard(ModelMutation):
         metadata = response.get("metadata")
 
         payment_method = PaymentMethods.objects.create(
-            type="CARD",
+            type=PaymentMethodTypes.CARD,
             exp_month=response.get("expMonth"),
             exp_year=response.get("expYear"),
             network=response.get("network"),
@@ -177,7 +182,7 @@ class ProcessorTokenCreate(ModelMutation):
         )
         if processor_token is not None:
             payment_method = PaymentMethods.objects.create(
-                type="ACH",
+                type=PaymentMethodTypes.ACH,
                 processor_token=processor_token,
                 user=info.context.user,
                 name=billing_details.get("name"),

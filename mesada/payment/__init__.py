@@ -2,8 +2,8 @@ from django.db import models
 
 
 class PaymentMethodTypes(models.TextChoices):
-    ACH = "ach"
-    CARD = "card"
+    ACH = "ACH"
+    CARD = "CARD"
 
 
 class PaymentMethodStatus(models.TextChoices):
