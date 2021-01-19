@@ -158,7 +158,7 @@ class User(CountableDjangoObjectType):
         return self.note
 
     def resolve_is_profile_complete(self, _info, **_kwargs):
-        return self.profile_complete
+        return self.is_profile_complete
 
 
 class AddressValidationData(graphene.ObjectType):
