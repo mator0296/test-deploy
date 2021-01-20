@@ -1,5 +1,6 @@
 import graphene
 from djmoney.money import Money
+from graphql.error import GraphQLError
 from requests.exceptions import HTTPError
 
 from ...core.utils import generate_idempotency_key
@@ -181,27 +182,27 @@ class RegisterAchPayment(ModelMutation):
         processor_token, error_msg = processor_token_create(
             public_token, account_id
         )
-        if processor_token is not None:
-            try:
-                circle_response = register_ach(processor_token, billing_details)
-            except HTTPError as e:
-                return cls(errors=[Error(message=e.message)])
-        else:
+        if processor_token is None and error_msg is not None:
             return cls(errors=[Error(message=error_msg)])
 
-        payment_method = PaymentMethods.objects.create(
-            type="ACH",
-            payment_method_token=circle_response.get("id"),
-            processor_token=processor_token,
-            user=info.context.user,
-            name=billing_details.get("name"),
-            address_line_1=billing_details.get("line1"),
-            address_line_2=billing_details.get("line2", ""),
-            postal_code=billing_details.get("postalCode"),
-            city=billing_details.get("city"),
-            district=billing_details.get("district"),
-            country_code=billing_details.get("country"),
-        )
+        try:
+            circle_response = register_ach(processor_token, billing_details)
+            payment_method = PaymentMethods.objects.create(
+                type="ACH",
+                payment_method_token=circle_response.get("id"),
+                processor_token=processor_token,
+                user=info.context.user,
+                name=billing_details.get("name"),
+                address_line_1=billing_details.get("line1"),
+                address_line_2=billing_details.get("line2", ""),
+                postal_code=billing_details.get("postalCode"),
+                city=billing_details.get("city"),
+                district=billing_details.get("district"),
+                country_code=billing_details.get("country"),
+            )
+        except HTTPError as e:
+            raise GraphQLError(f"Internal Server Error: {e.message}")
+
         return cls(payment_method=payment_method)
 
 
