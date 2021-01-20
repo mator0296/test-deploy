@@ -6,7 +6,12 @@ from django_enumfield import enum
 from djmoney.models.fields import MoneyField
 
 from ..account.models import User
-from . import PaymentErrorCode, PaymentMethodStatus, PaymentMethodTypes, PaymentStatus
+from . import (
+    PaymentErrorCode,
+    PaymentMethodStatus,
+    PaymentMethodTypes,
+    PaymentStatus
+)
 
 
 class VerificationAvsEnum(enum.Enum):
@@ -45,16 +50,26 @@ class VerificationCvvEnum(enum.Enum):
 
 class PaymentMethods(models.Model):
 
-    type = models.CharField(max_length=50, choices=PaymentMethodTypes.choices, default=PaymentMethodTypes.CARD)
+    type = models.CharField(
+        max_length=50,
+        choices=PaymentMethodTypes.choices,
+        default=PaymentMethodTypes.CARD,
+    )
     exp_month = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(12)], null=True, blank=True
     )
-    exp_year = models.PositiveIntegerField(validators=[MaxValueValidator(2050)], null=True, blank=True)
+    exp_year = models.PositiveIntegerField(
+        validators=[MaxValueValidator(2050)], null=True, blank=True
+    )
     network = models.CharField(max_length=50, blank=True)
     last_digits = models.CharField(max_length=4, blank=True)
     fingerprint = models.CharField(max_length=36, blank=True)
-    verification_cvv = enum.EnumField(VerificationCvvEnum, default=VerificationCvvEnum.NOT_REQUESTED)
-    verification_avs = enum.EnumField(VerificationAvsEnum, default=VerificationAvsEnum.NOT_REQUESTED)
+    verification_cvv = enum.EnumField(
+        VerificationCvvEnum, default=VerificationCvvEnum.NOT_REQUESTED
+    )
+    verification_avs = enum.EnumField(
+        VerificationAvsEnum, default=VerificationAvsEnum.NOT_REQUESTED
+    )
     phonenumber = models.CharField(max_length=15, blank=True)
     email = models.EmailField(max_length=256, blank=True)
     name = models.CharField(max_length=256, blank=True)
@@ -68,8 +83,18 @@ class PaymentMethods(models.Model):
     updated = models.DateTimeField(auto_now=True)
     payment_method_token = models.CharField(max_length=256, blank=True)
     processor_token = models.CharField(max_length=256, blank=True)
-    status = models.CharField(max_length=50, choices=PaymentMethodStatus.choices, default=PaymentMethodStatus.PENDING)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="payment_methods", null=True, blank=True)
+    status = models.CharField(
+        max_length=50,
+        choices=PaymentMethodStatus.choices,
+        default=PaymentMethodStatus.PENDING,
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="payment_methods",
+        null=True,
+        blank=True,
+    )
 
     @property
     def __str__(self):
@@ -88,13 +113,17 @@ class Payment(models.Model):
     amount = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
     source = models.JSONField()
     description = models.TextField(blank=True, default="")
-    status = models.CharField(max_length=9, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
+    status = models.CharField(
+        max_length=9, choices=PaymentStatus.choices, default=PaymentStatus.PENDING
+    )
     verification = models.JSONField(null=True)
     cancel = models.JSONField(null=True)
     refunds = models.JSONField(null=True)
     fees = models.JSONField(null=True)
     tracking_ref = models.CharField(max_length=256, null=True)
-    error_code = models.CharField(max_length=256, null=True, choices=PaymentErrorCode.choices)
+    error_code = models.CharField(
+        max_length=256, null=True, choices=PaymentErrorCode.choices
+    )
     metadata = models.JSONField()
     risk_evaluation = models.JSONField(null=True)
     payment_token = models.CharField(max_length=256, blank=True)

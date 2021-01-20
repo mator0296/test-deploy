@@ -5,19 +5,29 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('payment', '0005_auto_20210111_2236'),
-    ]
+    dependencies = [("payment", "0005_auto_20210111_2236")]
 
     operations = [
         migrations.AddField(
-            model_name='paymentmethods',
-            name='status',
-            field=models.CharField(choices=[('pending', 'Pending'), ('complete', 'Complete'), ('failed', 'Failed')], default='pending', max_length=50),
+            model_name="paymentmethods",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("pending", "Pending"),
+                    ("complete", "Complete"),
+                    ("failed", "Failed"),
+                ],
+                default="pending",
+                max_length=50,
+            ),
         ),
         migrations.AlterField(
-            model_name='paymentmethods',
-            name='type',
-            field=models.CharField(choices=[('ACH', 'Ach'), ('CARD', 'Card')], default='CARD', max_length=50),
+            model_name="paymentmethods",
+            name="type",
+            field=models.CharField(
+                choices=[("ACH", "Ach"), ("CARD", "Card")],
+                default="CARD",
+                max_length=50,
+            ),
         ),
     ]
