@@ -99,23 +99,6 @@ class Address(models.Model):
                 update_fields.append("default_billing_address")
             user.save(update_fields=update_fields)
 
-    # def clean(self):
-    #     """
-    #     Raise exception if one of the
-    #     two values (lat and long) are
-    #     None individually, i.e, both have
-    #     to be None or both are not None.
-    #     """
-    #     if (self.latitude is None) != (self.longitude is None):
-    #         raise ValidationError(
-    #             pgettext_lazy(
-    #                 "Validation Error",
-    #                 "Los valores de Latitud y Longitud no"
-    #                 "pueden ser NULL individualmente.",
-    #             )
-    #         )
-
-
 class UserManager(BaseUserManager):
     def create_user(
         self, email, password=None, is_staff=False, is_active=True, **extra_fields

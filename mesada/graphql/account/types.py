@@ -125,13 +125,6 @@ class User(CountableDjangoObjectType):
             "note",
         ]
 
-    # def resolve_addresses(self, _info, **_kwargs):
-    #     return self.addresses.annotate_default(self).visible().order_by("-id")
-
-    # def resolve_default_address(self, _info, **kwargs):
-    #     import pdb; pdb.set_trace()
-    #     return self
-
     def resolve_permissions(self, _info, **_kwargs):
         if self.is_superuser:
             permissions = get_permissions()
