@@ -10,6 +10,7 @@ from typing import Tuple
 import requests
 from django.conf import settings
 from django.utils import dateparse
+from requests.exceptions import HTTPError
 
 from ...core.utils import generate_idempotency_key
 
@@ -27,8 +28,12 @@ def create_card(body: dict) -> dict:
     Save a card within the Circle API.
     """
     url = f"{settings.CIRCLE_BASE_URL}/cards"
-    response = requests.request("POST", url, headers=HEADERS, json=body)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("POST", url, headers=HEADERS, json=body)
+        response.raise_for_status()
+    except HTTPError as err:
+        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json().get("data")
 
@@ -40,8 +45,12 @@ def request_encryption_key() -> Tuple[str, str]:
     to get the actual PGP public key.
     """
     url = f"{settings.CIRCLE_BASE_URL}/encryption/public"
-    response = requests.request("GET", url, headers=HEADERS)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("GET", url, headers=HEADERS)
+        response.raise_for_status()
+    except HTTPError as err:
+        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
 
     data = response.json().get("data")
 
@@ -53,8 +62,12 @@ def create_payment(body: dict):
     Send a POST request to create a payment using the Circle's Payments API
     """
     url = f"{settings.CIRCLE_BASE_URL}/payments"
-    response = requests.request("POST", url, headers=HEADERS, json=body)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("POST", url, headers=HEADERS, json=body)
+        response.raise_for_status()
+    except HTTPError as err:
+        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json().get("data")
 
@@ -77,8 +90,13 @@ def create_transfer_by_blockchain(amount, user):
     }
 
     url = f"{settings.CIRCLE_BASE_URL}/transfers"
-    response = requests.request("POST", url, headers=HEADERS, json=payload)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("POST", url, headers=HEADERS, json=payload)
+        response.raise_for_status()
+    except HTTPError as err:
+        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
+
     data = response.json()["data"]
 
     CircleTransfer.objects.create(
@@ -117,8 +135,12 @@ def register_ach(payment_method):
             "postalCode": payment_method.postal_code,
         },
     }
-    response = requests.request("POST", url, headers=HEADERS, json=body)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("POST", url, headers=HEADERS, json=body)
+        response.raise_for_status()
+    except HTTPError as err:
+        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json().get("data")
 
@@ -131,7 +153,11 @@ def get_circle_transfer_status(transfer_id):
         transfer_id: Id of the transfer in circle
     """
     url = f"{settings.CIRCLE_BASE_URL}/transfers/{transfer_id}"
-    response = requests.request("GET", url, headers=HEADERS)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("GET", url, headers=HEADERS)
+        response.raise_for_status()
+    except HTTPError as err:
+        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json()["data"]["status"]

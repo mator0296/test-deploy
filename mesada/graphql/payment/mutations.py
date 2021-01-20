@@ -253,7 +253,7 @@ class CreatePayment(ModelMutation):
             amount=Money(amount.get("amount"), amount.get("currency")),
             source=response.get("source"),
             description=response.get("description"),
-            status=response.get("status").upper(),
+            status=response.get("status"),
             metadata=response.get("metadata"),
             payment_token=response.get("id"),
             verification=response.get("verification"),
