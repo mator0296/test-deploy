@@ -184,6 +184,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_phone_verified = models.BooleanField(default=False)
     note = models.TextField(null=True, blank=True)
     postal_code = models.CharField(max_length=6, null=True)
+    birth_date = models.DateTimeField(blank=True, null=True)
     date_joined = models.DateTimeField(default=timezone.now, editable=False)
     default_address = models.ForeignKey(
         Address, related_name="+", null=True, blank=True, on_delete=models.SET_NULL

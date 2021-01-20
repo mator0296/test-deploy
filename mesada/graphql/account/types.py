@@ -117,6 +117,8 @@ class User(CountableDjangoObjectType):
         model = get_user_model()
         only_fields = [
             "date_joined",
+            "birth_date",
+            "phone",
             "default_address",
             "email",
             "first_name",
