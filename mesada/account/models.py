@@ -99,6 +99,7 @@ class Address(models.Model):
                 update_fields.append("default_billing_address")
             user.save(update_fields=update_fields)
 
+
 class UserManager(BaseUserManager):
     def create_user(
         self, email, password=None, is_staff=False, is_active=True, **extra_fields
