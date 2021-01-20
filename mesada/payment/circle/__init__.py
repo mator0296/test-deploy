@@ -10,7 +10,7 @@ from typing import Tuple
 import requests
 from django.conf import settings
 from django.utils import dateparse
-from requests.exceptions import HTTPError
+from graphql import GraphQLError
 
 from ...core.utils import generate_idempotency_key
 
@@ -32,8 +32,8 @@ def create_card(body: dict) -> dict:
     try:
         response = requests.request("POST", url, headers=HEADERS, json=body)
         response.raise_for_status()
-    except HTTPError as err:
-        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json().get("data")
 
@@ -49,8 +49,8 @@ def request_encryption_key() -> Tuple[str, str]:
     try:
         response = requests.request("GET", url, headers=HEADERS)
         response.raise_for_status()
-    except HTTPError as err:
-        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     data = response.json().get("data")
 
@@ -66,8 +66,8 @@ def create_payment(body: dict):
     try:
         response = requests.request("POST", url, headers=HEADERS, json=body)
         response.raise_for_status()
-    except HTTPError as err:
-        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json().get("data")
 
@@ -94,8 +94,8 @@ def create_transfer_by_blockchain(amount, user):
     try:
         response = requests.request("POST", url, headers=HEADERS, json=payload)
         response.raise_for_status()
-    except HTTPError as err:
-        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     data = response.json()["data"]
 
@@ -139,8 +139,8 @@ def register_ach(payment_method):
     try:
         response = requests.request("POST", url, headers=HEADERS, json=body)
         response.raise_for_status()
-    except HTTPError as err:
-        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json().get("data")
 
@@ -157,7 +157,7 @@ def get_circle_transfer_status(transfer_id):
     try:
         response = requests.request("GET", url, headers=HEADERS)
         response.raise_for_status()
-    except HTTPError as err:
-        raise HTTPError("Internal Server Error: %s" % err.response.json()["message"])
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json()["data"]["status"]
