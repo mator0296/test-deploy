@@ -4,6 +4,7 @@ import graphene
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.validators import validate_email
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from graphql_jwt.exceptions import PermissionDenied
@@ -21,9 +22,8 @@ from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.utils import get_user_instance
 from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
-from django.core.validators import validate_email
 
-ADDRESS_FIELD = "billing_address"
+ADDRESS_FIELD = "default_address"
 
 
 def send_user_password_reset_email(user, site):
@@ -127,6 +127,7 @@ class UserInput(graphene.InputObjectType):
     email = graphene.String(description="The unique email address of the user.")
     is_active = graphene.Boolean(required=False, description="User account is active.")
     note = graphene.String(description="A note about the user.")
+    phone = graphene.String(description="Phone Number of the User.")
 
 
 class UserAddressInput(graphene.InputObjectType):
@@ -134,7 +135,7 @@ class UserAddressInput(graphene.InputObjectType):
 
 
 class CustomerInput(UserInput, UserAddressInput):
-    pass
+    birth_date = graphene.Date(description="Birth Date of the User")
 
 
 class UserCreateInput(CustomerInput):
@@ -169,32 +170,16 @@ class CustomerCreate(ModelMutation):
         permissions = ("account.manage_users",)
 
     @classmethod
-    def clean_input(cls, info, instance, data):
-        address_data = data.pop(ADDRESS_FIELD, None)
-        cleaned_input = super().clean_input(info, instance, data)
-
+    def perform_mutation(cls, _root, info, **data):
+        data = data.get("input")
+        address_data = data.pop("default_address")
+        user_data = data
+        user = models.User.objects.create(**user_data)
         if address_data:
-            shipping_address = cls.validate_address(  # noqa: F841
-                address_data, instance=getattr(instance, ADDRESS_FIELD)
-            )
-            cleaned_input[ADDRESS_FIELD] = address_data
-
-        return cleaned_input
-
-    @classmethod
-    def save(cls, info, instance, cleaned_input):
-        # FIXME: save address in user.addresses as well
-        address_data = cleaned_input.get(ADDRESS_FIELD)
-        if address_data:
-            address_data.save()
-            instance.default_shipping_address = address_data
-        address_data = cleaned_input.get(ADDRESS_FIELD)
-        if address_data:
-            address_data.save()
-            instance.address_data = address_data
-
-        is_creation = instance.pk is None  # noqa: F841
-        super().save(info, instance, cleaned_input)
+            address = models.Address.objects.create(**address_data)
+            user.default_address = address
+            user.save()
+        return cls.success_response(user)
 
 
 class CustomerUpdate(CustomerCreate):
@@ -264,10 +249,28 @@ class LoggedUserUpdate(CustomerCreate):
         return user.is_authenticated
 
     @classmethod
-    def perform_mutation(cls, root, info, **data):
+    def perform_mutation(cls, _root, info, **data):
         user = info.context.user
-        data["id"] = graphene.Node.to_global_id("User", user.id)
-        return super().perform_mutation(root, info, **data)
+
+        data = data.get("input")
+        address_data = data.pop("default_address")
+        user_data = data
+        if user_data:
+            for attr, value in user_data.items():
+                setattr(user, attr, value)
+
+        if address_data:
+            if user.default_address:
+                for attr, value in address_data.items():
+                    setattr(user.default_address, attr, value)
+
+            else:
+                address = models.Address.objects.create(**address_data)
+                user.default_address = address
+            user.default_address.save()
+        user.save()
+
+        return cls.success_response(user)
 
 
 class UserDelete(UserDeleteMixin, ModelDeleteMutation):
@@ -597,7 +600,8 @@ class AddressCreate(ModelMutation):
         if cls.clean_phone_number(input_data) and cls.clean_zip_code(input_data):
             response = super().perform_mutation(root, info, **data)
             if not response.errors:
-                user.addresses.add(response.address)
+                user.default_address = response.address
+                user.save()
                 response.user = user
             return response
         return cls(user=None)

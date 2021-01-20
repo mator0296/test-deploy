@@ -1,10 +1,9 @@
 import graphene
-import graphene_django_optimizer as gql_optimizer
 from django.contrib.auth import get_user_model
 from graphene import relay
 from graphql_jwt.decorators import permission_required
 
-from ...account.models import Address
+from ...account.models import Address as AddressModel
 from ...account.models import Recipient as RecipientModel
 from ...core.permissions import get_permissions
 from ..core.connection import CountableDjangoObjectType
@@ -68,7 +67,7 @@ class Address(CountableDjangoObjectType):
     class Meta:
         description = "Represents user address data."
         interfaces = [relay.Node]
-        model = Address
+        model = AddressModel
         only_fields = [
             "address_name",
             "city",
@@ -102,10 +101,6 @@ class Address(CountableDjangoObjectType):
 
 
 class User(CountableDjangoObjectType):
-    addresses = gql_optimizer.field(
-        graphene.List(Address, description="List of all user's addresses."),
-        model_field="addresses",
-    )
     note = graphene.String(description="A note about the customer")
     permissions = graphene.List(
         PermissionDisplay, description="List of user's permissions."
@@ -118,8 +113,8 @@ class User(CountableDjangoObjectType):
         only_fields = [
             "date_joined",
             "birth_date",
-            "phone",
             "default_address",
+            "phone",
             "email",
             "first_name",
             "id",
@@ -128,11 +123,14 @@ class User(CountableDjangoObjectType):
             "last_login",
             "last_name",
             "note",
-            "is_phone_verified",
         ]
 
-    def resolve_addresses(self, _info, **_kwargs):
-        return self.addresses.annotate_default(self).visible().order_by("-id")
+    # def resolve_addresses(self, _info, **_kwargs):
+    #     return self.addresses.annotate_default(self).visible().order_by("-id")
+
+    # def resolve_default_address(self, _info, **kwargs):
+    #     import pdb; pdb.set_trace()
+    #     return self
 
     def resolve_permissions(self, _info, **_kwargs):
         if self.is_superuser:
