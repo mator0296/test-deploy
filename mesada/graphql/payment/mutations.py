@@ -1,5 +1,6 @@
 import graphene
 from djmoney.money import Money
+from requests.exceptions import HTTPError
 
 from ...core.utils import generate_idempotency_key
 from ...payment.models import (
@@ -9,6 +10,7 @@ from ...payment.models import (
     VerificationCvvEnum
 )
 from ..core.mutations import BaseMutation, ModelMutation
+from ..core.types import Error
 from .types import BillingDetailsInput
 from .types import Payment as PaymentType
 from .types import PaymentMethod
@@ -159,8 +161,7 @@ class RegisterAchPayment(ModelMutation):
     """Register an ACH payment in the Circle API and insert it into the DB."""
 
     payment_method = graphene.Field(PaymentMethod)
-    error = graphene.String(description="Plaid error code")
-    message = graphene.String(description="Plaid error user friendly message")
+    errors = graphene.List(Error, required=True)
 
     class Arguments:
         input = RegisterAchPaymentInput(
@@ -177,30 +178,31 @@ class RegisterAchPayment(ModelMutation):
         account_id = input.get("accounts")[0]["account_id"]
         billing_details = input.get("billing_details")
 
-        processor_token, error, message = processor_token_create(
+        processor_token, error_msg = processor_token_create(
             public_token, account_id
         )
-
         if processor_token is not None:
-            circle_response = register_ach(processor_token, billing_details)
+            try:
+                circle_response = register_ach(processor_token, billing_details)
+            except HTTPError as e:
+                return cls(errors=[Error(message=e.message)])
+        else:
+            return cls(errors=[Error(message=error_msg)])
 
-            payment_method = PaymentMethods.objects.create(
-                type="ACH",
-                status=circle_response.get("status"),
-                payment_method_token=circle_response.get("id"),
-                processor_token=processor_token,
-                user=info.context.user,
-                name=billing_details.get("name"),
-                address_line_1=billing_details.get("line1"),
-                address_line_2=billing_details.get("line2", ""),
-                postal_code=billing_details.get("postalCode"),
-                city=billing_details.get("city"),
-                district=billing_details.get("district"),
-                country_code=billing_details.get("country"),
-            )
-            return cls(payment_method=payment_method, error=None, message=None)
-
-        return cls(payment_method=None, error=error, message=message)
+        payment_method = PaymentMethods.objects.create(
+            type="ACH",
+            payment_method_token=circle_response.get("id"),
+            processor_token=processor_token,
+            user=info.context.user,
+            name=billing_details.get("name"),
+            address_line_1=billing_details.get("line1"),
+            address_line_2=billing_details.get("line2", ""),
+            postal_code=billing_details.get("postalCode"),
+            city=billing_details.get("city"),
+            district=billing_details.get("district"),
+            country_code=billing_details.get("country"),
+        )
+        return cls(payment_method=payment_method)
 
 
 class CreatePayment(ModelMutation):
