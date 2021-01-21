@@ -194,9 +194,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Recipient(models.Model):
-    first_name = models.CharField(max_length=256, blank=False)
-    last_name = models.CharField(max_length=256, blank=False)
-    alias = models.CharField(max_length=256, blank=True)
+    first_name = models.CharField(max_length=256)
+    last_name = models.CharField(max_length=256)
+    alias = models.CharField(max_length=256, blank=True, null=True)
     email = models.EmailField(unique=True)
     clabe = models.CharField(
         max_length=18,
@@ -208,7 +208,7 @@ class Recipient(models.Model):
             )
         ],
     )
-    bank_name = models.CharField(max_length=256, blank=False)
+    bank_name = models.CharField(max_length=256)
     user = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL
     )

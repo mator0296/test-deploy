@@ -86,7 +86,7 @@ def resolve_recipient_(info, id):
     return qs
 
 
-def resolve_recipients_(info, search, query):
+def resolve_recipients(info, search, query):
     user = get_user_instance(info)
     qs = models.Recipient.objects.filter(
         Q(user=user)
