@@ -45,7 +45,14 @@ class ApiClient(Client):
         kwargs["content_type"] = "application/json"
         return super().post(API_PATH, data, **kwargs)
 
-    def post_graphql(self, query, variables=None, permissions=None, check_no_permissions=True, **kwargs):
+    def post_graphql(
+        self,
+        query,
+        variables=None,
+        permissions=None,
+        check_no_permissions=True,
+        **kwargs
+    ):
         """Dedicated helper for posting GraphQL queries.
 
         Sets the `application/json` content type and json.dumps the variables
