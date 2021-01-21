@@ -17,6 +17,7 @@ from .types import Payment as PaymentType
 from .types import PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
 
+from mesada.payment import PaymentMethodTypes
 from mesada.payment.circle import (
     create_card,
     create_payment,
@@ -85,7 +86,7 @@ class CreateCard(ModelMutation):
         metadata = response.get("metadata")
 
         payment_method = PaymentMethods.objects.create(
-            type="CARD",
+            type=PaymentMethodTypes.CARD,
             exp_month=response.get("expMonth"),
             exp_year=response.get("expYear"),
             network=response.get("network"),
@@ -184,7 +185,7 @@ class RegisterAchPayment(ModelMutation):
         try:
             circle_response = register_ach(processor_token, billing_details)
             payment_method = PaymentMethods.objects.create(
-                type="ACH",
+                type=PaymentMethodTypes.ACH,
                 payment_method_token=circle_response.get("id"),
                 processor_token=processor_token,
                 user=info.context.user,
