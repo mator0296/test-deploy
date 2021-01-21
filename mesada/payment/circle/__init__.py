@@ -135,3 +135,14 @@ def get_circle_transfer_status(transfer_id):
     response.raise_for_status()
 
     return response.json()["data"]["status"]
+
+
+def get_payment_status(payment_token: str) -> str:
+    """
+    Send a GET request to get the status of a payment using the Circle's Payments API
+    Args:
+        payment_token: Unique circle system generated identifier for the payment item.
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
+    response = requests.get(url, headers=HEADERS)
+    return PaymentStatus(response.json()["data"]["status"])
