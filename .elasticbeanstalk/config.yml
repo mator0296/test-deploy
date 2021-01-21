@@ -1,6 +1,6 @@
 branch-defaults:
   SOL-33:
-    environment: mesada-test-provitional
+    environment: mesada-usa-testing
   SOL-71-CELERY-CONFIGURATION:
     environment: mesada-usa-testing
     default_platform: Multi-container Docker running on 64bit Amazon Linux

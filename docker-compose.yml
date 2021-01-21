@@ -6,31 +6,32 @@ services:
     container_name: rd01
     ports:
       - "6379:6379"
-    mem_limit: 128m
+    #mem_limit: 128m
   django:
     container_name: django_server
     image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
     ports:
-      - "8000:8000"
+      - "80:8000"
     links:
       - redis
     depends_on:
       - celery
-    mem_limit: 128m
+    #mem_limit: 128m
 
   celery:
     image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
     command: python -m celery -A mesada worker -B --loglevel=DEBUG
     links:
       - redis
-    mem_limit: 128m
+    #mem_limit: 128m
   beat:
     image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
     command: python -m celery -A mesada beat --loglevel=DEBUG
     links:
       - redis
+    depends_on:
       - celery
-    mem_limit: 128m
+    #mem_limit: 128m
   flower:
     image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
     ports:
@@ -38,5 +39,6 @@ services:
     command: python -m celery -A mesada flower -B --loglevel=DEBUG
     links:
       - redis
+    depends_on:
       - celery
-    mem_limit: 128m
+    #mem_limit: 128m

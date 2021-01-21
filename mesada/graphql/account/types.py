@@ -119,6 +119,9 @@ class User(CountableDjangoObjectType):
     permissions = graphene.List(
         PermissionDisplay, description="List of user's permissions."
     )
+    is_profile_complete = graphene.Boolean(
+        description="Indicates if the user has completed it's profile."
+    )
 
     class Meta:
         description = "Represents user data."
@@ -154,6 +157,9 @@ class User(CountableDjangoObjectType):
     def resolve_note(self, _info):
         return self.note
 
+    def resolve_is_profile_complete(self, _info, **_kwargs):
+        return self.is_profile_complete
+
 
 class AddressValidationData(graphene.ObjectType):
     country_code = graphene.String()
@@ -173,15 +179,10 @@ class AddressValidationData(graphene.ObjectType):
 
 
 class Recipient(CountableDjangoObjectType):
-    user_id = graphene.String(
-        description="ID of the user associated with the recipient."
-    )
-    user_email = graphene.String(
-        description="Email of the user associated with the recipient."
-    )
-
+    
     class Meta:
         description = "Represents recipient data."
+        filter_fields = ["first_name", "last_name", "email", "alias"]
         interfaces = [relay.Node]
         model = RecipientModel
         only_fields = [
@@ -191,4 +192,5 @@ class Recipient(CountableDjangoObjectType):
             "email",
             "clabe",
             "bank_name",
+            "user",
         ]
