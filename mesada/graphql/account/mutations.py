@@ -1,5 +1,3 @@
-from copy import copy
-
 import graphene
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
@@ -17,13 +15,16 @@ from ...core.twilio import check_code, send_code
 from ..account.types import Address, AddressInput
 from ..account.types import Recipient as RecipientType
 from ..account.types import RecipientInput, User
+from ..core.auth import login_required
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.utils import get_user_instance
 from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
 
-ADDRESS_FIELD = "billing_address"
+from mesada.account.forms import AddressForm, UserForm
+
+ADDRESS_FIELD = "default_address"
 
 
 def send_user_password_reset_email(user, site):
@@ -124,20 +125,16 @@ class CustomerRegister(ModelMutation):
 class UserInput(graphene.InputObjectType):
     first_name = graphene.String(description="Given name.")
     last_name = graphene.String(description="Family name.")
-    email = graphene.String(description="The unique email address of the user.")
+    email = graphene.String(
+        required=False, description="The unique email address of the user."
+    )
     is_active = graphene.Boolean(required=False, description="User account is active.")
-    note = graphene.String(description="A note about the user.")
+    phone = graphene.String(required=False, description="Phone Number of the User.")
+    birth_date = graphene.Date(required=False, description="Birth Date of the User")
 
 
-class UserAddressInput(graphene.InputObjectType):
-    default_address = AddressInput(description="address of the customer.")
-
-
-class CustomerInput(UserInput, UserAddressInput):
-    pass
-
-
-class UserCreateInput(CustomerInput):
+# TODO: Fix me
+class UserCreateInput(UserInput):
     send_password_email = graphene.Boolean(
         description="Send an email with a link to set a password"
     )
@@ -169,89 +166,25 @@ class CustomerCreate(ModelMutation):
         permissions = ("account.manage_users",)
 
     @classmethod
-    def clean_input(cls, info, instance, data):
-        address_data = data.pop(ADDRESS_FIELD, None)
-        cleaned_input = super().clean_input(info, instance, data)
-
-        if address_data:
-            shipping_address = cls.validate_address(  # noqa: F841
-                address_data, instance=getattr(instance, ADDRESS_FIELD)
-            )
-            cleaned_input[ADDRESS_FIELD] = address_data
-
-        return cleaned_input
-
-    @classmethod
-    def save(cls, info, instance, cleaned_input):
-        # FIXME: save address in user.addresses as well
-        address_data = cleaned_input.get(ADDRESS_FIELD)
-        if address_data:
-            address_data.save()
-            instance.default_shipping_address = address_data
-        address_data = cleaned_input.get(ADDRESS_FIELD)
-        if address_data:
-            address_data.save()
-            instance.address_data = address_data
-
-        is_creation = instance.pk is None  # noqa: F841
-        super().save(info, instance, cleaned_input)
-
-
-class CustomerUpdate(CustomerCreate):
-    class Arguments:
-        id = graphene.ID(description="ID of a customer to update.", required=True)
-        input = CustomerInput(
-            description="Fields required to update a customer.", required=True
-        )
-
-    class Meta:
-        description = "Updates an existing customer."
-        exclude = ["password"]
-        model = models.User
-        permissions = ("account.manage_users",)
-
-    @classmethod
-    def generate_events(
-        cls, info, old_instance: models.User, new_instance: models.User
-    ):
-        # Retrieve the event base data
-        staff_user = info.context.user  # noqa: F841
-        new_email = new_instance.email
-        new_fullname = new_instance.get_full_name()
-
-        # Compare the data
-        has_new_name = old_instance.get_full_name() != new_fullname  # noqa: F841
-        has_new_email = old_instance.email != new_email  # noqa: F841
-
-    @classmethod
     def perform_mutation(cls, _root, info, **data):
-        """Override the base method `perform_mutation` of ModelMutation
-        to generate events by comparing the old instance with the new data."""
-
-        # Retrieve the data
-        original_instance = cls.get_instance(info, **data)
         data = data.get("input")
-
-        # Clean the input and generate a new instance from the new data
-        cleaned_input = cls.clean_input(info, original_instance, data)
-        new_instance = cls.construct_instance(copy(original_instance), cleaned_input)
-
-        # Save the new instance data
-        cls.clean_instance(new_instance)
-        cls.save(info, new_instance, cleaned_input)
-        cls._save_m2m(info, new_instance, cleaned_input)
-
-        # Generate events by comparing the instances
-        cls.generate_events(info, original_instance, new_instance)
-
-        # Return the response
-        return cls.success_response(new_instance)
+        address_data = data.pop("default_address")
+        user_data = data
+        user = models.User.objects.create(**user_data)
+        if address_data:
+            address = models.Address.objects.create(**address_data)
+            user.default_address = address
+            user.save()
+        return cls.success_response(user)
 
 
-class LoggedUserUpdate(CustomerCreate):
+class UpdateUserMutation(CustomerCreate):
     class Arguments:
-        input = CustomerInput(
-            description="Fields required to update logged in user.", required=True
+        user_input = UserInput(
+            description="Fields required to update user.", required=True
+        )
+        default_address = AddressInput(
+            description="The user default Address", required=False
         )
 
     class Meta:
@@ -260,14 +193,30 @@ class LoggedUserUpdate(CustomerCreate):
         model = models.User
 
     @classmethod
-    def check_permissions(cls, user):
-        return user.is_authenticated
-
-    @classmethod
-    def perform_mutation(cls, root, info, **data):
+    @login_required
+    def perform_mutation(cls, _root, info, user_input, default_address=None):
         user = info.context.user
-        data["id"] = graphene.Node.to_global_id("User", user.id)
-        return super().perform_mutation(root, info, **data)
+        user_form = UserForm(user_input, instance=user)
+        if not user_form.is_valid():
+            raise ValidationError(user_form.errors)
+
+        user_form.save()
+
+        addr_form = AddressForm(default_address, instance=user.default_address)
+
+        if default_address is not None:
+            if not addr_form.is_valid():
+                raise ValidationError(addr_form.errors)
+
+            addr_form.save()
+
+            # default_address can be None, need to update field in User
+            if user.default_address is None:
+                user.default_address = addr_form.instance
+                user.save(update_fields=["default_address"])
+
+        user.refresh_from_db()
+        return cls.success_response(user)
 
 
 class UserDelete(UserDeleteMixin, ModelDeleteMutation):
@@ -597,7 +546,8 @@ class AddressCreate(ModelMutation):
         if cls.clean_phone_number(input_data) and cls.clean_zip_code(input_data):
             response = super().perform_mutation(root, info, **data)
             if not response.errors:
-                user.addresses.add(response.address)
+                user.default_address = response.address
+                user.save()
                 response.user = user
             return response
         return cls(user=None)
@@ -693,7 +643,6 @@ class AddressDelete(ModelDeleteMutation):
 
 
 class RecipientCreate(ModelMutation):
-
     class Arguments:
         input = RecipientInput(
             description="Fields required to create recipient", required=True
@@ -711,11 +660,10 @@ class RecipientCreate(ModelMutation):
             response.recipient.user = user
             response.recipient.save()
             return response
-        return cls(recipient=None) 
+        return cls(recipient=None)
 
 
 class RecipientUpdate(ModelMutation):
-
     class Arguments:
         id = graphene.ID(description="ID of the recipient to updated", required=True)
         input = RecipientInput(
@@ -728,13 +676,11 @@ class RecipientUpdate(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, root, info, **data):
-        user = get_user_instance(info)
         response = super().perform_mutation(root, info, **data)
         return response
 
 
 class RecipientDelete(ModelDeleteMutation):
-
     class Arguments:
         id = graphene.ID(description="recipient ID to delete.", required=True)
 

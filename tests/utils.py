@@ -53,3 +53,6 @@ def convert_dict_keys_to_camel_case(d):
         new_key = snake_to_camel_case(k)
         data[new_key] = d[k]
     return data
+
+
+http_error_test_data = [(400, "Bad Request"), (401, "Unauthorized")]
