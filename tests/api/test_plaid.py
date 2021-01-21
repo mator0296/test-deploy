@@ -37,26 +37,28 @@ def test_create_link_token(mock_client, user_api_client):
 
 @pytest.mark.integration
 @patch("mesada.payment.plaid.client")
-def test_create_process_token(mock_client, user_api_client):
+def test_register_ach_payment(mock_client, user_api_client):
 
     query = """
-        mutation createToken($input: ProcessorTokenInput!){
-            processorTokenCreate(input: $input) {
+        mutation registerAchPayment($input: RegisterAchPaymentInput!) {
+            registerAchPayment(input: $input) {
                 paymentMethod {
-                type
-                processorToken
-                name
-                addressLine1
-                addressLine2
-                city
-                district
-                countryCode
-                postalCode
+                    type
+                    processorToken
+                    name
+                    addressLine1
+                    addressLine2
+                    city
+                    district
+                    countryCode
+                    postalCode
                 }
-                error
-                message
+                errors {
+                    field
+                    message
+                }
             }
-            }
+        }
         """
     variables_values = {
         "input": {
