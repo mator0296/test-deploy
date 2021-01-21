@@ -49,7 +49,7 @@ def request_encryption_key() -> Tuple[str, str]:
     return data.get("keyId"), data.get("publicKey")
 
 
-def create_payment(body: dict):
+def create_payment(body: dict) -> dict:
     """
     Send a POST request to create a payment using the Circle's Payments API
     """
