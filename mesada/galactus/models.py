@@ -1,7 +1,7 @@
 from django.db import models
 from . import GalactusStatus
-# Create your models here.
 
+# Create your models here.
 
 
 class GalactusTransaction(models.Model):
