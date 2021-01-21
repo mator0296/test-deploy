@@ -179,9 +179,7 @@ class RegisterAchPayment(ModelMutation):
         account_id = input.get("accounts")[0]["account_id"]
         billing_details = input.get("billing_details")
 
-        processor_token, error_msg = processor_token_create(
-            public_token, account_id
-        )
+        processor_token, error_msg = processor_token_create(public_token, account_id)
         if processor_token is None and error_msg is not None:
             return cls(errors=[Error(message=error_msg)])
 
@@ -266,7 +264,7 @@ class CreatePayment(ModelMutation):
             amount=Money(amount.get("amount"), amount.get("currency")),
             source=response.get("source"),
             description=response.get("description"),
-            status=response.get("status").upper(),
+            status=response.get("status"),
             metadata=response.get("metadata"),
             payment_token=response.get("id"),
             verification=response.get("verification"),
