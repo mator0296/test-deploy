@@ -13,6 +13,7 @@ from django.utils import dateparse
 from graphql import GraphQLError
 
 from ...core.utils import generate_idempotency_key
+from .. import PaymentStatus
 
 from mesada.transfer.models import CircleTransfer
 
@@ -57,7 +58,7 @@ def request_encryption_key() -> Tuple[str, str]:
     return data.get("keyId"), data.get("publicKey")
 
 
-def create_payment(body: dict):
+def create_payment(body: dict) -> dict:
     """
     Send a POST request to create a payment using the Circle's Payments API
     """
@@ -143,6 +144,18 @@ def register_ach(payment_method):
         raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json().get("data")
+
+
+def get_payment_status(payment_token: str) -> str:
+    """
+    Send a GET request to get the status of a payment using the Circle's Payments API
+
+    Args:
+        payment_token: Unique circle system generated identifier for the payment item.
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
+    response = requests.get(url, headers=HEADERS)
+    return PaymentStatus(response.json()["data"]["status"])
 
 
 def get_circle_transfer_status(transfer_id):
