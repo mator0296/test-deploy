@@ -7,7 +7,8 @@ from mesada.account.models import User
 from mesada.payment.circle import (
     HEADERS,
     create_transfer_by_blockchain,
-    register_ach
+    register_ach,
+    get_circle_transfer_status,
 )
 from mesada.payment.models import PaymentMethods
 from mesada.transfer.models import CircleTransfer
@@ -180,3 +181,12 @@ def test_create_transfer_by_blockchain(mock_CircleTransfer, mock_dateparse, mock
     create_transfer_by_blockchain(amount=amount, user=user)
     mock_dateparse.parse_datetime.return_value = "2020-01-15"
     mock_requests.request("POST", url, headers=HEADERS, json=payload)
+
+
+@pytest.mark.integration
+@patch("mesada.payment.circle.requests")
+def test_get_transfer_status(mock_requests, user_api_client):
+    transfer_id = "11652dfa-8511-40fd-99bb-a76d6869d71c"
+    get_circle_transfer_status(transfer_id)
+    url = f"{settings.CIRCLE_BASE_URL}/transfers/{transfer_id}"
+    mock_requests.request.assert_called_once_with("GET", url, headers=HEADERS)
