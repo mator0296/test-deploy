@@ -10,6 +10,7 @@ from typing import Tuple
 import requests
 from django.conf import settings
 from django.utils import dateparse
+from .. import PaymentStatus
 
 from ...core.utils import generate_idempotency_key
 
@@ -123,6 +124,18 @@ def register_ach(payment_method):
     return response.json().get("data")
 
 
+def get_payment_status(payment_token: str) -> str:
+    """
+    Send a GET request to get the status of a payment using the Circle's Payments API
+
+    Args:
+        payment_token: Unique circle system generated identifier for the payment item.
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
+    response = requests.get(url, headers=HEADERS)
+    return PaymentStatus(response.json()["data"]["status"])
+
+
 def get_circle_transfer_status(transfer_id):
     """
     Get the status of a transfer using a get request to the circle api
@@ -133,5 +146,4 @@ def get_circle_transfer_status(transfer_id):
     url = f"{settings.CIRCLE_BASE_URL}/transfers/{transfer_id}"
     response = requests.request("GET", url, headers=HEADERS)
     response.raise_for_status()
-
     return response.json()["data"]["status"]
