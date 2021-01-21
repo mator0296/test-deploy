@@ -7,7 +7,7 @@ from .mutations import (
     CreateLinkToken,
     CreatePayment,
     CreatePublicKey,
-    ProcessorTokenCreate
+    RegisterAchPayment
 )
 from .types import PaymentMethod
 
@@ -40,4 +40,4 @@ class PaymentMutations(graphene.ObjectType):
 
 
 class PaymentMethodsMutations(graphene.ObjectType):
-    processor_token_create = ProcessorTokenCreate.Field()
+    register_ach_payment = RegisterAchPayment.Field()

@@ -179,7 +179,6 @@ class AddressValidationData(graphene.ObjectType):
 
 
 class Recipient(CountableDjangoObjectType):
-    
     class Meta:
         description = "Represents recipient data."
         filter_fields = ["first_name", "last_name", "email", "alias"]

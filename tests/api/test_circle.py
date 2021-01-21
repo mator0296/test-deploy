@@ -36,7 +36,9 @@ def test_create_public_key(mock_requests, user_api_client):
 @patch("mesada.payment.circle.requests")
 @patch("mesada.graphql.payment.mutations.generate_idempotency_key")
 @patch("mesada.graphql.payment.mutations.hash_session_id")
-def test_create_card(mock_hash_session_id, mock_idempotency_key, mock_requests, user_api_client):
+def test_create_card(
+    mock_hash_session_id, mock_idempotency_key, mock_requests, user_api_client
+):
     mock_idempotency_key.return_value = "mocked_idempotency_key"
     mock_hash_session_id.return_value = "mocked_hashed_session_id"
     query = """
@@ -74,7 +76,9 @@ def test_create_card(mock_hash_session_id, mock_idempotency_key, mock_requests, 
         "ipAddress": response.wsgi_request.META["REMOTE_ADDR"],
     }
     url = f"{settings.CIRCLE_BASE_URL}/cards"
-    mock_requests.request.assert_called_once_with("POST", url, headers=HEADERS, json=variables_values["input"])
+    mock_requests.request.assert_called_once_with(
+        "POST", url, headers=HEADERS, json=variables_values["input"]
+    )
 
 
 @pytest.mark.integration
@@ -83,12 +87,18 @@ def test_create_card(mock_hash_session_id, mock_idempotency_key, mock_requests, 
 @patch("mesada.graphql.payment.mutations.hash_session_id")
 @patch("mesada.graphql.payment.mutations.PaymentMethods")
 def test_create_payment(
-    mock_payment_methods, mock_hash_session_id, mock_idempotency_key, mock_requests, user_api_client
+    mock_payment_methods,
+    mock_hash_session_id,
+    mock_idempotency_key,
+    mock_requests,
+    user_api_client,
 ):
     mock_idempotency_key.return_value = "mocked_idempotency_key"
     mock_hash_session_id.return_value = "mocked_hashed_session_id"
     mock_payment_methods.objects.get.return_value = PaymentMethods(
-        payment_method_token="bbbeefe7-6349-4834-a386-6f49c76f1712", phonenumber="+15417543010", email="test@mail.com"
+        payment_method_token="bbbeefe7-6349-4834-a386-6f49c76f1712",
+        phonenumber="+15417543010",
+        email="test@mail.com",
     )
     query = """
     mutation createPayment($type: String!, $paymentMethod: Int!, $amount: Float!, $currency: String, $description: String){  # noqa: E501
@@ -110,7 +120,10 @@ def test_create_payment(
     response = user_api_client.post_graphql(query, variables_values)
     body = {
         "idempotencyKey": mock_idempotency_key.return_value,
-        "amount": {"amount": str(float(variables_values["amount"])), "currency": variables_values["currency"]},
+        "amount": {
+            "amount": str(float(variables_values["amount"])),
+            "currency": variables_values["currency"],
+        },
         "source": {
             "id": mock_payment_methods.objects.get.return_value.payment_method_token,
             "type": variables_values["type"].lower(),
@@ -125,7 +138,9 @@ def test_create_payment(
         "verification": "none",
     }
     url = f"{settings.CIRCLE_BASE_URL}/payments"
-    mock_requests.request.assert_called_once_with("POST", url, headers=HEADERS, json=body)
+    mock_requests.request.assert_called_once_with(
+        "POST", url, headers=HEADERS, json=body
+    )
 
 
 @pytest.mark.integration
@@ -149,7 +164,9 @@ def test_register_ach(mock_idempotency_key, mock_requests):
     }
 
     register_ach(payment_method)
-    mock_requests.request.assert_called_once_with("POST", url, headers=HEADERS, json=body)
+    mock_requests.request.assert_called_once_with(
+        "POST", url, headers=HEADERS, json=body
+    )
 
 
 def mocked_create(**kwargs):
@@ -162,7 +179,9 @@ def mocked_create(**kwargs):
 @patch("mesada.payment.circle.generate_idempotency_key")
 @patch("mesada.payment.circle.dateparse")
 @patch.object(CircleTransfer.objects, "create", side_effect=mocked_create)
-def test_create_transfer_by_blockchain(mock_CircleTransfer, mock_dateparse, mock_idempotency_key, mock_requests):
+def test_create_transfer_by_blockchain(
+    mock_CircleTransfer, mock_dateparse, mock_idempotency_key, mock_requests
+):
     user = User()
     amount = 100
 

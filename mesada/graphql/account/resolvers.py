@@ -3,8 +3,8 @@ from django.db.models import Q
 
 from ...account import models
 from ...core.utils import get_client_ip, get_country_by_ip
-from ..utils import filter_by_query_param
 from ..core.utils import get_user_instance
+from ..utils import filter_by_query_param
 from .types import AddressValidationData
 
 USER_SEARCH_FIELDS = (
@@ -90,9 +90,11 @@ def resolve_recipients(info, search, query):
     user = get_user_instance(info)
     qs = models.Recipient.objects.filter(
         Q(user=user)
-        & (Q(alias__icontains=search)
-        | Q(email__icontains=search)
-        | Q(first_name__icontains=search))
+        & (
+            Q(alias__icontains=search)
+            | Q(email__icontains=search)
+            | Q(first_name__icontains=search)
+        )
     )
     qs = filter_by_query_param(
         queryset=qs, query=query, search_fields=RECIPIENT_SEARCH_FIELDS
