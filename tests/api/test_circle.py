@@ -2,9 +2,17 @@ from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
+from requests.exceptions import HTTPError
+
+from ..utils import http_error_test_data
 
 from mesada.account.models import User
-from mesada.payment.circle import HEADERS, create_transfer_by_blockchain, register_ach
+from mesada.payment.circle import (
+    HEADERS,
+    create_transfer_by_blockchain,
+    register_ach,
+    get_circle_transfer_status,
+)
 from mesada.payment.models import PaymentMethods
 from mesada.transfer.models import CircleTransfer
 
@@ -139,6 +147,17 @@ def test_create_payment(
 
 
 @pytest.mark.integration
+@pytest.mark.parametrize("code, message", http_error_test_data)
+@patch("mesada.payment.circle.requests.request")
+def test_register_ach_failure(mock_request, http_exception):
+    payment_method = Mock()
+    mock_request.return_value = http_exception
+
+    with pytest.raises(HTTPError):
+        register_ach(payment_method)
+
+
+@pytest.mark.integration
 @patch("mesada.payment.circle.requests")
 @patch("mesada.payment.circle.generate_idempotency_key")
 def test_register_ach(mock_idempotency_key, mock_requests):
@@ -195,3 +214,12 @@ def test_create_transfer_by_blockchain(
     create_transfer_by_blockchain(amount=amount, user=user)
     mock_dateparse.parse_datetime.return_value = "2020-01-15"
     mock_requests.request("POST", url, headers=HEADERS, json=payload)
+
+
+@pytest.mark.integration
+@patch("mesada.payment.circle.requests")
+def test_get_transfer_status(mock_requests, user_api_client):
+    transfer_id = "11652dfa-8511-40fd-99bb-a76d6869d71c"
+    get_circle_transfer_status(transfer_id)
+    url = f"{settings.CIRCLE_BASE_URL}/transfers/{transfer_id}"
+    mock_requests.request.assert_called_once_with("GET", url, headers=HEADERS)
