@@ -1,6 +1,7 @@
 import os
 
 from celery import Celery
+from celery.schedules import crontab
 from django.conf import settings
 
 # set the default Django settings module for the 'celery' program.
@@ -30,7 +31,7 @@ def setup_periodic_tasks(sender, **kwargs):
         name="check transfer status every minute",
     )
     sender.add_periodic_task(
-        settings.CELERY_CHECK_PAYMENT_PAID_STATUS,
+        crontab(hour=7, minute=0),
         check_payment_paid_status.s(),
         name="check the status every day",
     )
