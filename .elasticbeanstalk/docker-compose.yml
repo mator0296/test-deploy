@@ -1,11 +1,22 @@
+celery:
+  command:
+  - python
+  - -m
+  - celery
+  - -A
+  - mesada
+  - worker
+  - -B
+  - --loglevel=DEBUG
+  image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
+  links:
+  - redis:redis
 django:
-  image: python
+  image: 322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django
   links:
   - redis:redis
   ports:
   - 8000:8000
-  volumes:
-  - django_server:/app
 redis:
   image: redis:latest
   ports:

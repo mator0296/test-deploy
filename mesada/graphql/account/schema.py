@@ -4,7 +4,12 @@ from graphql_jwt.decorators import permission_required
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
 from ..core.types import FilterInputObjectType
-from .filters import AddressFilter, CustomerFilter, RecipientsFilter, StaffUserFilter
+from .filters import (
+    AddressFilter,
+    CustomerFilter,
+    RecipientsFilter,
+    StaffUserFilter
+)
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -26,14 +31,14 @@ from .mutations import (
     StaffCreate,
     StaffDelete,
     StaffUpdate,
-    VerifySMSCodeVerification,
+    VerifySMSCodeVerification
 )
 from .resolvers import (
     resolve_address,
     resolve_addresses,
     resolve_customers,
     resolve_recipient_,
-    resolve_recipients_,
+    resolve_recipients,
     resolve_staff_users,
 )
 from .types import Address, Recipient, User
@@ -123,10 +128,10 @@ class AccountQueries(graphene.ObjectType):
         return graphene.Node.get_node_from_global_id(info, id, User)
 
     def resolve_recipient(self, info, id):
-        return resolve_recipient_(info, id=id)
+        return graphene.Node.get_node_from_global_id(info, id, Recipient)
 
     def resolve_recipients(self, info, search, query=None, **_kwargs):
-        return resolve_recipients_(info, search=search, query=query)
+        return resolve_recipients(info, search=search, query=query)
 
     def resolve_address(self, info, id):
         return resolve_address(info, id)
@@ -157,9 +162,9 @@ class AccountMutations(graphene.ObjectType):
     address_delete = AddressDelete.Field()
     address_update = AddressUpdate.Field()
 
+    recipient_create = RecipientCreate.Field()
     recipient_update = RecipientUpdate.Field()
     recipient_delete = RecipientDelete.Field()
-    recipient_create = RecipientCreate.Field()
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
     verifySMSCodeVerification = VerifySMSCodeVerification.Field()
