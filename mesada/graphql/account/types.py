@@ -138,7 +138,6 @@ class User(CountableDjangoObjectType):
             "last_login",
             "last_name",
             "note",
-            "is_phone_verified",
         ]
 
     def resolve_addresses(self, _info, **_kwargs):
