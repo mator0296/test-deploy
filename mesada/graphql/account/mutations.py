@@ -697,7 +697,7 @@ class SendPhoneVerificationSMS(BaseMutation):
     @classmethod
     def perform_mutation(cls, _root, info, phone_number):
         try:
-            response = send_code(str(phone_number))
+            response = send_code(phone_number)
         except TwilioRestException as e:
             raise ValidationError({"twilio_service": e.msg})
         if response.status == "pending" and response.valid is False:
@@ -709,28 +709,20 @@ class VerifySMSCodeVerification(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 
     class Arguments:
-        user_id = graphene.ID(description="User ID to submit the verification code.", required=True)
+        phone_number = graphene.String(description="Phone number to submit the verification code.", required=True)
         code = graphene.String(description="Verification code.", required=True)
 
     class Meta:
         description = "Send a code to verify SMS code"
 
     @classmethod
-    def perform_mutation(cls, _root, info, user_id, code):
-        user = graphene.Node.get_node_from_global_id(info, user_id, User)
-        if user is None:
-            raise ValidationError({"userID": "User with this ID doesn't exist"})
-        if user.is_phone_verified:
-            raise ValidationError({"isPhoneVerified": "Phone number of the user already verified"})
-        else:
-            try:
-                response = check_code(str(user.phone), code)
-            except TwilioRestException as e:
-                raise ValidationError({"twilio_service": e.msg})
+    def perform_mutation(cls, _root, info, phone_number, code):
+        try:
+            response = check_code(phone_number, code)
+        except TwilioRestException as e:
+            raise ValidationError({"twilio_service": e.msg})
         if response.status == "approved" and response.valid is True:
             status = ValidatePhoneStatusEnum.APPROVED
-            user.is_phone_verified = True
-            user.save()
         elif response.status == "pending" and response.valid is False:
             status = ValidatePhoneStatusEnum.REJECTED
         return cls(status=status)
