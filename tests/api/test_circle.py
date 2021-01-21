@@ -1,10 +1,16 @@
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
 
-from mesada.payment.circle import HEADERS, register_ach
+from mesada.account.models import User
+from mesada.payment.circle import (
+    HEADERS,
+    create_transfer_by_blockchain,
+    register_ach
+)
 from mesada.payment.models import PaymentMethods
+from mesada.transfer.models import CircleTransfer
 
 
 @pytest.mark.integration
@@ -143,3 +149,34 @@ def test_register_ach(mock_idempotency_key, mock_requests):
 
     register_ach(payment_method)
     mock_requests.request.assert_called_once_with("POST", url, headers=HEADERS, json=body)
+
+
+def mocked_create(**kwargs):
+    """Created to mock the create method of CircleTransfer.objects."""
+    pass
+
+
+@pytest.mark.integration
+@patch("mesada.payment.circle.requests")
+@patch("mesada.payment.circle.generate_idempotency_key")
+@patch("mesada.payment.circle.dateparse")
+@patch.object(CircleTransfer.objects, "create", side_effect=mocked_create)
+def test_create_transfer_by_blockchain(mock_CircleTransfer, mock_dateparse, mock_idempotency_key, mock_requests):
+    user = User()
+    amount = 100
+
+    payload = {
+        "source": {"type": "wallet", "id": f"{settings.CIRCLE_WALLET_ID}"},
+        "destination": {
+            "type": "blockchain",
+            "address": f"{settings.BITSO_BLOCKCHAIN_ADDRESS}",
+            "chain": f"{settings.CIRCLE_BLOCKCHAIN_CHAIN}",
+        },
+        "amount": {"amount": "{:.2f}".format(amount), "currency": "USD"},
+        "idempotencyKey": mock_idempotency_key.return_value,
+    }
+    url = f"{settings.CIRCLE_BASE_URL}/transfers"
+
+    create_transfer_by_blockchain(amount=amount, user=user)
+    mock_dateparse.parse_datetime.return_value = "2020-01-15"
+    mock_requests.request("POST", url, headers=HEADERS, json=payload)

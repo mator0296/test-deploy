@@ -2,12 +2,14 @@ import graphene
 from djmoney.money import Money
 
 from ...core.utils import generate_idempotency_key
+
 from ...payment.models import (
     Payment,
     PaymentMethods,
     VerificationAvsEnum,
     VerificationCvvEnum
 )
+
 from ..core.mutations import BaseMutation, ModelMutation
 from .types import BillingDetailsInput
 from .types import Payment as PaymentType
@@ -93,9 +95,7 @@ class CreateCard(ModelMutation):
             email=metadata.get("email"),
             name=billing_details.get("name"),
             address_line_1=billing_details.get("line1"),
-            address_line_2=billing_details.get("line2")
-            if billing_details.get("line2")
-            else "",
+            address_line_2=billing_details.get("line2") if billing_details.get("line2") else "",
             postal_code=billing_details.get("postalCode"),
             city=billing_details.get("city"),
             district=billing_details.get("district"),
@@ -148,9 +148,7 @@ class CreatePublicKey(BaseMutation):
 
 class ProcessorTokenInput(graphene.InputObjectType):
     public_token = graphene.String(description="Plaid public token", required=True)
-    accounts = graphene.List(
-        graphene.JSONString, description="List of client's accounts", required=True
-    )
+    accounts = graphene.List(graphene.JSONString, description="List of client's accounts", required=True)
     billing_details = BillingDetailsInput(description="Billing details", required=True)
 
 
@@ -162,9 +160,7 @@ class ProcessorTokenCreate(ModelMutation):
     message = graphene.String(description="Plaid error user friendly message")
 
     class Arguments:
-        input = ProcessorTokenInput(
-            description="Fields required to create a processor token.", required=True
-        )
+        input = ProcessorTokenInput(description="Fields required to create a processor token.", required=True)
 
     class Meta:
         description = "Creates a new processor token."
@@ -176,9 +172,7 @@ class ProcessorTokenCreate(ModelMutation):
         account_id = input.get("accounts")[0]["account_id"]
         billing_details = input.get("billing_details")
 
-        processor_token, error, message = processor_token_create(
-            public_token, account_id
-        )
+        processor_token, error, message = processor_token_create(public_token, account_id)
         if processor_token is not None:
             payment_method = PaymentMethods.objects.create(
                 type="ACH",
@@ -203,15 +197,10 @@ class CreatePayment(ModelMutation):
     payment = graphene.Field(PaymentType)
 
     class Arguments:
-        type = graphene.String(
-            description="Type of the transfer. Possible values are CARD or ACH.",
-            required=True,
-        )
+        type = graphene.String(description="Type of the transfer. Possible values are CARD or ACH.", required=True)
         payment_method = graphene.Int(description="Payment method ID.", required=True)
         amount = graphene.Float(description="Amount of the payment.", required=True)
-        currency = graphene.String(
-            description="Payment currency. Defaults to USD.", default_value="USD"
-        )
+        currency = graphene.String(description="Payment currency. Defaults to USD.", default_value="USD")
         description = graphene.String(
             description="A description of the payment to be performed. This is an optional param.",
             default_value="New Payment",
@@ -222,9 +211,7 @@ class CreatePayment(ModelMutation):
         model = Payment
 
     @classmethod
-    def perform_mutation(
-        cls, _root, info, amount, currency, description, payment_method, type
-    ):
+    def perform_mutation(cls, _root, info, amount, currency, description, payment_method, type):
         if not info.context.session.session_key:
             info.context.session.save()
 
@@ -257,7 +244,7 @@ class CreatePayment(ModelMutation):
             amount=Money(amount.get("amount"), amount.get("currency")),
             source=response.get("source"),
             description=response.get("description"),
-            status=response.get("status").upper(),
+            status=response.get("status"),
             metadata=response.get("metadata"),
             payment_token=response.get("id"),
             verification=response.get("verification"),
