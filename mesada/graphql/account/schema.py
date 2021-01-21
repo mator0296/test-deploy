@@ -19,8 +19,6 @@ from .mutations import (
     CustomerDelete,
     CustomerPasswordReset,
     CustomerRegister,
-    CustomerUpdate,
-    LoggedUserUpdate,
     PasswordReset,
     RecipientCreate,
     RecipientDelete,
@@ -31,6 +29,7 @@ from .mutations import (
     StaffCreate,
     StaffDelete,
     StaffUpdate,
+    UpdateUserMutation,
     VerifySMSCodeVerification
 )
 from .resolvers import (
@@ -149,9 +148,8 @@ class AccountMutations(graphene.ObjectType):
     customer_delete = CustomerDelete.Field()
     customer_password_reset = CustomerPasswordReset.Field()
     customer_register = CustomerRegister.Field()
-    customer_update = CustomerUpdate.Field()
 
-    logged_user_update = LoggedUserUpdate.Field()
+    update_user = UpdateUserMutation.Field()
 
     staff_create = StaffCreate.Field()
     staff_delete = StaffDelete.Field()

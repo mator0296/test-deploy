@@ -81,6 +81,7 @@ def resolve_address_validator(info, country_code, country_area, city_area):
     )
 
 
+# TODO: Fix me! Duplicated function name
 def resolve_recipient_(info, id):
     qs = models.Recipient.objects.get(pk=id)
     return qs
