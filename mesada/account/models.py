@@ -1,7 +1,7 @@
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
-    PermissionsMixin,
+    PermissionsMixin
 )
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -191,8 +191,12 @@ class User(AbstractBaseUser, PermissionsMixin):
             if first_name or last_name:
                 return ("%s %s" % (first_name, last_name)).strip()
         return self.email
-
-
+      
+    @property
+    def is_profile_complete(self):
+        return self.first_name is not None and self.last_name is not None
+     
+    
 class Recipient(models.Model):
     first_name = models.CharField(max_length=256)
     last_name = models.CharField(max_length=256)

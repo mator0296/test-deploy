@@ -4,6 +4,7 @@ import graphene
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.validators import validate_email
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from graphql_jwt.exceptions import PermissionDenied
@@ -21,7 +22,6 @@ from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.utils import get_user_instance
 from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
-from django.core.validators import validate_email
 
 ADDRESS_FIELD = "billing_address"
 
