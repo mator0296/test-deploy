@@ -693,7 +693,6 @@ class AddressDelete(ModelDeleteMutation):
 
 
 class RecipientCreate(ModelMutation):
-
     class Arguments:
         input = RecipientInput(
             description="Fields required to create recipient", required=True
@@ -711,11 +710,10 @@ class RecipientCreate(ModelMutation):
             response.recipient.user = user
             response.recipient.save()
             return response
-        return cls(recipient=None) 
+        return cls(recipient=None)
 
 
 class RecipientUpdate(ModelMutation):
-
     class Arguments:
         id = graphene.ID(description="ID of the recipient to updated", required=True)
         input = RecipientInput(
@@ -728,13 +726,11 @@ class RecipientUpdate(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, root, info, **data):
-        user = get_user_instance(info)
         response = super().perform_mutation(root, info, **data)
         return response
 
 
 class RecipientDelete(ModelDeleteMutation):
-
     class Arguments:
         id = graphene.ID(description="recipient ID to delete.", required=True)
 

@@ -164,7 +164,9 @@ def test_register_ach(mock_idempotency_key, mock_requests):
     }
 
     register_ach(payment_method)
-    mock_requests.request.assert_called_once_with("POST", url, headers=HEADERS, json=body)
+    mock_requests.request.assert_called_once_with(
+        "POST", url, headers=HEADERS, json=body
+    )
 
 
 def mocked_create(**kwargs):
