@@ -97,9 +97,7 @@ class CreateCard(ModelMutation):
             email=metadata.get("email"),
             name=billing_details.get("name"),
             address_line_1=billing_details.get("line1"),
-            address_line_2=billing_details.get("line2")
-            if billing_details.get("line2")
-            else "",
+            address_line_2=billing_details.get("line2", ""),
             postal_code=billing_details.get("postalCode"),
             city=billing_details.get("city"),
             district=billing_details.get("district"),

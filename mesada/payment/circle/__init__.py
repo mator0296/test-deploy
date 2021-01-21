@@ -121,7 +121,7 @@ def register_ach(processor_token, billing_details):
 
     Args:
         processor_token: A Circle processor token generated via Plaid's API.
-        billing_details: Client's billind details.
+        billing_details: Client's billing details.
     """
     url = f"{settings.CIRCLE_BASE_URL}/banks/ach"
     body = {
