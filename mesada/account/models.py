@@ -1,7 +1,7 @@
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
-    PermissionsMixin,
+    PermissionsMixin
 )
 from django.core.validators import RegexValidator
 from django.db import models
@@ -129,31 +129,6 @@ class UserManager(BaseUserManager):
         return self.get_queryset().filter(is_staff=True)
 
 
-class Recipient(models.Model):
-
-    first_name = models.CharField(max_length=256, blank=False)
-    last_name = models.CharField(max_length=256, blank=False)
-    alias = models.CharField(max_length=256, blank=True)
-    email = models.EmailField(unique=True)
-    clabe = models.CharField(
-        max_length=18,
-        validators=[
-            RegexValidator(
-                regex=r"\d{18}",
-                message="Clabe must have 18 digits",
-                code="invalid_clabe",
-            )
-        ],
-    )
-    bank_name = models.CharField(max_length=256, blank=False)
-
-    class Meta:
-        ordering = ("first_name", "last_name", "alias")
-
-    def __str__(self):
-        return "%s %s" % (self.first_name, self.last_name)
-
-
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     phone = PossiblePhoneNumberField(blank=True, default="")
@@ -172,9 +147,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         Address, related_name="user", null=True, blank=True, on_delete=models.SET_NULL
     )
     utm_tracking = models.CharField(max_length=300, blank=True, null=True)
-    recipients = models.ForeignKey(
-        Recipient, null=True, blank=True, on_delete=models.SET_NULL
-    )
+
     USERNAME_FIELD = "email"
 
     objects = UserManager()
@@ -201,3 +174,34 @@ class User(AbstractBaseUser, PermissionsMixin):
             if first_name or last_name:
                 return ("%s %s" % (first_name, last_name)).strip()
         return self.email
+      
+    @property
+    def is_profile_complete(self):
+        return self.first_name is not None and self.last_name is not None
+     
+    
+class Recipient(models.Model):
+    first_name = models.CharField(max_length=256)
+    last_name = models.CharField(max_length=256)
+    alias = models.CharField(max_length=256, blank=True, null=True)
+    email = models.EmailField(unique=True)
+    clabe = models.CharField(
+        max_length=18,
+        validators=[
+            RegexValidator(
+                regex=r"\d{18}",
+                message="Clabe must have 18 digits",
+                code="invalid_clabe",
+            )
+        ],
+    )
+    bank_name = models.CharField(max_length=256)
+    user = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL
+    )
+
+    class Meta:
+        ordering = ("first_name", "last_name", "alias")
+
+    def __str__(self):
+        return "%s %s" % (self.first_name, self.last_name)
