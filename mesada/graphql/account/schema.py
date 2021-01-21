@@ -30,15 +30,14 @@ from .mutations import (
     StaffDelete,
     StaffUpdate,
     UpdateUserMutation,
-    VerifySMSCodeVerification,
+    VerifySMSCodeVerification
 )
 from .resolvers import (
     resolve_address,
     resolve_addresses,
     resolve_customers,
-    resolve_recipient_,
     resolve_recipients,
-    resolve_staff_users,
+    resolve_staff_users
 )
 from .types import Address, Recipient, User
 
