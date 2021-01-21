@@ -1,5 +1,3 @@
-from copy import copy
-
 import graphene
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
@@ -17,14 +15,14 @@ from ...core.twilio import check_code, send_code
 from ..account.types import Address, AddressInput
 from ..account.types import Recipient as RecipientType
 from ..account.types import RecipientInput, User
+from ..core.auth import login_required
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.utils import get_user_instance
 from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
-from mesada.account.forms import UserForm, AddressForm
-from django.core.exceptions import ValidationError
-from ..core.auth import login_required
+
+from mesada.account.forms import AddressForm, UserForm
 
 ADDRESS_FIELD = "default_address"
 
@@ -127,10 +125,13 @@ class CustomerRegister(ModelMutation):
 class UserInput(graphene.InputObjectType):
     first_name = graphene.String(description="Given name.")
     last_name = graphene.String(description="Family name.")
-    email = graphene.String(required=False, description="The unique email address of the user.")
+    email = graphene.String(
+        required=False, description="The unique email address of the user."
+    )
     is_active = graphene.Boolean(required=False, description="User account is active.")
     phone = graphene.String(required=False, description="Phone Number of the User.")
     birth_date = graphene.Date(required=False, description="Birth Date of the User")
+
 
 # TODO: Fix me
 class UserCreateInput(UserInput):
@@ -176,6 +177,7 @@ class CustomerCreate(ModelMutation):
             user.save()
         return cls.success_response(user)
 
+
 class UpdateUserMutation(CustomerCreate):
     class Arguments:
         user_input = UserInput(
@@ -195,24 +197,24 @@ class UpdateUserMutation(CustomerCreate):
     def perform_mutation(cls, _root, info, user_input, default_address=None):
         user = info.context.user
         user_form = UserForm(user_input, instance=user)
-        if not user_form.is_valid(): 
+        if not user_form.is_valid():
             raise ValidationError(user_form.errors)
-        
+
         user_form.save()
 
         addr_form = AddressForm(default_address, instance=user.default_address)
 
-        if default_address is not None: 
+        if default_address is not None:
             if not addr_form.is_valid():
                 raise ValidationError(addr_form.errors)
-            
+
             addr_form.save()
 
             # default_address can be None, need to update field in User
-            if user.default_address is None: 
-                user.default_address = addr_form.instance 
+            if user.default_address is None:
+                user.default_address = addr_form.instance
                 user.save(update_fields=["default_address"])
-        
+
         user.refresh_from_db()
         return cls.success_response(user)
 

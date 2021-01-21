@@ -14,7 +14,6 @@ from .mutations import (
     CustomerDelete,
     CustomerPasswordReset,
     CustomerRegister,
-    UpdateUserMutation,
     PasswordReset,
     RecipientCreate,
     RecipientDelete,
@@ -25,6 +24,7 @@ from .mutations import (
     StaffCreate,
     StaffDelete,
     StaffUpdate,
+    UpdateUserMutation,
     VerifySMSCodeVerification,
 )
 from .resolvers import (
