@@ -1,11 +1,15 @@
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
 
-from mesada.payment.circle import HEADERS, create_transfer_by_blockchain
-from mesada.payment.models import PaymentMethods
 from mesada.account.models import User
+from mesada.payment.circle import (
+    HEADERS,
+    create_transfer_by_blockchain,
+    register_ach
+)
+from mesada.payment.models import PaymentMethods
 from mesada.transfer.models import CircleTransfer
 
 
@@ -120,6 +124,30 @@ def test_create_payment(
         "verification": "none",
     }
     url = f"{settings.CIRCLE_BASE_URL}/payments"
+    mock_requests.request.assert_called_once_with("POST", url, headers=HEADERS, json=body)
+
+
+@pytest.mark.integration
+@patch("mesada.payment.circle.requests")
+@patch("mesada.payment.circle.generate_idempotency_key")
+def test_register_ach(mock_idempotency_key, mock_requests):
+    payment_method = Mock()
+    url = f"{settings.CIRCLE_BASE_URL}/banks/ach"
+    body = {
+        "idempotencyKey": mock_idempotency_key.return_value,
+        "plaidProcessorToken": payment_method.processor_token,
+        "billingDetails": {
+            "name": payment_method.name,
+            "city": payment_method.city,
+            "country": payment_method.country_code.code,
+            "line1": payment_method.address_line_1,
+            "line2": payment_method.address_line_2,
+            "district": payment_method.district,
+            "postalCode": payment_method.postal_code,
+        },
+    }
+
+    register_ach(payment_method)
     mock_requests.request.assert_called_once_with("POST", url, headers=HEADERS, json=body)
 
 
