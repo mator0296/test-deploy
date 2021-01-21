@@ -693,9 +693,6 @@ class AddressDelete(ModelDeleteMutation):
 
 
 class RecipientCreate(ModelMutation):
-    recipient = graphene.Field(
-        RecipientType, description="A recipient instance created."
-    )
 
     class Arguments:
         input = RecipientInput(
@@ -711,19 +708,13 @@ class RecipientCreate(ModelMutation):
         user = get_user_instance(info)
         response = super().perform_mutation(root, info, **data)
         if not response.errors:
-            response.recipient.user_id = user.id
-            response.recipient.user_email = user.email
-            user.recipients = response.recipient
-            user.save()
+            response.recipient.user = user
+            response.recipient.save()
             return response
-        return cls(recipient=None)
+        return cls(recipient=None) 
 
 
 class RecipientUpdate(ModelMutation):
-
-    recipient = graphene.Field(
-        RecipientType, description="A recipient instance updated."
-    )
 
     class Arguments:
         id = graphene.ID(description="ID of the recipient to updated", required=True)
@@ -739,50 +730,24 @@ class RecipientUpdate(ModelMutation):
     def perform_mutation(cls, root, info, **data):
         user = get_user_instance(info)
         response = super().perform_mutation(root, info, **data)
-        response.recipient.user_id = user.id
-        response.recipient.user_email = user.email
         return response
 
 
 class RecipientDelete(ModelDeleteMutation):
-    recipient = graphene.Field(
-        RecipientType, description="A user instance for which the address was deleted."
-    )
 
     class Arguments:
-        id = graphene.ID(required=True, description="ID of the address to delete.")
+        id = graphene.ID(description="recipient ID to delete.", required=True)
 
     class Meta:
-        description = "Deletes an address"
+        description = "Delete a recipient."
         model = models.Recipient
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
         node_id = data.get("id")
-        instance = cls.get_node_or_error(info, node_id, Address)
-        if instance:
-            cls.clean_instance(info, instance)
-
-        db_id = instance.id
-
-        # Return the first user that the recipient is assigned to. There is M2M
-        # relation between users and recipientS, but in most cases recipient is
-        # related to only one user.
-        # user = instance.id
-
-        user = instance.delete()
-
-        instance.id = db_id
-
-        response = cls.success_response(instance)
-
-        # Refresh the user instance to clear the default recipients. If the
-        # deleted recipient was used as default, it would stay cached in the
-        # user instance and the invalid ID returned in the response might cause
-        # an error.
-
-        response.user = user
-        return response
+        instance = cls.get_node_or_error(info, node_id, RecipientType)
+        instance.delete()
+        return cls.success_response(instance)
 
 
 class SendPhoneVerificationSMS(BaseMutation):
