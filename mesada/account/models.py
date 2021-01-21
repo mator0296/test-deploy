@@ -218,3 +218,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             if first_name or last_name:
                 return ("%s %s" % (first_name, last_name)).strip()
         return self.email
+
+    @property
+    def is_profile_complete(self):
+        return self.first_name is not None and self.last_name is not None
