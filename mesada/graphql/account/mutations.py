@@ -22,6 +22,9 @@ from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.utils import get_user_instance
 from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
+from mesada.account.forms import UserForm, AddressForm
+from django.core.exceptions import ValidationError
+from ..core.auth import login_required
 
 ADDRESS_FIELD = "default_address"
 
@@ -124,21 +127,13 @@ class CustomerRegister(ModelMutation):
 class UserInput(graphene.InputObjectType):
     first_name = graphene.String(description="Given name.")
     last_name = graphene.String(description="Family name.")
-    email = graphene.String(description="The unique email address of the user.")
+    email = graphene.String(required=False, description="The unique email address of the user.")
     is_active = graphene.Boolean(required=False, description="User account is active.")
-    note = graphene.String(description="A note about the user.")
-    phone = graphene.String(description="Phone Number of the User.")
+    phone = graphene.String(required=False, description="Phone Number of the User.")
+    birth_date = graphene.Date(required=False, description="Birth Date of the User")
 
-
-class UserAddressInput(graphene.InputObjectType):
-    default_address = AddressInput(description="address of the customer.")
-
-
-class CustomerInput(UserInput, UserAddressInput):
-    birth_date = graphene.Date(description="Birth Date of the User")
-
-
-class UserCreateInput(CustomerInput):
+# TODO: Fix me
+class UserCreateInput(UserInput):
     send_password_email = graphene.Boolean(
         description="Send an email with a link to set a password"
     )
@@ -181,62 +176,13 @@ class CustomerCreate(ModelMutation):
             user.save()
         return cls.success_response(user)
 
-
-class CustomerUpdate(CustomerCreate):
+class UpdateUserMutation(CustomerCreate):
     class Arguments:
-        id = graphene.ID(description="ID of a customer to update.", required=True)
-        input = CustomerInput(
-            description="Fields required to update a customer.", required=True
+        user_input = UserInput(
+            description="Fields required to update user.", required=True
         )
-
-    class Meta:
-        description = "Updates an existing customer."
-        exclude = ["password"]
-        model = models.User
-        permissions = ("account.manage_users",)
-
-    @classmethod
-    def generate_events(
-        cls, info, old_instance: models.User, new_instance: models.User
-    ):
-        # Retrieve the event base data
-        staff_user = info.context.user  # noqa: F841
-        new_email = new_instance.email
-        new_fullname = new_instance.get_full_name()
-
-        # Compare the data
-        has_new_name = old_instance.get_full_name() != new_fullname  # noqa: F841
-        has_new_email = old_instance.email != new_email  # noqa: F841
-
-    @classmethod
-    def perform_mutation(cls, _root, info, **data):
-        """Override the base method `perform_mutation` of ModelMutation
-        to generate events by comparing the old instance with the new data."""
-
-        # Retrieve the data
-        original_instance = cls.get_instance(info, **data)
-        data = data.get("input")
-
-        # Clean the input and generate a new instance from the new data
-        cleaned_input = cls.clean_input(info, original_instance, data)
-        new_instance = cls.construct_instance(copy(original_instance), cleaned_input)
-
-        # Save the new instance data
-        cls.clean_instance(new_instance)
-        cls.save(info, new_instance, cleaned_input)
-        cls._save_m2m(info, new_instance, cleaned_input)
-
-        # Generate events by comparing the instances
-        cls.generate_events(info, original_instance, new_instance)
-
-        # Return the response
-        return cls.success_response(new_instance)
-
-
-class LoggedUserUpdate(CustomerCreate):
-    class Arguments:
-        input = CustomerInput(
-            description="Fields required to update logged in user.", required=True
+        default_address = AddressInput(
+            description="The user default Address", required=False
         )
 
     class Meta:
@@ -245,31 +191,29 @@ class LoggedUserUpdate(CustomerCreate):
         model = models.User
 
     @classmethod
-    def check_permissions(cls, user):
-        return user.is_authenticated
-
-    @classmethod
-    def perform_mutation(cls, _root, info, **data):
+    @login_required
+    def perform_mutation(cls, _root, info, user_input, default_address=None):
         user = info.context.user
+        user_form = UserForm(user_input, instance=user)
+        if not user_form.is_valid(): 
+            raise ValidationError(user_form.errors)
+        
+        user_form.save()
 
-        data = data.get("input")
-        address_data = data.pop("default_address")
-        user_data = data
-        if user_data:
-            for attr, value in user_data.items():
-                setattr(user, attr, value)
+        addr_form = AddressForm(default_address, instance=user.default_address)
 
-        if address_data:
-            if user.default_address:
-                for attr, value in address_data.items():
-                    setattr(user.default_address, attr, value)
+        if default_address is not None: 
+            if not addr_form.is_valid():
+                raise ValidationError(addr_form.errors)
+            
+            addr_form.save()
 
-            else:
-                address = models.Address.objects.create(**address_data)
-                user.default_address = address
-            user.default_address.save()
-        user.save()
-
+            # default_address can be None, need to update field in User
+            if user.default_address is None: 
+                user.default_address = addr_form.instance 
+                user.save(update_fields=["default_address"])
+        
+        user.refresh_from_db()
         return cls.success_response(user)
 
 
