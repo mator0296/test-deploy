@@ -21,7 +21,7 @@ def check_payment_status():
 
 @app.task
 def check_payment_paid_status():
-    payments = PaymentModel.objects.filter(status="confirmed")
+    payments = PaymentModel.objects.filter(status=PaymentStatus.CONFIRMED)
     for payment in payments:
         status = get_payment_status(payment.payment_token)
         if status == PaymentStatus.PAID:
