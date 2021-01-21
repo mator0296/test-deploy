@@ -112,7 +112,9 @@ class Payment(models.Model):
     )
     metadata = models.JSONField()
     risk_evaluation = models.JSONField(null=True)
-    payment_token = models.CharField(max_length=256, blank=True)
+    payment_token = models.CharField(
+        max_length=256, blank=True
+    )  # Unique circle system generated identifier for the payment item.
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="payment")
