@@ -213,6 +213,7 @@ class Recipient(models.Model):
         ],
     )
     bank_name = models.CharField(max_length=256)
+    phone = PossiblePhoneNumberField(blank=True, default="")
     user = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL
     )
