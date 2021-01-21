@@ -10,4 +10,4 @@ class GalactusTransaction(models.Model):
     response_data = models.JSONField()
 
     def __str__(self):
-        return "%s %s" % (self.status, self.detail)
+        return "%s %s" % (self.status, self.response_data)
