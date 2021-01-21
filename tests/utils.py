@@ -22,9 +22,7 @@ def get_graphql_content(response):
 def assert_no_permission(response):
     content = _get_graphql_content_from_response(response)
     assert "errors" in content, content
-    assert content["errors"][0]["message"] == (
-        "You do not have permission to perform this action"
-    ), content["errors"]
+    assert content["errors"][0]["message"] == ("You do not have permission to perform this action"), content["errors"]
 
 
 def get_multipart_request_body(query, variables, file, file_name):
@@ -34,9 +32,7 @@ def get_multipart_request_body(query, variables, file, file_name):
     of additional 'operations' and 'map' keys.
     """
     return {
-        "operations": json.dumps(
-            {"query": query, "variables": variables}, cls=DjangoJSONEncoder
-        ),
+        "operations": json.dumps({"query": query, "variables": variables}, cls=DjangoJSONEncoder),
         "map": json.dumps({file_name: ["variables.file"]}, cls=DjangoJSONEncoder),
         file_name: file,
     }
@@ -53,3 +49,6 @@ def convert_dict_keys_to_camel_case(d):
         new_key = snake_to_camel_case(k)
         data[new_key] = d[k]
     return data
+
+
+http_error_test_data = [(400, "Bad Request"), (401, "Unauthorized")]

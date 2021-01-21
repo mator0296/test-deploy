@@ -2,6 +2,9 @@ from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
+from requests.exceptions import HTTPError
+
+from ..utils import http_error_test_data
 
 from mesada.account.models import User
 from mesada.payment.circle import (
@@ -141,6 +144,17 @@ def test_create_payment(
     mock_requests.request.assert_called_once_with(
         "POST", url, headers=HEADERS, json=body
     )
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("code, message", http_error_test_data)
+@patch("mesada.payment.circle.requests.request")
+def test_register_ach_failure(mock_request, http_exception):
+    payment_method = Mock()
+    mock_request.return_value = http_exception
+
+    with pytest.raises(HTTPError):
+        register_ach(payment_method)
 
 
 @pytest.mark.integration
