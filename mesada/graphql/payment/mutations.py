@@ -1,18 +1,29 @@
 import graphene
 from djmoney.money import Money
+from graphql.error import GraphQLError
+from requests.exceptions import HTTPError
 
 from ...core.utils import generate_idempotency_key
-
-from ...payment.models import Payment, PaymentMethods, VerificationAvsEnum, VerificationCvvEnum
-
+from ...payment.models import (
+    Payment,
+    PaymentMethods,
+    VerificationAvsEnum,
+    VerificationCvvEnum
+)
 from ..core.mutations import BaseMutation, ModelMutation
+from ..core.types import Error
 from .types import BillingDetailsInput
 from .types import Payment as PaymentType
 from .types import PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
 
 from mesada.payment import PaymentMethodTypes
-from mesada.payment.circle import create_card, create_payment, request_encryption_key
+from mesada.payment.circle import (
+    create_card,
+    create_payment,
+    register_ach,
+    request_encryption_key
+)
 from mesada.payment.plaid import create_link_token, processor_token_create
 
 
@@ -87,7 +98,7 @@ class CreateCard(ModelMutation):
             email=metadata.get("email"),
             name=billing_details.get("name"),
             address_line_1=billing_details.get("line1"),
-            address_line_2=billing_details.get("line2") if billing_details.get("line2") else "",
+            address_line_2=billing_details.get("line2", ""),
             postal_code=billing_details.get("postalCode"),
             city=billing_details.get("city"),
             district=billing_details.get("district"),
@@ -138,21 +149,24 @@ class CreatePublicKey(BaseMutation):
         return cls(key_id=key_id, public_key=public_key)
 
 
-class ProcessorTokenInput(graphene.InputObjectType):
+class RegisterAchPaymentInput(graphene.InputObjectType):
     public_token = graphene.String(description="Plaid public token", required=True)
-    accounts = graphene.List(graphene.JSONString, description="List of client's accounts", required=True)
+    accounts = graphene.List(
+        graphene.JSONString, description="List of client's accounts", required=True
+    )
     billing_details = BillingDetailsInput(description="Billing details", required=True)
 
 
-class ProcessorTokenCreate(ModelMutation):
-    """Exchange a Plaid public token for a Circle processor token."""
+class RegisterAchPayment(ModelMutation):
+    """Register an ACH payment in the Circle API and insert it into the DB."""
 
     payment_method = graphene.Field(PaymentMethod)
-    error = graphene.String(description="Plaid error code")
-    message = graphene.String(description="Plaid error user friendly message")
+    errors = graphene.List(Error, required=True)
 
     class Arguments:
-        input = ProcessorTokenInput(description="Fields required to create a processor token.", required=True)
+        input = RegisterAchPaymentInput(
+            description="Fields required to create a processor token.", required=True
+        )
 
     class Meta:
         description = "Creates a new processor token."
@@ -164,10 +178,15 @@ class ProcessorTokenCreate(ModelMutation):
         account_id = input.get("accounts")[0]["account_id"]
         billing_details = input.get("billing_details")
 
-        processor_token, error, message = processor_token_create(public_token, account_id)
-        if processor_token is not None:
+        processor_token, error_msg = processor_token_create(public_token, account_id)
+        if processor_token is None and error_msg is not None:
+            return cls(errors=[Error(message=error_msg)])
+
+        try:
+            circle_response = register_ach(processor_token, billing_details)
             payment_method = PaymentMethods.objects.create(
                 type=PaymentMethodTypes.ACH,
+                payment_method_token=circle_response.get("id"),
                 processor_token=processor_token,
                 user=info.context.user,
                 name=billing_details.get("name"),
@@ -178,9 +197,10 @@ class ProcessorTokenCreate(ModelMutation):
                 district=billing_details.get("district"),
                 country_code=billing_details.get("country"),
             )
-            return cls(payment_method=payment_method, error=None, message=None)
+        except HTTPError as e:
+            raise GraphQLError(f"Internal Server Error: {e.message}")
 
-        return cls(payment_method=None, error=error, message=message)
+        return cls(payment_method=payment_method)
 
 
 class CreatePayment(ModelMutation):
@@ -189,10 +209,15 @@ class CreatePayment(ModelMutation):
     payment = graphene.Field(PaymentType)
 
     class Arguments:
-        type = graphene.String(description="Type of the transfer. Possible values are CARD or ACH.", required=True)
+        type = graphene.String(
+            description="Type of the transfer. Possible values are CARD or ACH.",
+            required=True,
+        )
         payment_method = graphene.Int(description="Payment method ID.", required=True)
         amount = graphene.Float(description="Amount of the payment.", required=True)
-        currency = graphene.String(description="Payment currency. Defaults to USD.", default_value="USD")
+        currency = graphene.String(
+            description="Payment currency. Defaults to USD.", default_value="USD"
+        )
         description = graphene.String(
             description="A description of the payment to be performed. This is an optional param.",
             default_value="New Payment",
@@ -203,7 +228,9 @@ class CreatePayment(ModelMutation):
         model = Payment
 
     @classmethod
-    def perform_mutation(cls, _root, info, amount, currency, description, payment_method, type):
+    def perform_mutation(
+        cls, _root, info, amount, currency, description, payment_method, type
+    ):
         if not info.context.session.session_key:
             info.context.session.save()
 

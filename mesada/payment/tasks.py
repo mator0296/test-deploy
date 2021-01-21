@@ -1,9 +1,7 @@
 from ..celery import app
-
-from .circle import get_payment_status
-
-from .models import Payment as PaymentModel
 from . import PaymentStatus
+from .circle import get_payment_status
+from .models import Payment as PaymentModel
 
 
 @app.task
