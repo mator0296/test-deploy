@@ -183,5 +183,11 @@ def get_payment_status(payment_token: str) -> str:
         payment_token: Unique circle system generated identifier for the payment item.
     """
     url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
-    response = requests.get(url, headers=HEADERS)
-    return PaymentStatus(response.json()["data"]["status"])
+    
+    try:
+        response = requests.get(url, headers=HEADERS)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
+
+    return response.json()["data"]["status"]
