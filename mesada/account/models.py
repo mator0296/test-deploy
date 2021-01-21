@@ -3,7 +3,6 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin
 )
-from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
@@ -100,22 +99,6 @@ class Address(models.Model):
                 update_fields.append("default_billing_address")
             user.save(update_fields=update_fields)
 
-    def clean(self):
-        """
-        Raise exception if one of the
-        two values (lat and long) are
-        None individually, i.e, both have
-        to be None or both are not None.
-        """
-        if (self.latitude is None) != (self.longitude is None):
-            raise ValidationError(
-                pgettext_lazy(
-                    "Validation Error",
-                    "Los valores de Latitud y Longitud no"
-                    "pueden ser NULL individualmente.",
-                )
-            )
-
 
 class UserManager(BaseUserManager):
     def create_user(
@@ -158,10 +141,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_phone_verified = models.BooleanField(default=False)
     note = models.TextField(null=True, blank=True)
-    postal_code = models.CharField(max_length=6, null=True)
+    birth_date = models.DateTimeField(blank=True, null=True)
     date_joined = models.DateTimeField(default=timezone.now, editable=False)
     default_address = models.ForeignKey(
-        Address, related_name="+", null=True, blank=True, on_delete=models.SET_NULL
+        Address, related_name="user", null=True, blank=True, on_delete=models.SET_NULL
     )
     utm_tracking = models.CharField(max_length=300, blank=True, null=True)
 
@@ -191,12 +174,12 @@ class User(AbstractBaseUser, PermissionsMixin):
             if first_name or last_name:
                 return ("%s %s" % (first_name, last_name)).strip()
         return self.email
-      
+
     @property
     def is_profile_complete(self):
         return self.first_name is not None and self.last_name is not None
-     
-    
+
+
 class Recipient(models.Model):
     first_name = models.CharField(max_length=256)
     last_name = models.CharField(max_length=256)
@@ -213,9 +196,7 @@ class Recipient(models.Model):
         ],
     )
     bank_name = models.CharField(max_length=256)
-    user = models.ForeignKey(
-        User, null=True, blank=True, on_delete=models.SET_NULL
-    )
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ("first_name", "last_name", "alias")

@@ -1,4 +1,5 @@
 import json
+from unittest import mock
 
 import graphene
 import pytest
@@ -7,10 +8,11 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
 from django.test.client import MULTIPART_CONTENT, Client
 from graphql_jwt.shortcuts import get_token
-
-from mesada.account.models import User
+from requests.exceptions import HTTPError
 
 from ..utils import assert_no_permission
+
+from mesada.account.models import User
 
 API_PATH = reverse("api")
 
@@ -49,7 +51,7 @@ class ApiClient(Client):
         variables=None,
         permissions=None,
         check_no_permissions=True,
-        **kwargs,
+        **kwargs
     ):
         """Dedicated helper for posting GraphQL queries.
 
@@ -117,3 +119,14 @@ def user_list_not_active(user_list):
     users = User.objects.filter(pk__in=[user.pk for user in user_list])
     users.update(is_active=False)
     return users
+
+
+@pytest.fixture
+def http_exception(code: int, message: str) -> mock.Mock:
+    mock_response = mock.Mock()
+    mock_response.json.return_value = {"message": message}
+    mock_response.status_code = code
+
+    mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
+
+    return mock_response
