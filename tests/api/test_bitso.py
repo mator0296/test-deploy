@@ -1,8 +1,9 @@
-import pytest
-
 from unittest.mock import patch
-from mesada.withdrawal.bitso import make_bitso_spei_withdrawal
+
+import pytest
 from bitso.errors import ApiError
+
+from mesada.withdrawal.bitso import make_bitso_spei_withdrawal
 
 
 @pytest.mark.integration
