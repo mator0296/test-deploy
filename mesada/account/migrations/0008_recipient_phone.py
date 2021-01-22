@@ -7,7 +7,7 @@ import mesada.account.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('account', '0003_auto_20210121_0109'),
+        ('account', '0007_remove_user_is_phone_verified'),
     ]
 
     operations = [
