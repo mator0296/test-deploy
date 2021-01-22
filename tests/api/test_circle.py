@@ -7,7 +7,12 @@ from graphql import GraphQLError
 from ..utils import http_error_test_data
 
 from mesada.account.models import User
-from mesada.payment.circle import HEADERS, create_transfer_by_blockchain, register_ach, get_circle_transfer_status
+from mesada.payment.circle import (
+    HEADERS,
+    create_transfer_by_blockchain,
+    get_circle_transfer_status,
+    register_ach
+)
 from mesada.payment.models import PaymentMethods
 from mesada.transfer.models import CircleTransfer
 
