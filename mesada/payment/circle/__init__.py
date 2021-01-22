@@ -13,8 +13,7 @@ from django.utils import dateparse
 from graphql import GraphQLError
 
 from ...core.utils import generate_idempotency_key
-from . import PaymentMethodStatus
-from .. import PaymentStatus
+from .. import PaymentStatus, PaymentMethodStatus
 
 from mesada.transfer.models import CircleTransfer
 
