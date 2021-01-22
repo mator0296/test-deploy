@@ -1,0 +1,93 @@
+#!/bin/sh
+
+NC='\033[0m'
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+ORANGE='\033[1;33m'
+BLUE='\033[1;34m'
+
+check if uncommited changes
+echo -n "${ORANGE}CHECKING${NC}: Uncommited changes ..."
+if [ -n "$(git status --porcelain)" ]; then
+	echo "             [ ${RED}FAILED! ಠ_ಠ ${NC} ]";
+	echo "${BLUE} Please commit or stash your local changes ${NC}";
+	exit 1
+else
+      echo "         [ ${GREEN}OK (⌐■_■)${NC} ]";
+fi
+
+# check if code is black formated
+echo -n "${ORANGE}CHECKING${NC}: Black format..."
+black --check --exclude venv/ . > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "             [ ${RED}FAILED! ಠ_ಠ ${NC} ]";
+    echo "${BLUE}Apply: black --exclude venv/ .${NC}";
+    exit 1
+else
+    echo "                [ ${GREEN}OK (⌐■_■)${NC} ]";
+fi
+
+
+# check if code is iSorted formated
+echo -n "${ORANGE}CHECKING${NC}: isort format..."
+isort --check-only . > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "                [ ${RED}FAILED! ಠ_ಠ${NC} ]";
+    echo "${BLUE}Apply: isort .${NC}";
+    exit 1
+else
+    echo "                [ ${GREEN}OK (⌐■_■)${NC} ]";
+fi
+
+
+# check flake8
+echo -n "${ORANGE}CHECKING${NC}: Flake8 ... "
+flake8 .
+if [ $? -ne 0 ]; then
+    echo "\n [ ${RED}FAILED! ಠ_ಠ${NC} ] \n";
+    echo "${BLUE}Apply: flake8  .${NC}";
+    exit 1
+else
+    echo "                    [ ${GREEN}OK (⌐■_■)${NC} ]";
+fi
+
+# check Migrations
+echo -n "${ORANGE}CHECKING${NC}: Migrations  ... "
+python manage.py makemigrations > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "               [ ${RED}FAILED! ಠ_ಠ${NC} ] \n";
+    echo "${BLUE}Apply: python manage.py makemigrations ${NC}";
+    exit 1
+else
+    echo "               [ ${GREEN}OK (⌐■_■)${NC} ]";
+fi
+
+
+# check Test
+echo -n "${ORANGE}CHECKING${NC}: Tests  ... \n"
+pytest
+if [ $? -ne 0 ]; then
+    echo "[ ${RED}FAILED! ಠ_ಠ${NC} ] \n";
+    exit 1
+else
+    echo "[ ${GREEN}OK (⌐■_■)${NC} ]";
+fi
+
+
+cat << "EOF"
+⊂_ヽ
+　 ＼＼
+　　 ＼( ͡° ͜ʖ ͡°)
+　　　 >　⌒ヽ
+　　　/ 　 へ＼
+　　 /　　/　＼＼
+　　 ﾚ　ノ　　 ヽ_つ
+　　/　/
+　 /　/|
+　(　(ヽ
+　|　|、＼
+　| 丿 ＼ ⌒)
+　| |　　) /
+ノ )　　Lﾉ
+(_／
+EOF
