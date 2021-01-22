@@ -766,10 +766,6 @@ class SendPhoneVerificationSMS(BaseMutation):
         user = graphene.Node.get_node_from_global_id(info, user_id, User)
         if user is None:
             raise ValidationError({"userID": "User with this ID doesn't exist"})
-        if user.is_phone_verified:
-            raise ValidationError(
-                {"isPhoneVerified": "Phone number of the user already verified"}
-            )
         else:
             try:
                 response = send_code(str(user.phone))
@@ -797,10 +793,6 @@ class VerifySMSCodeVerification(BaseMutation):
         user = graphene.Node.get_node_from_global_id(info, user_id, User)
         if user is None:
             raise ValidationError({"userID": "User with this ID doesn't exist"})
-        if user.is_phone_verified:
-            raise ValidationError(
-                {"isPhoneVerified": "Phone number of the user already verified"}
-            )
         else:
             try:
                 response = check_code(str(user.phone), code)
@@ -808,7 +800,6 @@ class VerifySMSCodeVerification(BaseMutation):
                 raise ValidationError({"twilio_service": e.msg})
         if response.status == "approved" and response.valid is True:
             status = ValidatePhoneStatusEnum.APPROVED
-            user.is_phone_verified = True
             user.save()
         elif response.status == "pending" and response.valid is False:
             status = ValidatePhoneStatusEnum.REJECTED
