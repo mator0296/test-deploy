@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [("account", "0001_initial")]
+    dependencies = [("account", "0005_auto_20210120_2241")]
 
     operations = [
         migrations.AddField(
