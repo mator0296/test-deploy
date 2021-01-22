@@ -1,5 +1,3 @@
-from copy import copy
-
 import graphene
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
@@ -17,13 +15,16 @@ from ...core.twilio import check_code, send_code
 from ..account.types import Address, AddressInput
 from ..account.types import Recipient as RecipientType
 from ..account.types import RecipientInput, User
+from ..core.auth import login_required
 from ..core.enums import PermissionEnum
 from ..core.mutations import BaseMutation, ModelDeleteMutation, ModelMutation
 from ..core.utils import get_user_instance
 from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
 
-ADDRESS_FIELD = "billing_address"
+from mesada.account.forms import AddressForm, UserForm
+
+ADDRESS_FIELD = "default_address"
 
 
 def send_user_password_reset_email(user, site):
@@ -69,9 +70,7 @@ def can_edit_recipient(user, recipient, check_user_permission=True):
 class CustomerRegisterInput(graphene.InputObjectType):
     first_name = graphene.String(description="First Name")
     last_name = graphene.String(description="Last Name")
-    email = graphene.String(
-        description="The unique email address of the user.", required=True
-    )
+    email = graphene.String(description="The unique email address of the user.", required=True)
     password = graphene.String(description="Password", required=True)
     phone = graphene.String(description="Phone Number", required=True)
 
@@ -80,9 +79,7 @@ class CustomerRegister(ModelMutation):
     token = graphene.String()
 
     class Arguments:
-        input = CustomerRegisterInput(
-            description="Fields required to create a user.", required=True
-        )
+        input = CustomerRegisterInput(description="Fields required to create a user.", required=True)
 
     class Meta:
         description = "Register a new user."
@@ -124,43 +121,28 @@ class CustomerRegister(ModelMutation):
 class UserInput(graphene.InputObjectType):
     first_name = graphene.String(description="Given name.")
     last_name = graphene.String(description="Family name.")
-    email = graphene.String(description="The unique email address of the user.")
+    email = graphene.String(required=False, description="The unique email address of the user.")
     is_active = graphene.Boolean(required=False, description="User account is active.")
-    note = graphene.String(description="A note about the user.")
+    phone = graphene.String(required=False, description="Phone Number of the User.")
+    birth_date = graphene.Date(required=False, description="Birth Date of the User")
 
 
-class UserAddressInput(graphene.InputObjectType):
-    default_address = AddressInput(description="address of the customer.")
-
-
-class CustomerInput(UserInput, UserAddressInput):
-    pass
-
-
-class UserCreateInput(CustomerInput):
-    send_password_email = graphene.Boolean(
-        description="Send an email with a link to set a password"
-    )
+# TODO: Fix me
+class UserCreateInput(UserInput):
+    send_password_email = graphene.Boolean(description="Send an email with a link to set a password")
 
 
 class StaffInput(UserInput):
-    permissions = graphene.List(
-        PermissionEnum,
-        description="List of permission code names to assign to this user.",
-    )
+    permissions = graphene.List(PermissionEnum, description="List of permission code names to assign to this user.")
 
 
 class StaffCreateInput(StaffInput):
-    send_password_email = graphene.Boolean(
-        description="Send an email with a link to set a password"
-    )
+    send_password_email = graphene.Boolean(description="Send an email with a link to set a password")
 
 
 class CustomerCreate(ModelMutation):
     class Arguments:
-        input = UserCreateInput(
-            description="Fields required to create a customer.", required=True
-        )
+        input = UserCreateInput(description="Fields required to create a customer.", required=True)
 
     class Meta:
         description = "Creates a new customer."
@@ -169,90 +151,22 @@ class CustomerCreate(ModelMutation):
         permissions = ("account.manage_users",)
 
     @classmethod
-    def clean_input(cls, info, instance, data):
-        address_data = data.pop(ADDRESS_FIELD, None)
-        cleaned_input = super().clean_input(info, instance, data)
-
-        if address_data:
-            shipping_address = cls.validate_address(  # noqa: F841
-                address_data, instance=getattr(instance, ADDRESS_FIELD)
-            )
-            cleaned_input[ADDRESS_FIELD] = address_data
-
-        return cleaned_input
-
-    @classmethod
-    def save(cls, info, instance, cleaned_input):
-        # FIXME: save address in user.addresses as well
-        address_data = cleaned_input.get(ADDRESS_FIELD)
-        if address_data:
-            address_data.save()
-            instance.default_shipping_address = address_data
-        address_data = cleaned_input.get(ADDRESS_FIELD)
-        if address_data:
-            address_data.save()
-            instance.address_data = address_data
-
-        is_creation = instance.pk is None  # noqa: F841
-        super().save(info, instance, cleaned_input)
-
-
-class CustomerUpdate(CustomerCreate):
-    class Arguments:
-        id = graphene.ID(description="ID of a customer to update.", required=True)
-        input = CustomerInput(
-            description="Fields required to update a customer.", required=True
-        )
-
-    class Meta:
-        description = "Updates an existing customer."
-        exclude = ["password"]
-        model = models.User
-        permissions = ("account.manage_users",)
-
-    @classmethod
-    def generate_events(
-        cls, info, old_instance: models.User, new_instance: models.User
-    ):
-        # Retrieve the event base data
-        staff_user = info.context.user  # noqa: F841
-        new_email = new_instance.email
-        new_fullname = new_instance.get_full_name()
-
-        # Compare the data
-        has_new_name = old_instance.get_full_name() != new_fullname  # noqa: F841
-        has_new_email = old_instance.email != new_email  # noqa: F841
-
-    @classmethod
     def perform_mutation(cls, _root, info, **data):
-        """Override the base method `perform_mutation` of ModelMutation
-        to generate events by comparing the old instance with the new data."""
-
-        # Retrieve the data
-        original_instance = cls.get_instance(info, **data)
         data = data.get("input")
-
-        # Clean the input and generate a new instance from the new data
-        cleaned_input = cls.clean_input(info, original_instance, data)
-        new_instance = cls.construct_instance(copy(original_instance), cleaned_input)
-
-        # Save the new instance data
-        cls.clean_instance(new_instance)
-        cls.save(info, new_instance, cleaned_input)
-        cls._save_m2m(info, new_instance, cleaned_input)
-
-        # Generate events by comparing the instances
-        cls.generate_events(info, original_instance, new_instance)
-
-        # Return the response
-        return cls.success_response(new_instance)
+        address_data = data.pop("default_address")
+        user_data = data
+        user = models.User.objects.create(**user_data)
+        if address_data:
+            address = models.Address.objects.create(**address_data)
+            user.default_address = address
+            user.save()
+        return cls.success_response(user)
 
 
-class LoggedUserUpdate(CustomerCreate):
+class UpdateUserMutation(CustomerCreate):
     class Arguments:
-        input = CustomerInput(
-            description="Fields required to update logged in user.", required=True
-        )
+        user_input = UserInput(description="Fields required to update user.", required=True)
+        default_address = AddressInput(description="The user default Address", required=False)
 
     class Meta:
         description = "Updates data of the logged in user."
@@ -260,14 +174,30 @@ class LoggedUserUpdate(CustomerCreate):
         model = models.User
 
     @classmethod
-    def check_permissions(cls, user):
-        return user.is_authenticated
-
-    @classmethod
-    def perform_mutation(cls, root, info, **data):
+    @login_required
+    def perform_mutation(cls, _root, info, user_input, default_address=None):
         user = info.context.user
-        data["id"] = graphene.Node.to_global_id("User", user.id)
-        return super().perform_mutation(root, info, **data)
+        user_form = UserForm(user_input, instance=user)
+        if not user_form.is_valid():
+            raise ValidationError(user_form.errors)
+
+        user_form.save()
+
+        addr_form = AddressForm(default_address, instance=user.default_address)
+
+        if default_address is not None:
+            if not addr_form.is_valid():
+                raise ValidationError(addr_form.errors)
+
+            addr_form.save()
+
+            # default_address can be None, need to update field in User
+            if user.default_address is None:
+                user.default_address = addr_form.instance
+                user.save(update_fields=["default_address"])
+
+        user.refresh_from_db()
+        return cls.success_response(user)
 
 
 class UserDelete(UserDeleteMixin, ModelDeleteMutation):
@@ -293,9 +223,7 @@ class CustomerDelete(CustomerDeleteMixin, UserDelete):
 
 class StaffCreate(ModelMutation):
     class Arguments:
-        input = StaffCreateInput(
-            description="Fields required to create a staff user.", required=True
-        )
+        input = StaffCreateInput(description="Fields required to create a staff user.", required=True)
 
     class Meta:
         description = "Creates a new staff user."
@@ -327,9 +255,7 @@ class StaffCreate(ModelMutation):
 class StaffUpdate(StaffCreate):
     class Arguments:
         id = graphene.ID(description="ID of a staff user to update.", required=True)
-        input = StaffInput(
-            description="Fields required to update a staff user.", required=True
-        )
+        input = StaffInput(description="Fields required to update a staff user.", required=True)
 
     class Meta:
         description = "Updates an existing staff user."
@@ -341,13 +267,9 @@ class StaffUpdate(StaffCreate):
     def clean_is_active(cls, is_active, instance, user):
         if not is_active:
             if user == instance:
-                raise ValidationError(
-                    {"is_active": "Cannot deactivate your own account."}
-                )
+                raise ValidationError({"is_active": "Cannot deactivate your own account."})
             elif instance.is_superuser:
-                raise ValidationError(
-                    {"is_active": "Cannot deactivate superuser's account."}
-                )
+                raise ValidationError({"is_active": "Cannot deactivate superuser's account."})
 
     @classmethod
     def clean_input(cls, info, instance, data):
@@ -384,9 +306,7 @@ class StaffDelete(StaffDeleteMixin, UserDelete):
 
 
 class SetPasswordInput(graphene.InputObjectType):
-    token = graphene.String(
-        description="A one-time token required to set the password.", required=True
-    )
+    token = graphene.String(description="A one-time token required to set the password.", required=True)
     password = graphene.String(description="Password", required=True)
 
 
@@ -394,12 +314,8 @@ class SetPassword(ModelMutation):
     INVALID_TOKEN = "Invalid or expired token."
 
     class Arguments:
-        id = graphene.ID(
-            description="ID of a user to set password whom.", required=True
-        )
-        input = SetPasswordInput(
-            description="Fields required to set password.", required=True
-        )
+        id = graphene.ID(description="ID of a user to set password whom.", required=True)
+        input = SetPasswordInput(description="Fields required to set password.", required=True)
 
     class Meta:
         description = "Sets user password."
@@ -439,10 +355,7 @@ class PasswordReset(BaseMutation):
 
 
 class CustomerPasswordResetInput(graphene.InputObjectType):
-    email = graphene.String(
-        required=True,
-        description=("Email of the user that will be used for password recovery."),
-    )
+    email = graphene.String(required=True, description=("Email of the user that will be used for password recovery."))
 
 
 class ChangePasswordInput(graphene.InputObjectType):
@@ -497,9 +410,7 @@ class ChangePassword(ModelMutation):
 
 class CustomerPasswordReset(BaseMutation):
     class Arguments:
-        input = CustomerPasswordResetInput(
-            description="Fields required to reset customer's password", required=True
-        )
+        input = CustomerPasswordResetInput(description="Fields required to reset customer's password", required=True)
 
     class Meta:
         description = "Resets the customer's password."
@@ -544,13 +455,7 @@ class SetNewPassword(BaseMutation):
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
             user = models.User.objects.get(pk=uid)
-        except (
-            TypeError,
-            ValueError,
-            OverflowError,
-            ObjectDoesNotExist,
-            ValidationError,
-        ):
+        except (TypeError, ValueError, OverflowError, ObjectDoesNotExist, ValidationError):
             user = None
         return user
 
@@ -567,14 +472,10 @@ class SetNewPassword(BaseMutation):
 
 
 class AddressCreate(ModelMutation):
-    user = graphene.Field(
-        User, description="A user instance for which the address was created."
-    )
+    user = graphene.Field(User, description="A user instance for which the address was created.")
 
     class Arguments:
-        input = AddressInput(
-            description="Fields required to create address", required=True
-        )
+        input = AddressInput(description="Fields required to create address", required=True)
 
     class Meta:
         description = "Creates user address"
@@ -597,22 +498,19 @@ class AddressCreate(ModelMutation):
         if cls.clean_phone_number(input_data) and cls.clean_zip_code(input_data):
             response = super().perform_mutation(root, info, **data)
             if not response.errors:
-                user.addresses.add(response.address)
+                user.default_address = response.address
+                user.save()
                 response.user = user
             return response
         return cls(user=None)
 
 
 class AddressUpdate(ModelMutation):
-    user = graphene.Field(
-        User, description="A user instance for which the address was edited."
-    )
+    user = graphene.Field(User, description="A user instance for which the address was edited.")
 
     class Arguments:
         id = graphene.ID(description="ID of the address to update", required=True)
-        input = AddressInput(
-            description="Fields required to update address", required=True
-        )
+        input = AddressInput(description="Fields required to update address", required=True)
 
     class Meta:
         description = "Updates an address"
@@ -623,9 +521,7 @@ class AddressUpdate(ModelMutation):
     def clean_input(cls, info, instance, data):
         # Method check_permissions cannot be used for permission check, because
         # it doesn't have the address instance.
-        if not can_edit_address(
-            info.context.user, instance, check_user_permission=False
-        ):
+        if not can_edit_address(info.context.user, instance, check_user_permission=False):
             raise PermissionDenied()
         return super().clean_input(info, instance, data)
 
@@ -638,9 +534,7 @@ class AddressUpdate(ModelMutation):
 
 
 class AddressDelete(ModelDeleteMutation):
-    user = graphene.Field(
-        User, description="A user instance for which the address was deleted."
-    )
+    user = graphene.Field(User, description="A user instance for which the address was deleted.")
 
     class Arguments:
         id = graphene.ID(required=True, description="ID of the address to delete.")
@@ -653,9 +547,7 @@ class AddressDelete(ModelDeleteMutation):
     def clean_instance(cls, info, instance):
         # Method check_permissions cannot be used for permission check, because
         # it doesn't have the address instance.
-        if not can_edit_address(
-            info.context.user, instance, check_user_permission=False
-        ):
+        if not can_edit_address(info.context.user, instance, check_user_permission=False):
             raise PermissionDenied()
         return super().clean_instance(info, instance)
 
@@ -693,14 +585,8 @@ class AddressDelete(ModelDeleteMutation):
 
 
 class RecipientCreate(ModelMutation):
-    recipient = graphene.Field(
-        RecipientType, description="A recipient instance created."
-    )
-
     class Arguments:
-        input = RecipientInput(
-            description="Fields required to create recipient", required=True
-        )
+        input = RecipientInput(description="Fields required to create recipient", required=True)
 
     class Meta:
         description = "Create a recipient."
@@ -711,25 +597,16 @@ class RecipientCreate(ModelMutation):
         user = get_user_instance(info)
         response = super().perform_mutation(root, info, **data)
         if not response.errors:
-            response.recipient.user_id = user.id
-            response.recipient.user_email = user.email
-            user.recipients = response.recipient
-            user.save()
+            response.recipient.user = user
+            response.recipient.save()
             return response
         return cls(recipient=None)
 
 
 class RecipientUpdate(ModelMutation):
-
-    recipient = graphene.Field(
-        RecipientType, description="A recipient instance updated."
-    )
-
     class Arguments:
         id = graphene.ID(description="ID of the recipient to updated", required=True)
-        input = RecipientInput(
-            description="Fields required to updated recipient", required=True
-        )
+        input = RecipientInput(description="Fields required to updated recipient", required=True)
 
     class Meta:
         description = "Update a recipient."
@@ -737,79 +614,41 @@ class RecipientUpdate(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, root, info, **data):
-        user = get_user_instance(info)
         response = super().perform_mutation(root, info, **data)
-        response.recipient.user_id = user.id
-        response.recipient.user_email = user.email
         return response
 
 
 class RecipientDelete(ModelDeleteMutation):
-    recipient = graphene.Field(
-        RecipientType, description="A user instance for which the address was deleted."
-    )
-
     class Arguments:
-        id = graphene.ID(required=True, description="ID of the address to delete.")
+        id = graphene.ID(description="recipient ID to delete.", required=True)
 
     class Meta:
-        description = "Deletes an address"
+        description = "Delete a recipient."
         model = models.Recipient
 
     @classmethod
     def perform_mutation(cls, _root, info, **data):
         node_id = data.get("id")
-        instance = cls.get_node_or_error(info, node_id, Address)
-        if instance:
-            cls.clean_instance(info, instance)
-
-        db_id = instance.id
-
-        # Return the first user that the recipient is assigned to. There is M2M
-        # relation between users and recipientS, but in most cases recipient is
-        # related to only one user.
-        # user = instance.id
-
-        user = instance.delete()
-
-        instance.id = db_id
-
-        response = cls.success_response(instance)
-
-        # Refresh the user instance to clear the default recipients. If the
-        # deleted recipient was used as default, it would stay cached in the
-        # user instance and the invalid ID returned in the response might cause
-        # an error.
-
-        response.user = user
-        return response
+        instance = cls.get_node_or_error(info, node_id, RecipientType)
+        instance.delete()
+        return cls.success_response(instance)
 
 
 class SendPhoneVerificationSMS(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 
     class Arguments:
-        user_id = graphene.ID(
-            description="User ID to submit the verification code.", required=True
-        )
+        phone_number = graphene.String(description="Phone number to submit the verification code.", required=True)
 
     class Meta:
         description = "Send a code to validate the phone number"
 
     @classmethod
-    def perform_mutation(cls, _root, info, user_id):
-        user = graphene.Node.get_node_from_global_id(info, user_id, User)
-        if user is None:
-            raise ValidationError({"userID": "User with this ID doesn't exist"})
-        if user.is_phone_verified:
-            raise ValidationError(
-                {"isPhoneVerified": "Phone number of the user already verified"}
-            )
-        else:
-            try:
-                response = send_code(str(user.phone))
-            except TwilioRestException as e:
-                raise ValidationError({"twilio_service": e.msg})
+    def perform_mutation(cls, _root, info, phone_number):
+        try:
+            response = send_code(phone_number)
+        except TwilioRestException as e:
+            raise ValidationError({"twilio_service": e.msg})
         if response.status == "pending" and response.valid is False:
             status = ValidatePhoneStatusEnum.PROCEED
         return cls(status=status)
@@ -819,32 +658,20 @@ class VerifySMSCodeVerification(BaseMutation):
     status = graphene.Field(ValidatePhoneStatusEnum)
 
     class Arguments:
-        user_id = graphene.ID(
-            description="User ID to submit the verification code.", required=True
-        )
+        phone_number = graphene.String(description="Phone number to submit the verification code.", required=True)
         code = graphene.String(description="Verification code.", required=True)
 
     class Meta:
         description = "Send a code to verify SMS code"
 
     @classmethod
-    def perform_mutation(cls, _root, info, user_id, code):
-        user = graphene.Node.get_node_from_global_id(info, user_id, User)
-        if user is None:
-            raise ValidationError({"userID": "User with this ID doesn't exist"})
-        if user.is_phone_verified:
-            raise ValidationError(
-                {"isPhoneVerified": "Phone number of the user already verified"}
-            )
-        else:
-            try:
-                response = check_code(str(user.phone), code)
-            except TwilioRestException as e:
-                raise ValidationError({"twilio_service": e.msg})
+    def perform_mutation(cls, _root, info, phone_number, code):
+        try:
+            response = check_code(phone_number, code)
+        except TwilioRestException as e:
+            raise ValidationError({"twilio_service": e.msg})
         if response.status == "approved" and response.valid is True:
             status = ValidatePhoneStatusEnum.APPROVED
-            user.is_phone_verified = True
-            user.save()
         elif response.status == "pending" and response.valid is False:
             status = ValidatePhoneStatusEnum.REJECTED
         return cls(status=status)

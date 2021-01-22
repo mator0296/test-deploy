@@ -10,9 +10,11 @@ from typing import Tuple
 import requests
 from django.conf import settings
 from django.utils import dateparse
+from graphql import GraphQLError
 
 from ...core.utils import generate_idempotency_key
 from . import PaymentMethodStatus
+from .. import PaymentStatus
 
 from mesada.transfer.models import CircleTransfer
 
@@ -28,8 +30,12 @@ def create_card(body: dict) -> dict:
     Save a card within the Circle API.
     """
     url = f"{settings.CIRCLE_BASE_URL}/cards"
-    response = requests.request("POST", url, headers=HEADERS, json=body)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("POST", url, headers=HEADERS, json=body)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json().get("data")
 
@@ -41,21 +47,29 @@ def request_encryption_key() -> Tuple[str, str]:
     to get the actual PGP public key.
     """
     url = f"{settings.CIRCLE_BASE_URL}/encryption/public"
-    response = requests.request("GET", url, headers=HEADERS)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("GET", url, headers=HEADERS)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     data = response.json().get("data")
 
     return data.get("keyId"), data.get("publicKey")
 
 
-def create_payment(body: dict):
+def create_payment(body: dict) -> dict:
     """
     Send a POST request to create a payment using the Circle's Payments API
     """
     url = f"{settings.CIRCLE_BASE_URL}/payments"
-    response = requests.request("POST", url, headers=HEADERS, json=body)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("POST", url, headers=HEADERS, json=body)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json().get("data")
 
@@ -78,8 +92,13 @@ def create_transfer_by_blockchain(amount, user):
     }
 
     url = f"{settings.CIRCLE_BASE_URL}/transfers"
-    response = requests.request("POST", url, headers=HEADERS, json=payload)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("POST", url, headers=HEADERS, json=payload)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
+
     data = response.json()["data"]
 
     CircleTransfer.objects.create(
@@ -98,30 +117,52 @@ def create_transfer_by_blockchain(amount, user):
     return data["id"]
 
 
-def register_ach(payment_method):
+def register_ach(processor_token, billing_details):
     """Register an ACH payment within the Circle API.
 
     Args:
-        payment_method (PaymentMethod): ACH payment method instance.
+        processor_token: A Circle processor token generated via Plaid's API.
+        billing_details: Client's billing details.
     """
     url = f"{settings.CIRCLE_BASE_URL}/banks/ach"
     body = {
         "idempotencyKey": generate_idempotency_key(),
-        "plaidProcessorToken": payment_method.processor_token,
+        "plaidProcessorToken": processor_token,
         "billingDetails": {
-            "name": payment_method.name,
-            "city": payment_method.city,
-            "country": payment_method.country_code.code,
-            "line1": payment_method.address_line_1,
-            "line2": payment_method.address_line_2,
-            "district": payment_method.district,
-            "postalCode": payment_method.postal_code,
+            "name": billing_details.get("name"),
+            "city": billing_details.get("city"),
+            "country": billing_details.get("country"),
+            "line1": billing_details.get("line1"),
+            "line2": billing_details.get("line2", ""),
+            "district": billing_details.get("district"),
+            "postalCode": billing_details.get("postalCode"),
         },
     }
-    response = requests.request("POST", url, headers=HEADERS, json=body)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("POST", url, headers=HEADERS, json=body)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json().get("data")
+
+
+def get_payment_status(payment_token: str) -> str:
+    """
+    Send a GET request to get the status of a payment using the Circle's Payments API
+
+    Args:
+        payment_token: Unique circle system generated identifier for the payment item.
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
+    try:
+        response = requests.get(url, headers=HEADERS)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
+
+    return PaymentStatus(response.json()["data"]["status"])
 
 
 def get_circle_transfer_status(transfer_id):
@@ -132,8 +173,12 @@ def get_circle_transfer_status(transfer_id):
         transfer_id: Id of the transfer in circle
     """
     url = f"{settings.CIRCLE_BASE_URL}/transfers/{transfer_id}"
-    response = requests.request("GET", url, headers=HEADERS)
-    response.raise_for_status()
+
+    try:
+        response = requests.request("GET", url, headers=HEADERS)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json()["data"]["status"]
 
@@ -145,6 +190,9 @@ def get_ach_status(payment_method_token: str) -> str:
         payment_method_token: unique identifier of the bank account for ACH transfers.
     """
     url = f"{settings.CIRCLE_BASE_URL}/banks/ach/{payment_method_token}"
-    response = requests.get(url, headers=HEADERS)
-    return response.json()["data"]["status"]
+    try:
+        response = requests.get(url, headers=HEADERS)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
     return PaymentMethodStatus(response.json()["data"]["status"])

@@ -2,24 +2,14 @@ import graphene
 
 from ...payment.models import PaymentMethods
 from ..core.auth import login_required
-from .mutations import (
-    CreateCard,
-    CreateLinkToken,
-    CreatePayment,
-    CreatePublicKey,
-    ProcessorTokenCreate
-)
+from .mutations import CreateCard, CreateLinkToken, CreatePayment, CreatePublicKey, RegisterAchPayment
 from .types import PaymentMethod
 
 
 class PaymentMethodsQueries(graphene.ObjectType):
-    payment_method = graphene.Field(
-        PaymentMethod, id=graphene.Int(), description="Get payment method by id"
-    )
+    payment_method = graphene.Field(PaymentMethod, id=graphene.Int(), description="Get payment method by id")
     payment_methods = graphene.List(
-        PaymentMethod,
-        user_id=graphene.Int(),
-        description="Get list of payment methods of given user",
+        PaymentMethod, user_id=graphene.Int(), description="Get list of payment methods of given user"
     )
 
     @login_required
@@ -40,4 +30,4 @@ class PaymentMutations(graphene.ObjectType):
 
 
 class PaymentMethodsMutations(graphene.ObjectType):
-    processor_token_create = ProcessorTokenCreate.Field()
+    register_ach_payment = RegisterAchPayment.Field()

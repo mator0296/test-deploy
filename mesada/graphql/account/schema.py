@@ -4,12 +4,7 @@ from graphql_jwt.decorators import permission_required
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
 from ..core.types import FilterInputObjectType
-from .filters import (
-    AddressFilter,
-    CustomerFilter,
-    RecipientsFilter,
-    StaffUserFilter
-)
+from .filters import AddressFilter, CustomerFilter, RecipientsFilter, StaffUserFilter
 from .mutations import (
     AddressCreate,
     AddressDelete,
@@ -19,8 +14,6 @@ from .mutations import (
     CustomerDelete,
     CustomerPasswordReset,
     CustomerRegister,
-    CustomerUpdate,
-    LoggedUserUpdate,
     PasswordReset,
     RecipientCreate,
     RecipientDelete,
@@ -31,16 +24,10 @@ from .mutations import (
     StaffCreate,
     StaffDelete,
     StaffUpdate,
-    VerifySMSCodeVerification
+    UpdateUserMutation,
+    VerifySMSCodeVerification,
 )
-from .resolvers import (
-    resolve_address,
-    resolve_addresses,
-    resolve_customers,
-    resolve_recipient_,
-    resolve_recipients_,
-    resolve_staff_users
-)
+from .resolvers import resolve_address, resolve_addresses, resolve_customers, resolve_recipients, resolve_staff_users
 from .types import Address, Recipient, User
 
 
@@ -79,15 +66,9 @@ class AccountQueries(graphene.ObjectType):
         description="List of the shop's staff users.",
         query=graphene.String(description="Staff Users"),
     )
-    user = graphene.Field(
-        User,
-        id=graphene.Argument(graphene.ID, required=True),
-        description="Lookup an user by ID.",
-    )
+    user = graphene.Field(User, id=graphene.Argument(graphene.ID, required=True), description="Lookup an user by ID.")
     address = graphene.Field(
-        Address,
-        id=graphene.Argument(graphene.ID, required=True),
-        description="Lookup an address by ID.",
+        Address, id=graphene.Argument(graphene.ID, required=True), description="Lookup an address by ID."
     )
     addresses = FilterInputConnectionField(
         Address,
@@ -98,9 +79,7 @@ class AccountQueries(graphene.ObjectType):
     )
 
     recipient = graphene.Field(
-        Recipient,
-        id=graphene.Argument(graphene.ID, required=True),
-        description="Lookup an Recipient by ID.",
+        Recipient, id=graphene.Argument(graphene.ID, required=True), description="Lookup an Recipient by ID."
     )
 
     recipients = FilterInputConnectionField(
@@ -128,10 +107,10 @@ class AccountQueries(graphene.ObjectType):
         return graphene.Node.get_node_from_global_id(info, id, User)
 
     def resolve_recipient(self, info, id):
-        return resolve_recipient_(info, id=id)
+        return graphene.Node.get_node_from_global_id(info, id, Recipient)
 
     def resolve_recipients(self, info, search, query=None, **_kwargs):
-        return resolve_recipients_(info, search=search, query=query)
+        return resolve_recipients(info, search=search, query=query)
 
     def resolve_address(self, info, id):
         return resolve_address(info, id)
@@ -150,9 +129,8 @@ class AccountMutations(graphene.ObjectType):
     customer_delete = CustomerDelete.Field()
     customer_password_reset = CustomerPasswordReset.Field()
     customer_register = CustomerRegister.Field()
-    customer_update = CustomerUpdate.Field()
 
-    logged_user_update = LoggedUserUpdate.Field()
+    update_user = UpdateUserMutation.Field()
 
     staff_create = StaffCreate.Field()
     staff_delete = StaffDelete.Field()
@@ -162,9 +140,9 @@ class AccountMutations(graphene.ObjectType):
     address_delete = AddressDelete.Field()
     address_update = AddressUpdate.Field()
 
+    recipient_create = RecipientCreate.Field()
     recipient_update = RecipientUpdate.Field()
     recipient_delete = RecipientDelete.Field()
-    recipient_create = RecipientCreate.Field()
 
     sendPhoneVerificationSMS = SendPhoneVerificationSMS.Field()
     verifySMSCodeVerification = VerifySMSCodeVerification.Field()
