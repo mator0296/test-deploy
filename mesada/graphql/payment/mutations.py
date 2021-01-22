@@ -219,7 +219,10 @@ class CreatePayment(ModelMutation):
             description="Payment currency. Defaults to USD.", default_value="USD"
         )
         description = graphene.String(
-            description="A description of the payment to be performed. This is an optional param.",
+            description=(
+                "A description of the payment to be performed. "
+                "This is an optional param."
+            ),
             default_value="New Payment",
         )
 

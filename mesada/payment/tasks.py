@@ -3,8 +3,6 @@ from . import PaymentStatus
 from .circle import get_payment_status
 from .models import Payment as PaymentModel
 
-from mesada.payment.circle import get_payment_status
-
 
 @app.task
 def check_payment_status():
