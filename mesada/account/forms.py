@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 
-from .models import Address, User
+from .models import Address, Recipient, User
 
 
 class UserForm(ModelForm):
@@ -30,3 +30,9 @@ class AddressForm(ModelForm):
     class Meta:
         model = Address
         exclude = ["is_visible"]
+
+
+class RecipientForm(ModelForm):
+    class Meta:
+        model = Recipient
+        exclude = ["user"]

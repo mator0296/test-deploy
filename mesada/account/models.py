@@ -12,6 +12,7 @@ from django.utils.translation import pgettext_lazy
 from django_countries.fields import Country, CountryField
 from phonenumber_field.modelfields import PhoneNumber, PhoneNumberField
 
+from .enums import Banks
 from .validators import validate_possible_number
 
 
@@ -194,9 +195,9 @@ class Recipient(models.Model):
             )
         ],
     )
-    bank_name = models.CharField(max_length=256)
-    phone = PossiblePhoneNumberField(blank=True, default="")
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    bank = models.CharField(max_length=10, choices=Banks.choices)
+    phone = PossiblePhoneNumberField(blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ("first_name", "last_name", "alias")
