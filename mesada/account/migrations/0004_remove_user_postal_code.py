@@ -5,6 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [("account", "0002_user_birth_date")]
+    dependencies = [("account", "0003_auto_20210121_0109")]
 
     operations = [migrations.RemoveField(model_name="user", name="postal_code")]
