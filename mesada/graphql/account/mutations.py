@@ -676,7 +676,15 @@ class RecipientUpdate(ModelMutation):
         model = models.Recipient
 
     @classmethod
+    @login_required
     def perform_mutation(cls, root, info, **data):
+        id = data.get("id")
+        user = info.context.user
+        recipient = cls.get_node_or_error(info, id, RecipientType)
+
+        if recipient.user != user:
+            raise ValidationError({'recipient':'Recipient not associated with your account'})
+
         response = super().perform_mutation(root, info, **data)
         return response
 
@@ -690,11 +698,17 @@ class RecipientDelete(ModelDeleteMutation):
         model = models.Recipient
 
     @classmethod
+    @login_required
     def perform_mutation(cls, _root, info, **data):
-        node_id = data.get("id")
-        instance = cls.get_node_or_error(info, node_id, RecipientType)
-        instance.delete()
-        return cls.success_response(instance)
+        id = data.get("id")
+        user = info.context.user
+        recipient = cls.get_node_or_error(info, id, RecipientType)
+
+        if recipient.user != user:
+            raise ValidationError({'recipient':'Recipient not associated with your account'})
+
+        recipient.delete()
+        return cls.success_response(recipient)
 
 
 class SendPhoneVerificationSMS(BaseMutation):
