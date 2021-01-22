@@ -175,3 +175,20 @@ def get_circle_transfer_status(transfer_id):
         raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json()["data"]["status"]
+
+
+def get_payment_status(payment_token: str) -> str:
+    """
+    Send a GET request to get the status of a payment using the Circle's Payments API
+    Args:
+        payment_token: Unique circle system generated identifier for the payment item.
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
+    
+    try:
+        response = requests.get(url, headers=HEADERS)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
+
+    return response.json()["data"]["status"]
