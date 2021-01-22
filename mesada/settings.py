@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "mesada.account",
     "mesada.core",
+    "mesada.galactus",
     "mesada.graphql",
     "mesada.payment",
     "mesada.transfer",
