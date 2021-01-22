@@ -16,7 +16,6 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
-    # tasks imports
     from mesada.payment.tasks import check_payment_paid_status, check_payment_status
     from mesada.transfer.tasks import check_transfer_status
 
