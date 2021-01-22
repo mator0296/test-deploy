@@ -53,7 +53,7 @@ fi
 
 # check Migrations
 echo -n "${ORANGE}CHECKING${NC}: Migrations  ... "
-python manage.py makemigrations > /dev/null 2>&1
+python manage.py showmigrations | grep '\[ \]'> /dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo "               [ ${RED}FAILED! ಠ_ಠ${NC} ] \n";
     echo "${BLUE}Apply: python manage.py makemigrations ${NC}";
