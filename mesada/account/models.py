@@ -139,7 +139,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    is_phone_verified = models.BooleanField(default=False)
     note = models.TextField(null=True, blank=True)
     birth_date = models.DateTimeField(blank=True, null=True)
     date_joined = models.DateTimeField(default=timezone.now, editable=False)
@@ -196,6 +195,7 @@ class Recipient(models.Model):
         ],
     )
     bank_name = models.CharField(max_length=256)
+    phone = PossiblePhoneNumberField(blank=True, default="")
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:

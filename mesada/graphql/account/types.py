@@ -63,6 +63,7 @@ class RecipientInput(graphene.InputObjectType):
     email = graphene.String(description="The unique email address of the recipient.")
     clabe = graphene.String(description="Bank account number in Mexico.")
     bank_name = graphene.Field(BankName, description="Bank Name in Mexico.")
+    phone = graphene.String(description="Phone Number")
 
 
 class Address(CountableDjangoObjectType):
@@ -184,5 +185,6 @@ class Recipient(CountableDjangoObjectType):
             "email",
             "clabe",
             "bank_name",
+            "phone",
             "user",
         ]

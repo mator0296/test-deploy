@@ -1,3 +1,5 @@
+from mesada.payment.circle import get_payment_status
+
 from ..celery import app
 from . import PaymentStatus
 from .circle import get_payment_status
@@ -14,4 +16,13 @@ def check_payment_status():
         status = get_payment_status(payment.payment_token)
         if status != PaymentStatus.PENDING:
             payment.status = status
-            payment.save()
+            payment.save(update_fields=["status"])
+
+
+@app.task
+def check_payment_paid_status():
+    payments = PaymentModel.objects.filter(status=PaymentStatus.CONFIRMED)
+    for payment in payments:
+        status = get_payment_status(payment.payment_token)
+        if status == PaymentStatus.PAID:
+            payment.save(update_fields=["status"])

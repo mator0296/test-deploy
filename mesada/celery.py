@@ -1,6 +1,7 @@
 import os
 
 from celery import Celery
+from celery.schedules import crontab
 from django.conf import settings
 
 # set the default Django settings module for the 'celery' program.
@@ -16,7 +17,7 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
     # tasks imports
-    from mesada.payment.tasks import check_payment_status
+    from mesada.payment.tasks import check_payment_status, check_payment_paid_status
     from mesada.transfer.tasks import check_transfer_status
 
     sender.add_periodic_task(
@@ -29,3 +30,9 @@ def setup_periodic_tasks(sender, **kwargs):
         check_transfer_status.s(),
         name="check transfer status every minute",
     )
+    sender.add_periodic_task(
+        crontab(hour=7, minute=0),
+        check_payment_paid_status.s(),
+        name="check the status every day",
+    )
+    
