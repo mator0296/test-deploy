@@ -35,4 +35,3 @@ def setup_periodic_tasks(sender, **kwargs):
         check_payment_paid_status.s(),
         name="check the status every day",
     )
-    

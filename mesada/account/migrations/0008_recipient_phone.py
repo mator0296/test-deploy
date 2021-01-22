@@ -6,14 +6,14 @@ import mesada.account.models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('account', '0007_remove_user_is_phone_verified'),
-    ]
+    dependencies = [("account", "0007_remove_user_is_phone_verified")]
 
     operations = [
         migrations.AddField(
-            model_name='recipient',
-            name='phone',
-            field=mesada.account.models.PossiblePhoneNumberField(blank=True, default='', max_length=128, region=None),
-        ),
+            model_name="recipient",
+            name="phone",
+            field=mesada.account.models.PossiblePhoneNumberField(
+                blank=True, default="", max_length=128, region=None
+            ),
+        )
     ]

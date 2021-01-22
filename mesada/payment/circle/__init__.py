@@ -184,7 +184,7 @@ def get_payment_status(payment_token: str) -> str:
         payment_token: Unique circle system generated identifier for the payment item.
     """
     url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
-    
+
     try:
         response = requests.get(url, headers=HEADERS)
         response.raise_for_status()
