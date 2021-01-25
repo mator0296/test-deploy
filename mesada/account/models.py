@@ -181,10 +181,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Recipient(models.Model):
-    first_name = models.CharField(max_length=256)
-    last_name = models.CharField(max_length=256)
-    alias = models.CharField(max_length=256, blank=True, null=True)
-    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=256, blank=True)
+    last_name = models.CharField(max_length=256, blank=True)
+    alias = models.CharField(max_length=256, blank=True, default="")
+    email = models.EmailField(unique=True, blank=True)
     clabe = models.CharField(
         max_length=18,
         validators=[
@@ -194,10 +194,13 @@ class Recipient(models.Model):
                 code="invalid_clabe",
             )
         ],
+        blank=True,
     )
-    bank = models.CharField(max_length=10, choices=Banks.choices)
-    phone = PossiblePhoneNumberField(blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    bank = models.CharField(max_length=10, choices=Banks.choices, blank=True)
+    phone = PossiblePhoneNumberField(blank=True, default="")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="recipients", blank=True
+    )
 
     class Meta:
         ordering = ("first_name", "last_name", "alias")

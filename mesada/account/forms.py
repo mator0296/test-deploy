@@ -36,3 +36,8 @@ class RecipientForm(ModelForm):
     class Meta:
         model = Recipient
         exclude = ["user"]
+
+    def save(self, user=None):
+        self.instance.user = user
+        self.instance.save()
+        return self.instance

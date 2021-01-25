@@ -656,11 +656,10 @@ class RecipientCreate(ModelMutation):
     @login_required
     def perform_mutation(cls, _root, info, input):
         user = info.context.user
-        recipient = models.Recipient(user=user)
-        recipient_form = RecipientForm(input, instance=recipient)
+        recipient_form = RecipientForm(input)
         if not recipient_form.is_valid():
             raise ValidationError(recipient_form.errors)
-        recipient.save()
+        recipient = recipient_form.save(user)
         return cls(recipient=recipient)
 
 
@@ -677,16 +676,16 @@ class RecipientUpdate(ModelMutation):
 
     @classmethod
     @login_required
-    def perform_mutation(cls, root, info, **data):
-        id = data.get("id")
+    def perform_mutation(cls, root, info, id, input):
         user = info.context.user
         recipient = cls.get_node_or_error(info, id, RecipientType)
-
-        if recipient.user != user:
-            raise ValidationError({'recipient':'Recipient not associated with your account'})
-
-        response = super().perform_mutation(root, info, **data)
-        return response
+        if recipient is None or recipient.user != user:
+            raise ValidationError({"recipient": "Recipient not found"})
+        recipient_form = RecipientForm(input, instance=recipient)
+        if not recipient_form.is_valid():
+            raise ValidationError(recipient_form.errors)
+        recipient = recipient_form.save(user)
+        return cls(recipient=recipient)
 
 
 class RecipientDelete(ModelDeleteMutation):
@@ -699,16 +698,13 @@ class RecipientDelete(ModelDeleteMutation):
 
     @classmethod
     @login_required
-    def perform_mutation(cls, _root, info, **data):
-        id = data.get("id")
+    def perform_mutation(cls, _root, info, id):
         user = info.context.user
         recipient = cls.get_node_or_error(info, id, RecipientType)
-
-        if recipient.user != user:
-            raise ValidationError({'recipient':'Recipient not associated with your account'})
-
+        if recipient is None or recipient.user != user:
+            raise ValidationError({"recipient": "Recipient not found"})
         recipient.delete()
-        return cls.success_response(recipient)
+        return cls(recipient=recipient)
 
 
 class SendPhoneVerificationSMS(BaseMutation):
