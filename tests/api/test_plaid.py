@@ -25,7 +25,9 @@ def test_create_link_token(mock_client, user_api_client):
         "language": "en",
         "user": {
             "client_user_id": str(user_api_client.user.id),
-            "legal_name": f"{user_api_client.user.first_name} {user_api_client.user.last_name}",
+            "legal_name": (
+                f"{user_api_client.user.first_name} {user_api_client.user.last_name}"
+            ),
             "phone_number": str(user_api_client.user.phone),
             "email_address": user_api_client.user.email,
         },

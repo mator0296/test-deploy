@@ -76,7 +76,8 @@ def create_transfer_by_blockchain(amount, user):
     """ Create a transfer by blockchain within the Circle API
     Args:
         amount: Amount to transfer.
-        user: User to which the foreign key will be associated in the CreateTransfer model.
+        user: User to which the foreign key will be
+        associated in the CreateTransfer model.
     """
     payload = {
         "source": {"type": "wallet", "id": f"{settings.CIRCLE_WALLET_ID}"},

@@ -8,7 +8,7 @@ from ...payment.models import (
     Payment,
     PaymentMethods,
     VerificationAvsEnum,
-    VerificationCvvEnum
+    VerificationCvvEnum,
 )
 from ..core.mutations import BaseMutation, ModelMutation
 from ..core.types import Error
@@ -22,7 +22,7 @@ from mesada.payment.circle import (
     create_card,
     create_payment,
     register_ach,
-    request_encryption_key
+    request_encryption_key,
 )
 from mesada.payment.plaid import create_link_token, processor_token_create
 
@@ -219,7 +219,10 @@ class CreatePayment(ModelMutation):
             description="Payment currency. Defaults to USD.", default_value="USD"
         )
         description = graphene.String(
-            description="A description of the payment to be performed. This is an optional param.",
+            description=(
+                "A description of the payment to be performed. "
+                "This is an optional param."
+            ),
             default_value="New Payment",
         )
 
