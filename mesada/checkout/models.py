@@ -20,10 +20,7 @@ class Checkout(models.Model):
         User, on_delete=models.CASCADE, related_name="checkout", null=True, blank=True
     )
     recipient = models.ForeignKey(
-        Recipient,
-        on_delete=models.CASCADE,
-        related_name="checkout",
-        null=True,
+        Recipient, on_delete=models.CASCADE, related_name="checkout", null=True
     )
     payment_method = models.ForeignKey(
         PaymentMethods,
