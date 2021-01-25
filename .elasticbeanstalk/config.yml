@@ -8,7 +8,7 @@ branch-defaults:
     environment: mesada-test-provitional
     group_suffix: null
   dev:
-    environment: mesada-test-provitional
+    environment: mesada-usa-testing
   master:
     environment: mesada-test-provitional
 global:
