@@ -6,12 +6,7 @@ from django_enumfield import enum
 from djmoney.models.fields import MoneyField
 
 from ..account.models import User
-from . import (
-    PaymentErrorCode,
-    PaymentMethodStatus,
-    PaymentMethodTypes,
-    PaymentStatus
-)
+from . import PaymentErrorCode, PaymentMethodStatus, PaymentMethodTypes, PaymentStatus
 
 
 class VerificationAvsEnum(enum.Enum):
