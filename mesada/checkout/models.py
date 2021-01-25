@@ -2,8 +2,7 @@ from django.db import models
 from djmoney.models.fields import MoneyField
 
 from ..account.models import Recipient, User
-
-from mesada.payment import PaymentMethodStatus
+from . import CheckoutStatus
 
 # Create your models here.
 
@@ -27,9 +26,7 @@ class Checkout(models.Model):
         blank=True,
     )
     payment_method = models.CharField(
-        max_length=50,
-        choices=PaymentMethodStatus.choices,
-        default=PaymentMethodStatus.PENDING,
+        max_length=50, choices=CheckoutStatus.choices, default=CheckoutStatus.PENDING
     )
     status = models.CharField()
     active = models.BooleanField()
