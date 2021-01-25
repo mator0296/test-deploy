@@ -34,4 +34,4 @@ class Checkout(models.Model):
     status = models.CharField(
         max_length=50, choices=CheckoutStatus.choices, default=CheckoutStatus.PENDING
     )
-    active = models.BooleanField()
+    active = models.BooleanField(default=False)
