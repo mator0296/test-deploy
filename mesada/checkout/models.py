@@ -2,6 +2,7 @@ from django.db import models
 from djmoney.models.fields import MoneyField
 
 from ..account.models import Recipient, User
+from ..payment.models import PaymentMethods
 from . import CheckoutStatus
 
 # Create your models here.
@@ -23,10 +24,14 @@ class Checkout(models.Model):
         on_delete=models.CASCADE,
         related_name="checkout",
         null=True,
-        blank=True,
     )
-    payment_method = models.CharField(
+    payment_method = models.ForeignKey(
+        PaymentMethods,
+        on_delete=models.CASCADE,
+        related_name="payment_method",
+        null=True,
+    )
+    status = models.CharField(
         max_length=50, choices=CheckoutStatus.choices, default=CheckoutStatus.PENDING
     )
-    status = models.CharField()
     active = models.BooleanField()
