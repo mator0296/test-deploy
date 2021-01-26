@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "mesada.account",
+    "mesada.checkout",
     "mesada.core",
     "mesada.galactus",
     "mesada.graphql",
