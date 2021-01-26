@@ -8,6 +8,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from graphql_jwt.exceptions import PermissionDenied
 from graphql_jwt.shortcuts import get_token
 from twilio.base.exceptions import TwilioRestException
+from graphql_relay import from_global_id
 
 from ...account import models
 from ...core.permissions import get_permissions
@@ -679,9 +680,11 @@ class RecipientUpdate(ModelMutation):
     @login_required
     def perform_mutation(cls, root, info, id, input):
         user = info.context.user
-        recipient = cls.get_node_or_error(info, id, RecipientType)
-        if recipient is None or recipient.user != user:
-            raise ValidationError({"recipient": "Recipient not found"})
+        _, id = from_global_id(id)
+        try:
+            recipient = user.recipients.get(id=id)
+        except ObjectDoesNotExist:
+            raise ValidationError({"recipient": "Recipient not found"}) 
         recipient_form = RecipientForm(input, instance=recipient)
         if not recipient_form.is_valid():
             raise ValidationError(recipient_form.errors)
@@ -701,9 +704,11 @@ class RecipientDelete(ModelDeleteMutation):
     @login_required
     def perform_mutation(cls, _root, info, id):
         user = info.context.user
-        recipient = cls.get_node_or_error(info, id, RecipientType)
-        if recipient is None or recipient.user != user:
-            raise ValidationError({"recipient": "Recipient not found"})
+        _, id = from_global_id(id)
+        try:
+            recipient = user.recipients.get(id=id)
+        except ObjectDoesNotExist:
+            raise ValidationError({"recipient": "Recipient not found"})  
         recipient.delete()
         return cls(recipient=recipient)
 
