@@ -491,6 +491,7 @@ class SetNewPassword(BaseMutation):
     @classmethod
     def get_user(cls, uidb64):
         try:
+            # TODO: Fix me
             uid = urlsafe_base64_decode(uidb64).decode()
             user = models.User.objects.get(pk=uid)
         except (
