@@ -8,6 +8,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from graphql_jwt.exceptions import PermissionDenied
 from graphql_jwt.shortcuts import get_token
 from twilio.base.exceptions import TwilioRestException
+from graphql_relay import from_global_id
 
 from ...account import models
 from ...core.permissions import get_permissions
@@ -22,7 +23,7 @@ from ..core.utils import get_user_instance
 from .enums import ValidatePhoneStatusEnum
 from .utils import CustomerDeleteMixin, StaffDeleteMixin, UserDeleteMixin
 
-from mesada.account.forms import AddressForm, UserForm
+from mesada.account.forms import AddressForm, RecipientForm, UserForm
 
 ADDRESS_FIELD = "default_address"
 
@@ -654,14 +655,14 @@ class RecipientCreate(ModelMutation):
         model = models.Recipient
 
     @classmethod
-    def perform_mutation(cls, root, info, **data):
-        user = get_user_instance(info)
-        response = super().perform_mutation(root, info, **data)
-        if not response.errors:
-            response.recipient.user = user
-            response.recipient.save()
-            return response
-        return cls(recipient=None)
+    @login_required
+    def perform_mutation(cls, _root, info, input):
+        user = info.context.user
+        recipient_form = RecipientForm(input)
+        if not recipient_form.is_valid():
+            raise ValidationError(recipient_form.errors)
+        recipient = recipient_form.save(user)
+        return cls(recipient=recipient)
 
 
 class RecipientUpdate(ModelMutation):
@@ -676,9 +677,19 @@ class RecipientUpdate(ModelMutation):
         model = models.Recipient
 
     @classmethod
-    def perform_mutation(cls, root, info, **data):
-        response = super().perform_mutation(root, info, **data)
-        return response
+    @login_required
+    def perform_mutation(cls, root, info, id, input):
+        user = info.context.user
+        _, id = from_global_id(id)
+        try:
+            recipient = user.recipients.get(id=id)
+        except ObjectDoesNotExist:
+            raise ValidationError({"recipient": "Recipient not found"}) 
+        recipient_form = RecipientForm(input, instance=recipient)
+        if not recipient_form.is_valid():
+            raise ValidationError(recipient_form.errors)
+        recipient = recipient_form.save(user)
+        return cls(recipient=recipient)
 
 
 class RecipientDelete(ModelDeleteMutation):
@@ -690,11 +701,16 @@ class RecipientDelete(ModelDeleteMutation):
         model = models.Recipient
 
     @classmethod
-    def perform_mutation(cls, _root, info, **data):
-        node_id = data.get("id")
-        instance = cls.get_node_or_error(info, node_id, RecipientType)
-        instance.delete()
-        return cls.success_response(instance)
+    @login_required
+    def perform_mutation(cls, _root, info, id):
+        user = info.context.user
+        _, id = from_global_id(id)
+        try:
+            recipient = user.recipients.get(id=id)
+        except ObjectDoesNotExist:
+            raise ValidationError({"recipient": "Recipient not found"})  
+        recipient.delete()
+        return cls(recipient=recipient)
 
 
 class SendPhoneVerificationSMS(BaseMutation):

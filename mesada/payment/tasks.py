@@ -4,6 +4,8 @@ from .circle import get_ach_status, get_payment_status
 from .models import Payment as PaymentModel
 from .models import PaymentMethods as PaymentMethodsModel
 
+from mesada.payment.circle import get_payment_status
+
 
 @app.task
 def check_payment_status():
