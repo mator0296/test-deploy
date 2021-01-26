@@ -13,7 +13,7 @@ from django.utils import dateparse
 from graphql import GraphQLError
 
 from ...core.utils import generate_idempotency_key
-from .. import PaymentStatus, PaymentMethodStatus
+from .. import PaymentMethodStatus, PaymentStatus
 
 from mesada.transfer.models import CircleTransfer
 
@@ -77,7 +77,8 @@ def create_transfer_by_blockchain(amount, user):
     """ Create a transfer by blockchain within the Circle API
     Args:
         amount: Amount to transfer.
-        user: User to which the foreign key will be associated in the CreateTransfer model.
+        user: User to which the foreign key will be
+        associated in the CreateTransfer model.
     """
     payload = {
         "source": {"type": "wallet", "id": f"{settings.CIRCLE_WALLET_ID}"},
@@ -184,7 +185,8 @@ def get_circle_transfer_status(transfer_id):
 
 def get_ach_status(payment_method_token: str) -> str:
     """
-    Send a GET request to get the status of a ach payment method using the Circle's Banks API
+    Send a GET request to get the status of a ach payment method
+    using the Circle's Banks API
     Args:
         payment_method_token: unique identifier of the bank account for ACH transfers.
     """

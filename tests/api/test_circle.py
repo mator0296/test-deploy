@@ -2,7 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
-from requests.exceptions import HTTPError
+from graphql import GraphQLError
 
 from ..utils import http_error_test_data
 
@@ -10,8 +10,8 @@ from mesada.account.models import User
 from mesada.payment.circle import (
     HEADERS,
     create_transfer_by_blockchain,
-    register_ach,
     get_circle_transfer_status,
+    register_ach,
 )
 from mesada.payment.models import PaymentMethods
 from mesada.transfer.models import CircleTransfer
@@ -152,9 +152,18 @@ def test_create_payment(
 def test_register_ach_failure(mock_request, http_exception):
     payment_method = Mock()
     mock_request.return_value = http_exception
+    billing_details = {
+        "name": payment_method.name,
+        "city": payment_method.city,
+        "country": payment_method.country_code.code,
+        "line1": payment_method.address_line_1,
+        "line2": payment_method.address_line_2,
+        "district": payment_method.district,
+        "postalCode": payment_method.postal_code,
+    }
 
-    with pytest.raises(HTTPError):
-        register_ach(payment_method)
+    with pytest.raises(GraphQLError):
+        register_ach(payment_method.processor_token, billing_details)
 
 
 @pytest.mark.integration
@@ -177,7 +186,7 @@ def test_register_ach(mock_idempotency_key, mock_requests):
         },
     }
 
-    register_ach(payment_method)
+    register_ach(payment_method.processor_token, body["billingDetails"])
     mock_requests.request.assert_called_once_with(
         "POST", url, headers=HEADERS, json=body
     )

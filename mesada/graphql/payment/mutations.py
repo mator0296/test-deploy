@@ -4,7 +4,12 @@ from graphql.error import GraphQLError
 from requests.exceptions import HTTPError
 
 from ...core.utils import generate_idempotency_key
-from ...payment.models import Payment, PaymentMethods, VerificationAvsEnum, VerificationCvvEnum
+from ...payment.models import (
+    Payment,
+    PaymentMethods,
+    VerificationAvsEnum,
+    VerificationCvvEnum,
+)
 from ..core.mutations import BaseMutation, ModelMutation
 from ..core.types import Error
 from .types import BillingDetailsInput
@@ -13,7 +18,12 @@ from .types import PaymentMethod
 from .utils import get_default_billing_details, hash_session_id
 
 from mesada.payment import PaymentMethodTypes
-from mesada.payment.circle import create_card, create_payment, register_ach, request_encryption_key
+from mesada.payment.circle import (
+    create_card,
+    create_payment,
+    register_ach,
+    request_encryption_key,
+)
 from mesada.payment.plaid import create_link_token, processor_token_create
 
 
@@ -141,7 +151,9 @@ class CreatePublicKey(BaseMutation):
 
 class RegisterAchPaymentInput(graphene.InputObjectType):
     public_token = graphene.String(description="Plaid public token", required=True)
-    accounts = graphene.List(graphene.JSONString, description="List of client's accounts", required=True)
+    accounts = graphene.List(
+        graphene.JSONString, description="List of client's accounts", required=True
+    )
     billing_details = BillingDetailsInput(description="Billing details", required=True)
 
 
@@ -152,7 +164,9 @@ class RegisterAchPayment(ModelMutation):
     errors = graphene.List(Error, required=True)
 
     class Arguments:
-        input = RegisterAchPaymentInput(description="Fields required to create a processor token.", required=True)
+        input = RegisterAchPaymentInput(
+            description="Fields required to create a processor token.", required=True
+        )
 
     class Meta:
         description = "Creates a new processor token."
@@ -195,12 +209,20 @@ class CreatePayment(ModelMutation):
     payment = graphene.Field(PaymentType)
 
     class Arguments:
-        type = graphene.String(description="Type of the transfer. Possible values are CARD or ACH.", required=True)
+        type = graphene.String(
+            description="Type of the transfer. Possible values are CARD or ACH.",
+            required=True,
+        )
         payment_method = graphene.Int(description="Payment method ID.", required=True)
         amount = graphene.Float(description="Amount of the payment.", required=True)
-        currency = graphene.String(description="Payment currency. Defaults to USD.", default_value="USD")
+        currency = graphene.String(
+            description="Payment currency. Defaults to USD.", default_value="USD"
+        )
         description = graphene.String(
-            description="A description of the payment to be performed. This is an optional param.",
+            description=(
+                "A description of the payment to be performed. "
+                "This is an optional param."
+            ),
             default_value="New Payment",
         )
 
@@ -209,7 +231,9 @@ class CreatePayment(ModelMutation):
         model = Payment
 
     @classmethod
-    def perform_mutation(cls, _root, info, amount, currency, description, payment_method, type):
+    def perform_mutation(
+        cls, _root, info, amount, currency, description, payment_method, type
+    ):
         if not info.context.session.session_key:
             info.context.session.save()
 

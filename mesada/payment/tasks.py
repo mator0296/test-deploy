@@ -1,11 +1,8 @@
-from mesada.payment.circle import get_payment_status
-
 from ..celery import app
-from . import PaymentMethodStatus, PaymentMethodTypes
-from .circle import get_ach_status
-from .models import PaymentMethods as PaymentMethodsModel
-from . import PaymentStatus
+from . import PaymentMethodStatus, PaymentMethodTypes, PaymentStatus
+from .circle import get_ach_status, get_payment_status
 from .models import Payment as PaymentModel
+from .models import PaymentMethods as PaymentMethodsModel
 
 
 @app.task
@@ -24,9 +21,12 @@ def check_payment_status():
 @app.task
 def check_ach_status():
     """
-    Get all pending ach payments methods status, and update their state according to Circle
+    Get all pending ach payments methods status,
+    and update their state according to Circle
     """
-    pending_ach = PaymentMethodsModel.objects.filter(status=PaymentMethodStatus.PENDING, type=PaymentMethodTypes.ACH)
+    pending_ach = PaymentMethodsModel.objects.filter(
+        status=PaymentMethodStatus.PENDING, type=PaymentMethodTypes.ACH
+    )
     for payment_methods in pending_ach:
         status = get_ach_status(payment_methods.payment_method_token)
         if status != PaymentMethodStatus.PENDING:

@@ -27,7 +27,13 @@ from .mutations import (
     UpdateUserMutation,
     VerifySMSCodeVerification,
 )
-from .resolvers import resolve_address, resolve_addresses, resolve_customers, resolve_recipients, resolve_staff_users
+from .resolvers import (
+    resolve_address,
+    resolve_addresses,
+    resolve_customers,
+    resolve_recipients,
+    resolve_staff_users,
+)
 from .types import Address, Recipient, User
 
 
@@ -66,9 +72,15 @@ class AccountQueries(graphene.ObjectType):
         description="List of the shop's staff users.",
         query=graphene.String(description="Staff Users"),
     )
-    user = graphene.Field(User, id=graphene.Argument(graphene.ID, required=True), description="Lookup an user by ID.")
+    user = graphene.Field(
+        User,
+        id=graphene.Argument(graphene.ID, required=True),
+        description="Lookup an user by ID.",
+    )
     address = graphene.Field(
-        Address, id=graphene.Argument(graphene.ID, required=True), description="Lookup an address by ID."
+        Address,
+        id=graphene.Argument(graphene.ID, required=True),
+        description="Lookup an address by ID.",
     )
     addresses = FilterInputConnectionField(
         Address,
@@ -79,7 +91,9 @@ class AccountQueries(graphene.ObjectType):
     )
 
     recipient = graphene.Field(
-        Recipient, id=graphene.Argument(graphene.ID, required=True), description="Lookup an Recipient by ID."
+        Recipient,
+        id=graphene.Argument(graphene.ID, required=True),
+        description="Lookup an Recipient by ID.",
     )
 
     recipients = FilterInputConnectionField(
