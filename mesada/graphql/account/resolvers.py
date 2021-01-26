@@ -115,3 +115,11 @@ def resolve_addresses(info, search, query):
     )
     qs = qs.distinct()
     return gql_optimizer.query(qs, info)
+
+
+def resolve_user_exists(email, phone):
+    if models.User.objects.filter(email=email):
+        return {"field": "email", "message": "email already registered"}
+    if models.User.objects.filter(phone=phone):
+        return {"field": "phone", "message": "phone already registered"}
+    return {}
