@@ -3,6 +3,7 @@ from django.db.models import Q
 
 from ...account import models
 from ...core.utils import get_client_ip, get_country_by_ip
+from ..core.types import Error
 from ..core.utils import get_user_instance
 from ..utils import filter_by_query_param
 from .types import AddressValidationData
@@ -119,7 +120,7 @@ def resolve_addresses(info, search, query):
 
 def resolve_user_exists(email, phone):
     if models.User.objects.filter(email=email):
-        return {"field": "email", "message": "email already registered"}
+        return Error(field="email", message="email already registered")
     if models.User.objects.filter(phone=phone):
-        return {"field": "phone", "message": "phone already registered"}
-    return {}
+        return Error(field="phone", message="phone already registered")
+    return

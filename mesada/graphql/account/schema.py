@@ -3,7 +3,7 @@ from graphql_jwt.decorators import permission_required
 
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
-from ..core.types import FilterInputObjectType
+from ..core.types import Error, FilterInputObjectType
 from .filters import AddressFilter, CustomerFilter, RecipientsFilter, StaffUserFilter
 from .mutations import (
     AddressCreate,
@@ -106,7 +106,7 @@ class AccountQueries(graphene.ObjectType):
     )
 
     user_exists = graphene.Field(
-        User,
+        Error,
         email=graphene.String(required=True),
         phone=graphene.String(required=True),
         description="Check if a user is already registered by email or phone",
