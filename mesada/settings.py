@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "mesada.core",
     "mesada.galactus",
     "mesada.graphql",
+    "mesada.order",
     "mesada.payment",
     "mesada.transfer",
     "mesada.withdrawal",
@@ -200,6 +201,7 @@ CELERY_TIMEZONE = "America/Mexico_City"
 CELERY_CHECK_PAYMENT_STATUS = 60.0
 CELERY_CHECK_TRANSFER_STATUS = 60.0
 CELERY_UPDATE_PENDING_ORDER_STATUS = 60.0
+CELERY_UPDATE_PROCESSING_ORDER_STATUS = 60.0
 
 # Bitso credentials
 BITSO_API_KEY = os.getenv("BITSO_API_KEY")

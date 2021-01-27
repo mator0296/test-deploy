@@ -16,13 +16,14 @@ def confirm_order(checkout_token):
 
 @app.task
 def update_pending_order_status():
-    """Update the order status and trigger the following tasks depending on the current
-    order status.
+    """Update the order status of a pending order and trigger the following tasks
+    depending on the current order status.
     """
 
     orders = Order.objects.select_related(
         "recipient", "payment", "user", "checkout"
     ).filter(status=OrderStatus.PENDING)
+
     for order in orders:
         if order.payment.status == PaymentStatus.CONFIRMED:
             create_transfer_by_blockchain(order.total_amount.amount, order.user)
@@ -35,4 +36,17 @@ def update_pending_order_status():
             order_confirmation = confirm_order(order.checkout.checkout_token)
             GalactusTransaction.objects.create(**order_confirmation)
             order.status = OrderStatus.PROCESSING
+            order.save(update_fields=["status"])
+
+
+@app.task
+def update_processing_order_status():
+    """Update the order status of a processing order."""
+
+    orders = Order.objects.filter(status=OrderStatus.PROCESSING)
+
+    for order in orders:
+        if order.operational_status != OrderStatus.PENDING:
+            print("I ENTERED")
+            order.status = order.operational_status
             order.save(update_fields=["status"])
