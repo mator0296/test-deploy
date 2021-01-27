@@ -5,14 +5,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('order', '0001_initial'),
-    ]
+    dependencies = [("order", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='order',
-            name='status',
-            field=models.CharField(choices=[('pending', 'Pending'), ('processing', 'Processing'), ('success', 'Success'), ('error', 'Error')], default='pending', max_length=10),
-        ),
+            model_name="order",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("pending", "Pending"),
+                    ("processing", "Processing"),
+                    ("success", "Success"),
+                    ("error", "Error"),
+                ],
+                default="pending",
+                max_length=10,
+            ),
+        )
     ]
