@@ -1,10 +1,10 @@
 from ..celery import app
 from ..galactus.models import GalactusTransaction
-from .models import Order
-from . import OrderStatus
 from ..payment import PaymentStatus
 from ..payment.circle import create_transfer_by_blockchain
 from ..withdrawal.bitso import make_bitso_spei_withdrawal
+from . import OrderStatus
+from .models import Order
 
 
 def confirm_order(checkout_token):

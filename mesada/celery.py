@@ -16,9 +16,9 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
+    from mesada.order.tasks import update_pending_order_status
     from mesada.payment.tasks import check_payment_paid_status, check_payment_status
     from mesada.transfer.tasks import check_transfer_status
-    from mesada.order.tasks import update_pending_order_status, update_processing_order_status
 
     sender.add_periodic_task(
         settings.CELERY_CHECK_PAYMENT_STATUS,
