@@ -684,7 +684,7 @@ class RecipientUpdate(ModelMutation):
         try:
             recipient = user.recipients.get(id=id)
         except ObjectDoesNotExist:
-            raise ValidationError({"recipient": "Recipient not found"}) 
+            raise ValidationError({"recipient": "Recipient not found"})
         recipient_form = RecipientForm(input, instance=recipient)
         if not recipient_form.is_valid():
             raise ValidationError(recipient_form.errors)
@@ -708,7 +708,7 @@ class RecipientDelete(ModelDeleteMutation):
         try:
             recipient = user.recipients.get(id=id)
         except ObjectDoesNotExist:
-            raise ValidationError({"recipient": "Recipient not found"})  
+            raise ValidationError({"recipient": "Recipient not found"})
         recipient.delete()
         return cls(recipient=recipient)
 
