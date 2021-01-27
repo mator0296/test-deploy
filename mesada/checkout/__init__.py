@@ -1,5 +1,6 @@
 from django.db import models
-from .utils import get_amount, HEADERS
+
+from .utils import HEADERS, get_amount
 
 
 class CheckoutStatus(models.TextChoices):
