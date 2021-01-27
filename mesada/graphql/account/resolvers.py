@@ -123,4 +123,3 @@ def resolve_user_exists(email, phone):
         return Error(field="email", message="email already registered")
     if models.User.objects.filter(phone=phone):
         return Error(field="phone", message="phone already registered")
-    return
