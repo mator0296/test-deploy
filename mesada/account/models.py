@@ -12,6 +12,7 @@ from django.utils.translation import pgettext_lazy
 from django_countries.fields import Country, CountryField
 from phonenumber_field.modelfields import PhoneNumber, PhoneNumberField
 
+from .enums import Banks
 from .validators import validate_possible_number
 
 
@@ -180,10 +181,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Recipient(models.Model):
-    first_name = models.CharField(max_length=256)
-    last_name = models.CharField(max_length=256)
-    alias = models.CharField(max_length=256, blank=True, null=True)
-    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=256, blank=True)
+    last_name = models.CharField(max_length=256, blank=True)
+    alias = models.CharField(max_length=256, blank=True, default="")
+    email = models.EmailField(unique=True, blank=True)
     clabe = models.CharField(
         max_length=18,
         validators=[
@@ -193,10 +194,13 @@ class Recipient(models.Model):
                 code="invalid_clabe",
             )
         ],
+        blank=True,
     )
-    bank_name = models.CharField(max_length=256)
+    bank = models.CharField(max_length=10, choices=Banks.choices, blank=True)
     phone = PossiblePhoneNumberField(blank=True, default="")
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="recipients", blank=True
+    )
 
     class Meta:
         ordering = ("first_name", "last_name", "alias")
