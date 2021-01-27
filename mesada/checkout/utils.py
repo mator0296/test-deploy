@@ -1,5 +1,6 @@
 import requests
 from django.conf import settings
+from graphql import GraphQLError
 
 HEADERS = {
     "Accept": "application/json",

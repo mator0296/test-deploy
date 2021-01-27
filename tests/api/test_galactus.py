@@ -1,9 +1,9 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 from django.conf import settings
 
-from mesada.checkout import get_amount, HEADERS
+from mesada.checkout.utils import get_amount, HEADERS
 
 
 @pytest.mark.integration

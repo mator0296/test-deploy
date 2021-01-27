@@ -14,7 +14,6 @@ from ...account import models
 from ...core.permissions import get_permissions
 from ...core.twilio import check_code, send_code
 from ..account.types import Address, AddressInput
-from ..account.types import Recipient as RecipientType
 from ..account.types import RecipientInput, User
 from ..core.auth import login_required
 from ..core.enums import PermissionEnum
