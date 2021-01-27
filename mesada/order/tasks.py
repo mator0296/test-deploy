@@ -3,6 +3,7 @@ from ..galactus.models import GalactusTransaction
 from ..payment import PaymentStatus
 from ..payment.circle import create_transfer_by_blockchain
 from ..withdrawal.bitso import make_bitso_spei_withdrawal
+from ..withdrawal.models import BitsoSpeiWithdrawal
 from . import OrderStatus
 from .models import Order
 
@@ -27,14 +28,17 @@ def update_pending_order_status():
     for order in orders:
         if order.payment.status == PaymentStatus.CONFIRMED:
             create_transfer_by_blockchain(order.total_amount.amount, order.user)
-            make_bitso_spei_withdrawal(
+            withdrawal = make_bitso_spei_withdrawal(
                 order.recipient.clabe,
                 order.recipient.first_name,
                 order.recipient.last_name,
                 order.recipient_amount.amount,
             )
             order_confirmation = confirm_order(order.checkout.checkout_token)
+
+            BitsoSpeiWithdrawal.objects.create(withdrawal)
             GalactusTransaction.objects.create(**order_confirmation)
+
             order.status = OrderStatus.PROCESSING
             order.save(update_fields=["status"])
 
@@ -47,6 +51,5 @@ def update_processing_order_status():
 
     for order in orders:
         if order.operational_status != OrderStatus.PENDING:
-            print("I ENTERED")
             order.status = order.operational_status
             order.save(update_fields=["status"])
