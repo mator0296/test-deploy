@@ -1,6 +1,7 @@
 import bitso
 from bitso.errors import ApiError
 from django.conf import settings
+
 # from graphql import GraphQLError
 
 
