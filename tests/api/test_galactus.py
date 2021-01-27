@@ -9,7 +9,7 @@ from mesada.checkout import get_amount, HEADERS
 @patch("mesada.checkout.utils.requests")
 def test_get_amount(mock_requests, user_api_client):
     body = {
-        "amount_to_convert": "12.32",
+        "amount_to_convert": "12.42",
         "block_amount": True,
         "checkout_token": "token123"
     }
