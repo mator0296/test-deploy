@@ -1,3 +1,5 @@
+from djmoney.money import Money
+
 from ..celery import app
 from ..galactus.models import GalactusTransaction
 from ..payment import PaymentStatus
@@ -6,7 +8,6 @@ from ..withdrawal.bitso import make_bitso_spei_withdrawal
 from ..withdrawal.models import BitsoSpeiWithdrawal
 from . import OrderStatus
 from .models import Order
-from djmoney.money import Money
 
 
 def confirm_order(checkout_token):
