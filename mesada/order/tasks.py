@@ -6,6 +6,7 @@ from ..withdrawal.bitso import make_bitso_spei_withdrawal
 from ..withdrawal.models import BitsoSpeiWithdrawal
 from . import OrderStatus
 from .models import Order
+from djmoney.money import Money
 
 
 def confirm_order(checkout_token):
@@ -26,8 +27,13 @@ def update_pending_order_status():
     ).filter(status=OrderStatus.PENDING)
 
     for order in orders:
-        if order.payment.status == PaymentStatus.CONFIRMED:
-            create_transfer_by_blockchain(order.total_amount.amount, order.user)
+        if (
+            order.payment.status == PaymentStatus.CONFIRMED
+            or order.payment.status == PaymentStatus.PAID
+        ):
+            circle_transfer = create_transfer_by_blockchain(
+                order.total_amount.amount, order.user
+            )
             withdrawal = make_bitso_spei_withdrawal(
                 order.recipient.clabe,
                 order.recipient.first_name,
@@ -36,11 +42,29 @@ def update_pending_order_status():
             )
             order_confirmation = confirm_order(order.checkout.checkout_token)
 
-            BitsoSpeiWithdrawal.objects.create(withdrawal)
-            GalactusTransaction.objects.create(**order_confirmation)
+            bitso_spei_withdrawal = BitsoSpeiWithdrawal.objects.create(
+                amount=Money(
+                    withdrawal._default_params.pop("amount"), withdrawal.currency
+                ),
+                user=order.user,
+                **withdrawal._default_params
+            )
+            galactus_transactions = GalactusTransaction.objects.create(
+                **order_confirmation
+            )
 
             order.status = OrderStatus.PROCESSING
-            order.save(update_fields=["status"])
+            order.circle_transfer = circle_transfer
+            order.withdrawal = bitso_spei_withdrawal
+            order.galactus_transaction = galactus_transactions
+            order.save(
+                update_fields=[
+                    "status",
+                    "circle_transfer",
+                    "withdrawal",
+                    "galactus_transaction",
+                ]
+            )
 
 
 @app.task
@@ -52,4 +76,5 @@ def update_processing_order_status():
     for order in orders:
         if order.operational_status != OrderStatus.PENDING:
             order.status = order.operational_status
+            order.transfer
             order.save(update_fields=["status"])
