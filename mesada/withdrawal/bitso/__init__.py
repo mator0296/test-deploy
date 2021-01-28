@@ -1,8 +1,7 @@
 import bitso
 from bitso.errors import ApiError
 from django.conf import settings
-
-# from graphql import GraphQLError
+from graphql import GraphQLError
 
 
 def make_bitso_spei_withdrawal(clabe, first_name, last_name, amount):
@@ -13,6 +12,5 @@ def make_bitso_spei_withdrawal(clabe, first_name, last_name, amount):
         )
         return withdrawal
 
-    except ApiError:
-        return None
-        # raise GraphQLError("Internal Server Error: %s" % err)
+    except ApiError as err:
+        raise GraphQLError("Internal Server Error: %s" % err)
