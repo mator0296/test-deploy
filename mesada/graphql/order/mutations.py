@@ -4,11 +4,11 @@ from graphql import GraphQLError
 
 from ...checkout.models import Checkout
 from ...core.utils import generate_idempotency_key
+from ...order import OrderStatus
 from ...order.models import Order
 from ...payment.models import Payment
 from ..core.mutations import BaseMutation
 from ..payment.utils import hash_session_id
-from . import CheckoutStatus
 from .types import Order as OrderType
 
 from mesada.payment.circle import create_payment
@@ -77,7 +77,7 @@ class CreateOrder(BaseMutation):
             payment = Payment.objects.create(**data)
             order = Order.objects.create(
                 checkout_id=checkout.id,
-                status=CheckoutStatus.PENDING,
+                status=OrderStatus.PENDING,
                 amount=checkout.amount,
                 fees=checkout.fees,
                 total_amount=checkout.total_amount,
