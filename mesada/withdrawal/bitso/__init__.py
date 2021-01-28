@@ -1,5 +1,6 @@
 import bitso
-from bitso import Withdrawal
+
+# from bitso import Withdrawal
 from bitso.errors import ApiError
 from django.conf import settings
 from graphql import GraphQLError
@@ -14,7 +15,7 @@ def make_bitso_spei_withdrawal(clabe, first_name, last_name, amount):
         return withdrawal
 
     except ApiError as err:
-        return Withdrawal(
+        """ return Withdrawal(
             wid="123456",
             currency="MXN",
             method="MXN",
@@ -22,5 +23,5 @@ def make_bitso_spei_withdrawal(clabe, first_name, last_name, amount):
             status="pending",
             created_at="01-28-2021 17:19:28.512376-04",
             details={"status": "PENDING", "message": "This withdrawal is pending"},
-        )
+        ) """
         raise GraphQLError("Internal Server Error: %s" % err)
