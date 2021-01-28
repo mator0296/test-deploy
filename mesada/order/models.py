@@ -1,12 +1,13 @@
 from django.db import models
 from djmoney.models.fields import MoneyField
+
 from ..account.models import Recipient, User
-from ..payment import PaymentStatus
-from ..payment.models import PaymentMethods, Payment
-from ..transfer.models import CircleTransfer
-from ..galactus.models import GalactusTransaction
-from ..withdrawal.models import BitsoSpeiWithdrawal, BitsoWithdrawalStatus
 from ..checkout.models import Checkout
+from ..galactus.models import GalactusTransaction
+from ..payment import PaymentStatus
+from ..payment.models import Payment, PaymentMethods
+from ..transfer.models import CircleTransfer
+from ..withdrawal.models import BitsoSpeiWithdrawal, BitsoWithdrawalStatus
 from . import OrderStatus
 
 
