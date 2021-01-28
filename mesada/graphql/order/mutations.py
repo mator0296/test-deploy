@@ -15,7 +15,7 @@ from mesada.payment.circle import create_payment
 
 
 class CreateOrder(BaseMutation):
-    """Create a payment using the Circle API."""
+    """Create a payment using the Circle API and generate a new Order."""
 
     order = graphene.Field(OrderType)
 
