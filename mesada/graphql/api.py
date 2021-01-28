@@ -7,6 +7,7 @@ from .payment.schema import (
     PaymentMethodsQueries,
     PaymentMutations,
 )
+from .order.schema import OrderMutations
 
 
 class Queries(AccountQueries, PaymentMethodsQueries, CoreQueries):
@@ -14,7 +15,7 @@ class Queries(AccountQueries, PaymentMethodsQueries, CoreQueries):
 
 
 class Mutations(
-    AccountMutations, CoreMutations, PaymentMutations, PaymentMethodsMutations
+    AccountMutations, CoreMutations, PaymentMutations, PaymentMethodsMutations, OrderMutations
 ):
     pass
 
