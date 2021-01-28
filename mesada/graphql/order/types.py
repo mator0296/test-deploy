@@ -16,6 +16,7 @@ class Order(DjangoObjectType):
     amount = graphene.Field(MoneyField)
     fees = graphene.Field(MoneyField)
     total_amount = graphene.Field(MoneyField)
+    recipient_amount = graphene.Field(MoneyField)
 
     class Meta:
         description = "Create a new order"
