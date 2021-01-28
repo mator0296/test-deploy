@@ -1,5 +1,10 @@
 from uuid import uuid4
 
+from django.conf import settings
+from django.contrib.sites.models import Site
+from urllib.parse import urljoin
+from django.utils.encoding import iri_to_uri
+
 
 def get_client_ip(request):
     ip = request.META.get("HTTP_X_FORWARDED_FOR", None)
@@ -7,15 +12,14 @@ def get_client_ip(request):
         return ip.split(",")[0].strip()
     return request.META.get("REMOTE_ADDR", None)
 
-
-def get_country_by_ip(ip_address):
-    # geo_data = georeader.get(ip_address)
-    # if geo_data and "country" in geo_data and "iso_code" in geo_data["country"]:
-    #     country_iso_code = geo_data["country"]["iso_code"]
-    #     if country_iso_code in countries:
-    #         return Country(country_iso_code)
-    return None
-
-
 def generate_idempotency_key():
     return str(uuid4())
+
+
+def build_absolute_uri(location):
+    # type: (str) -> str
+    host = Site.objects.get_current().domain
+    protocol = "https" if settings.ENABLE_SSL else "http"
+    current_uri = "%s://%s" % (protocol, host)
+    location = urljoin(current_uri, location)
+    return iri_to_uri(location)
