@@ -13,7 +13,7 @@
         "-B",
         "--loglevel=DEBUG"
       ],
-      "essential": true,
+      "essential": false,
       "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
       "links": ["redis", "celery"],
       "memory": 128,
@@ -35,7 +35,7 @@
         "beat",
         "--loglevel=DEBUG"
       ],
-      "essential": true,
+      "essential": false,
       "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
       "links": ["redis", "celery"],
       "memory": 128,
@@ -52,7 +52,7 @@
         "-B",
         "--loglevel=DEBUG"
       ],
-      "essential": true,
+      "essential": false,
       "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
       "links": ["redis"],
       "memory": 128,
@@ -62,7 +62,7 @@
       "essential": true,
       "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
       "links": ["redis"],
-      "memory": 128,
+      "memory": 256,
       "name": "django",
       "portMappings": [
         {
@@ -73,7 +73,7 @@
     },
 
     {
-      "essential": true,
+      "essential": false,
       "image": "redis:latest",
       "memory": 128,
       "name": "redis",
