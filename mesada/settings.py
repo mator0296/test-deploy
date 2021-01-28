@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "mesada.core",
     "mesada.galactus",
     "mesada.graphql",
+    "mesada.order",
     "mesada.payment",
     "mesada.transfer",
     "mesada.withdrawal",
