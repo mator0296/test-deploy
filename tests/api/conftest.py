@@ -10,9 +10,16 @@ from django.test.client import MULTIPART_CONTENT, Client
 from graphql_jwt.shortcuts import get_token
 from requests.exceptions import HTTPError
 
-from ..utils import assert_no_permission
+from ..utils import (
+    assert_no_permission,
+    recipient as Recipient,
+    payment as Payment,
+    checkout as Checkout,
+)
 
 from mesada.account.models import User
+from mesada.order import OrderStatus
+from mesada.order.models import Order
 
 API_PATH = reverse("api")
 
@@ -130,3 +137,24 @@ def http_exception(code: int, message: str) -> mock.Mock:
     mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
 
     return mock_response
+
+
+@pytest.fixture
+def order(customer_user):
+    recipient = Recipient(customer_user)
+    checkout = Checkout(customer_user, recipient)
+    payment = Payment(customer_user)
+
+    order = Order.objects.create(
+        checkout=checkout,
+        payment=payment,
+        status=OrderStatus.PENDING,
+        user=customer_user,
+        recipient=recipient,
+        amount=checkout.amount,
+        fees=checkout.fees,
+        total_amount=checkout.total_amount,
+        recipient_amount=checkout.recipient_amount,
+    )
+
+    return order
