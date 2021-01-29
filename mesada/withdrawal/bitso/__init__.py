@@ -1,4 +1,6 @@
 import bitso
+# import random
+# import string
 
 # from bitso import Withdrawal
 from bitso.errors import ApiError
@@ -16,7 +18,7 @@ def make_bitso_spei_withdrawal(clabe, first_name, last_name, amount):
 
     except ApiError as err:
         """ return Withdrawal(
-            wid="123456",
+            wid="".join(random.choice(string.digits) for _ in range(8)),
             currency="MXN",
             method="MXN",
             amount=amount,

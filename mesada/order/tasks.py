@@ -26,7 +26,7 @@ def update_pending_order_status():
     orders = Order.objects.select_related(
         "recipient", "payment", "user", "checkout"
     ).filter(status=OrderStatus.PENDING)
-
+    print(orders)
     for order in orders:
         if (
             order.payment.status == PaymentStatus.CONFIRMED
