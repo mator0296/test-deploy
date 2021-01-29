@@ -41,6 +41,7 @@ ALLOWED_HOSTS = [
     "usa-production.mesada.io",
     "mesada-usa-testing.eba-aw53wdis.us-east-1.elasticbeanstalk.com",
     "testserver",
+    "172.31.28.40",
 ]
 
 AUTH_USER_MODEL = "account.User"
@@ -169,6 +170,9 @@ CIRCLE_WALLET_ID = env("CIRCLE_WALLET_ID")
 CIRCLE_BLOCKCHAIN_CHAIN = env("CIRCLE_BLOCKCHAIN_CHAIN")
 BITSO_BLOCKCHAIN_ADDRESS = env("BITSO_BLOCKCHAIN_ADDRESS")
 
+# GALACTUS
+GALACTUS_URL = env("GALACTUS_URL")
+
 # Fees
 COMMISSION_FEE_DEBIT_CARD = 6.5
 COMMISSION_FEE_ACH = 1.5
@@ -203,6 +207,7 @@ CELERY_TIMEZONE = "America/Mexico_City"
 
 CELERY_CHECK_PAYMENT_STATUS = 60.0
 CELERY_CHECK_TRANSFER_STATUS = 60.0
+CELERY_CHECK_ACH_STATUS = 60.0
 
 # Bitso credentials
 BITSO_API_KEY = os.getenv("BITSO_API_KEY")
