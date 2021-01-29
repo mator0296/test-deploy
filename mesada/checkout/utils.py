@@ -21,7 +21,7 @@ def calculate_fees(initial_amount, payment_type):
 
     return initial_amount - (mesada_fee + circle_fee)
 
-  
+
 def get_amount(body: dict) -> dict:
     """
     Function to get the amount from galactus
@@ -34,4 +34,3 @@ def get_amount(body: dict) -> dict:
         raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
 
     return response.json()
-  
