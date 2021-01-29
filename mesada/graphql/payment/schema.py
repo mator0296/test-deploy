@@ -29,7 +29,7 @@ class PaymentMethodsQueries(graphene.ObjectType):
     @login_required
     def resolve_payment_methods(self, _info):
         user = _info.context.user
-        return PaymentMethods.objects.filter(user__id=user)
+        return PaymentMethods.objects.filter(user__id=user.id)
 
 
 class PaymentMutations(graphene.ObjectType):
