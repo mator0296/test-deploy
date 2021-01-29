@@ -8,6 +8,7 @@ from ..utils import random_numbers
 from mesada.order.tasks import update_pending_order_status
 from mesada.transfer.models import CircleTransfer
 
+
 @pytest.mark.integration
 @patch("mesada.order.tasks.create_transfer_by_blockchain")
 @patch("mesada.order.tasks.make_bitso_spei_withdrawal")

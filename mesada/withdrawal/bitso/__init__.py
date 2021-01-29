@@ -1,11 +1,12 @@
 import bitso
-# import random
-# import string
 
 # from bitso import Withdrawal
 from bitso.errors import ApiError
 from django.conf import settings
 from graphql import GraphQLError
+
+# import random
+# import string
 
 
 def make_bitso_spei_withdrawal(clabe, first_name, last_name, amount):
