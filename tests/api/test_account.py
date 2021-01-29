@@ -1,4 +1,5 @@
 import json
+
 from ..utils import assert_no_permission, get_graphql_content
 
 from mesada.account.models import User
