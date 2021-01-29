@@ -4,6 +4,7 @@ appdirs==1.4.4
 asgiref==3.3.1
 attrs==20.3.0
 billiard==3.6.3.0
+bitso-py==3.0.1
 black==19.3b0
 celery==5.0.5
 certifi==2020.12.5
@@ -33,6 +34,7 @@ django-phonenumber-field==5.0.0
 django-timezone-field==4.1.1
 docopt==0.4.0
 flake8==3.8.4
+future==0.18.2
 graphene==2.1.8
 graphene-django==2.15.0
 graphene-django-optimizer==0.7.2
@@ -51,6 +53,7 @@ mandrill==1.0.59
 MarkupSafe==1.1.1
 mccabe==0.6.1
 measurement==3.2.0
+mock==4.0.3
 mpmath==1.1.0
 packaging==20.8
 PGPy==0.5.3
@@ -93,4 +96,5 @@ Unidecode==1.1.1
 urllib3==1.26.2
 vine==5.0.0
 wcwidth==0.2.5
+websocket-client==0.40.0
 zipp==3.4.0
