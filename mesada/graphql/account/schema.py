@@ -3,7 +3,7 @@ from graphql_jwt.decorators import permission_required
 
 from ..core.auth import login_required
 from ..core.fields import FilterInputConnectionField
-from ..core.types import FilterInputObjectType
+from ..core.types import Error, FilterInputObjectType
 from .filters import AddressFilter, CustomerFilter, RecipientsFilter, StaffUserFilter
 from .mutations import (
     AddressCreate,
@@ -33,6 +33,7 @@ from .resolvers import (
     resolve_customers,
     resolve_recipients,
     resolve_staff_users,
+    resolve_user_exists,
 )
 from .types import Address, Recipient, User
 
@@ -104,6 +105,13 @@ class AccountQueries(graphene.ObjectType):
         query=graphene.String(description="Recipient Users"),
     )
 
+    user_exists = graphene.Field(
+        Error,
+        email=graphene.String(required=True),
+        phone=graphene.String(required=True),
+        description="Check if a user is already registered by email or phone",
+    )
+
     @permission_required("account.manage_users")
     def resolve_customers(self, info, query=None, **_kwargs):
         return resolve_customers(info, query=query)
@@ -131,6 +139,9 @@ class AccountQueries(graphene.ObjectType):
 
     def resolve_addresses(self, info, search, query=None, **_kwargs):
         return resolve_addresses(info, search=search, query=query)
+
+    def resolve_user_exists(self, info, email, phone):
+        return resolve_user_exists(email, phone)
 
 
 class AccountMutations(graphene.ObjectType):
