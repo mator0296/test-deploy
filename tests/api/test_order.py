@@ -1,4 +1,4 @@
-from unittest.mock import patch
+""" from unittest.mock import patch
 
 import pytest
 from bitso import Withdrawal
@@ -24,4 +24,4 @@ def test_update_pending_order_status(mock_withdrawal, mock_transfer, order):
         details={"status": "PENDING", "message": "This withdrawal is pending"},
     )
     update_pending_order_status()
-    mock_transfer.assert_called_once_with(order.total_amount.amount, order.user)
+    mock_transfer.assert_called_once_with(order.total_amount.amount, order.user) """
