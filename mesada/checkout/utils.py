@@ -2,7 +2,7 @@ import requests
 from django.conf import settings
 from graphql import GraphQLError
 
-from .payment import PaymentMethodTypes
+from ..payment import PaymentMethodTypes
 
 HEADERS = {
     "Accept": "application/json",
