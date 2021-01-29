@@ -91,3 +91,5 @@ cat << "EOF"
 ノ )　　Lﾉ
 (_／
 EOF
+
+exit 0

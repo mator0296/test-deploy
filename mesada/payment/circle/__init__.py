@@ -13,6 +13,7 @@ from django.utils import dateparse
 from graphql import GraphQLError
 
 from ...core.utils import generate_idempotency_key
+from .. import PaymentMethodStatus, PaymentStatus
 
 from mesada.transfer.models import CircleTransfer
 
@@ -147,6 +148,23 @@ def register_ach(processor_token, billing_details):
     return response.json().get("data")
 
 
+def get_payment_status(payment_token: str) -> str:
+    """
+    Send a GET request to get the status of a payment using the Circle's Payments API
+
+    Args:
+        payment_token: Unique circle system generated identifier for the payment item.
+    """
+    url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
+    try:
+        response = requests.get(url, headers=HEADERS)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
+
+    return PaymentStatus(response.json()["data"]["status"])
+
+
 def get_circle_transfer_status(transfer_id):
     """
     Get the status of a transfer using a get request to the circle api
@@ -165,18 +183,17 @@ def get_circle_transfer_status(transfer_id):
     return response.json()["data"]["status"]
 
 
-def get_payment_status(payment_token: str) -> str:
+def get_ach_status(payment_method_token: str) -> str:
     """
-    Send a GET request to get the status of a payment using the Circle's Payments API
+    Send a GET request to get the status of a ach payment method
+    using the Circle's Banks API
     Args:
-        payment_token: Unique circle system generated identifier for the payment item.
+        payment_method_token: unique identifier of the bank account for ACH transfers.
     """
-    url = f"{settings.CIRCLE_BASE_URL}/payments/{payment_token}"
-
+    url = f"{settings.CIRCLE_BASE_URL}/banks/ach/{payment_method_token}"
     try:
         response = requests.get(url, headers=HEADERS)
         response.raise_for_status()
     except requests.exceptions.HTTPError as err:
         raise GraphQLError("Internal Server Error: %s" % err.response.json()["message"])
-
-    return response.json()["data"]["status"]
+    return PaymentMethodStatus(response.json()["data"]["status"])
