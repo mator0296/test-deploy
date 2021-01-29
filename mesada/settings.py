@@ -41,6 +41,7 @@ ALLOWED_HOSTS = [
     "usa-production.mesada.io",
     "mesada-usa-testing.eba-aw53wdis.us-east-1.elasticbeanstalk.com",
     "testserver",
+    "172.31.28.40",
 ]
 
 AUTH_USER_MODEL = "account.User"
@@ -202,6 +203,7 @@ CELERY_CHECK_PAYMENT_STATUS = 60.0
 CELERY_CHECK_TRANSFER_STATUS = 60.0
 CELERY_UPDATE_PENDING_ORDER_STATUS = 60.0
 CELERY_UPDATE_PROCESSING_ORDER_STATUS = 60.0
+CELERY_CHECK_ACH_STATUS = 60.0
 
 # Bitso credentials
 BITSO_API_KEY = os.getenv("BITSO_API_KEY")
