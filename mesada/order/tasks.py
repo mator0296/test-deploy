@@ -12,6 +12,7 @@ def check_transaction_status(id):
 
 @app.task
 def update_galactus_transaction_status():
+    """Update all pending galactus_transaction status."""
     # TODO: Connect to the real Galactus service
 
     transactions = GalactusTransaction.objects.filter(status=GalactusStatus.PENDING)
