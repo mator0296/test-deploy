@@ -8,7 +8,7 @@ from ..payment import PaymentStatus
 from ..payment.models import Payment, PaymentMethods
 from ..transfer.models import CircleTransfer
 from ..withdrawal.models import BitsoSpeiWithdrawal, BitsoWithdrawalStatus
-from . import OrderStatus
+from . import EventType, OrderStage, OrderStatus
 
 
 class Order(models.Model):
@@ -53,3 +53,10 @@ class Order(models.Model):
             and self.withdrawal.status == BitsoWithdrawalStatus.COMPLETE
         ):
             return OrderStatus.SUCCESS
+
+
+class Event(models.Model):
+    stage = models.CharField(max_length=20, choices=OrderStage.choices)
+    type = models.CharField(max_length=10, choices=EventType.choices)
+    details = models.JSONField(null=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
