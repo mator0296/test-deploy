@@ -29,7 +29,9 @@ def update_pending_order_status():
 
     for order in orders:
         if order.payment.status == PaymentStatus.CONFIRMED:
-            order_confirmation = confirm_order(order.checkout.checkout_token)
+            order_confirmation = confirm_order(
+                order.checkout.checkout_token
+            )  # TODO: Connect to the real Galactus service
             circle_transfer = create_transfer_by_blockchain(
                 order.total_amount.amount, order.user
             )
