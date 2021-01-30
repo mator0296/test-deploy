@@ -10,12 +10,10 @@ from django.test.client import MULTIPART_CONTENT, Client
 from graphql_jwt.shortcuts import get_token
 from requests.exceptions import HTTPError
 
-from ..utils import (
-    assert_no_permission,
-    recipient as Recipient,
-    payment as Payment,
-    checkout as Checkout,
-)
+from ..utils import assert_no_permission
+from ..utils import checkout as Checkout
+from ..utils import payment as Payment
+from ..utils import recipient as Recipient
 
 from mesada.account.models import User
 from mesada.order import OrderStatus

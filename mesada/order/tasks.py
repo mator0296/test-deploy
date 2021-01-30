@@ -26,12 +26,10 @@ def update_pending_order_status():
     orders = Order.objects.select_related(
         "recipient", "payment", "user", "checkout"
     ).filter(status=OrderStatus.PENDING)
-    print(orders)
+
     for order in orders:
-        if (
-            order.payment.status == PaymentStatus.CONFIRMED
-            or order.payment.status == PaymentStatus.PAID
-        ):
+        if order.payment.status == PaymentStatus.CONFIRMED:
+            order_confirmation = confirm_order(order.checkout.checkout_token)
             circle_transfer = create_transfer_by_blockchain(
                 order.total_amount.amount, order.user
             )
@@ -41,7 +39,6 @@ def update_pending_order_status():
                 order.recipient.last_name,
                 order.recipient_amount.amount,
             )
-            order_confirmation = confirm_order(order.checkout.checkout_token)
 
             bitso_spei_withdrawal = BitsoSpeiWithdrawal.objects.create(
                 amount=Money(
