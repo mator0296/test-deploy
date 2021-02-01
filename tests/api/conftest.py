@@ -93,8 +93,8 @@ def staff_api_client(staff_user):
 
 
 @pytest.fixture
-def user_api_client(customer_user):
-    return ApiClient(user=customer_user)
+def user_api_client(user):
+    return ApiClient(user=user)
 
 
 @pytest.fixture
