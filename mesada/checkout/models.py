@@ -9,7 +9,7 @@ from . import CheckoutStatus
 
 
 class Checkout(models.Model):
-    checkout_token = models.CharField(max_length=256, blank=True)
+    checkout_token = models.CharField(max_length=256, blank=True, editable=False)
     amount = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
     fees = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
     total_amount = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
@@ -31,4 +31,4 @@ class Checkout(models.Model):
     status = models.CharField(
         max_length=50, choices=CheckoutStatus.choices, default=CheckoutStatus.PENDING
     )
-    active = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
