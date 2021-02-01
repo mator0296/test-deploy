@@ -1,16 +1,8 @@
 import json
 
 from django.core.serializers.json import DjangoJSONEncoder
-from djmoney.money import Money
 
-from .conftest import random_numbers, random_string
-
-from mesada.account.models import Recipient
-from mesada.checkout import CheckoutStatus
-from mesada.checkout.models import Checkout
 from mesada.graphql.core.utils import snake_to_camel_case
-from mesada.payment import PaymentStatus
-from mesada.payment.models import Payment
 
 
 def _get_graphql_content_from_response(response):

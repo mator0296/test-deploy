@@ -63,7 +63,7 @@ class ApiClient(Client):
         variables=None,
         permissions=None,
         check_no_permissions=True,
-        **kwargs
+        **kwargs,
     ):
         """Dedicated helper for posting GraphQL queries.
 
@@ -187,7 +187,6 @@ def payment(user) -> Payment:
     )
 
     return payment
-
 
 
 @pytest.fixture
