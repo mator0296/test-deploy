@@ -8,9 +8,9 @@ from ...core.utils import generate_idempotency_key
 from ...payment.models import PaymentMethods
 from ..core.mutations import ModelMutation
 from ..core.types import Error
+from .enums import CheckoutStatusEnum
 from .types import Checkout as CheckoutType
 
-from mesada.checkout import CheckoutStatus
 from mesada.checkout.utils import calculate_fees, galactus_call
 
 
@@ -23,8 +23,26 @@ class CheckoutCreateInput(graphene.InputObjectType):
     payment_method = graphene.Int(description="ID of the corresponding PaymentMethod")
 
 
+class CheckoutUpdateInput(graphene.InputObjectType):
+    amount = graphene.String(description="Initial payment amount")
+    fees = graphene.String(description="Circle plus Mesada commission fees")
+    total_amount = graphene.String(description="Payment amount minus fees")
+    recipient_amount = graphene.String(description="Converted payment amount")
+    recipient = graphene.Int(description="ID of the payment's recipient")
+    payment_method = graphene.Int(description="ID of the corresponding PaymentMethod")
+    status = graphene.Field(CheckoutStatusEnum)
+    active = graphene.Boolean(description="Current status for the Checkout")
+
+
+class CalculateOrderAmountInput(graphene.InputObjectType):
+    initial_amount = graphene.String(
+        description="Initial amount to process", required=True
+    )
+    payment_method = graphene.Int(description="Payment method ID", required=True)
+
+
 class CheckoutCreate(ModelMutation):
-    checkout = graphene.Field(Checkout)
+    checkout = graphene.Field(CheckoutType)
 
     class Arguments:
         input = CheckoutCreateInput(required=True)
@@ -33,17 +51,22 @@ class CheckoutCreate(ModelMutation):
         description = "Create a new Checkout"
         model = Checkout
 
+    @classmethod
     def perform_mutation(cls, _root, info, input):
         try:
             checkout = Checkout.objects.get(user_id=info.context.user.id)
 
         except Checkout.DoesNotExist:
             checkout_token = generate_idempotency_key()
-            data = {"checkout_token": checkout_token, **input}
+            data = {
+                "checkout_token": checkout_token,
+                **input,
+                "user": info.context.user,
+            }
             checkout_form = CheckoutForm(data)
             if not checkout_form.is_valid():
                 raise ValidationError(checkout_form.errors)
-            checkout = checkout_form.save()
+            checkout_form.save()
 
         except Checkout.MultipleObjectsReturned as e:
             raise GraphQLError(f"Internal Server Error:: {e.message}")
@@ -51,19 +74,8 @@ class CheckoutCreate(ModelMutation):
         return cls(checkout=checkout)
 
 
-class CheckoutUpdateInput(graphene.InputObjectType):
-    amount = graphene.String(description="Initial payment amount")
-    fees = graphene.String(description="Circle plus Mesada commission fees")
-    total_amount = graphene.String(description="Payment amount minus fees")
-    recipient_amount = graphene.String(description="Converted payment amount")
-    recipient = graphene.Int(description="ID of the payment's recipient")
-    payment_method = graphene.Int(description="ID of the corresponding PaymentMethod")
-    status = graphene.Field(CheckoutStatus)
-    active = graphene.Boolean(description="Current status for the Checkout")
-
-
 class CheckoutUpdate(ModelMutation):
-    checkout = graphene.Field(Checkout)
+    checkout = graphene.Field(CheckoutType)
 
     class Arguments:
         input = CheckoutUpdateInput(required=True)
@@ -72,6 +84,7 @@ class CheckoutUpdate(ModelMutation):
         description = "Update a previous checkout"
         model = Checkout
 
+    @classmethod
     def perform_mutation(cls, _root, info, input):
         try:
             checkout = Checkout.objects.get(user_id=info.context.user.id)
@@ -84,13 +97,6 @@ class CheckoutUpdate(ModelMutation):
             raise GraphQLError(f"Internal Server Error:: {e.message}")
 
         return cls(checkout=checkout)
-
-
-class CalculateOrderAmountInput(graphene.InputObjectType):
-    initial_amount = graphene.String(
-        description="Initial amount to process", required=True
-    )
-    payment_method = graphene.Int(description="Payment method ID", required=True)
 
 
 class CalculateOrderAmount(ModelMutation):

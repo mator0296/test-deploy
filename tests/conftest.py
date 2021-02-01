@@ -5,8 +5,8 @@ import pytest
 from django.contrib.auth.models import Permission  # noqa: E402
 
 from mesada.account.models import User  # noqa: E402
-from mesada.payment.models import PaymentMethods  # noqa: E402
 from mesada.payment import PaymentMethodTypes  # noqa: E402
+from mesada.payment.models import PaymentMethods  # noqa: E402
 
 pytestmark = pytest.mark.django_db
 

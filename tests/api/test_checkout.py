@@ -1,7 +1,8 @@
+import json
 from unittest.mock import patch
 
 import pytest
-import json
+
 from mesada.checkout.utils import calculate_fees
 from mesada.payment import PaymentMethodTypes
 
