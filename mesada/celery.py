@@ -18,9 +18,9 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 def setup_periodic_tasks(sender, **kwargs):
     # tasks imports
     from mesada.order.tasks import (
+        update_galactus_transaction_status,
         update_pending_order_status,
         update_processing_order_status,
-        update_galactus_transaction_status
     )
     from mesada.payment.tasks import (
         check_ach_status,
