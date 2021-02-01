@@ -1,5 +1,6 @@
 import graphene
-from mutations import CalculateOrderAmount
+
+from .mutations import CalculateOrderAmount
 
 
 class CheckoutMutations(graphene.ObjectType):

@@ -7,6 +7,8 @@ django.setup()  # noqa: E731
 from django.contrib.auth.models import Permission  # noqa: E402
 
 from mesada.account.models import User  # noqa: E402
+from mesada.payment.models import PaymentMethods  # noqa: E402
+from mesada.payment import PaymentMethodTypes  # noqa: E402
 
 pytestmark = pytest.mark.django_db
 
@@ -52,3 +54,10 @@ def customer_user():
 @pytest.fixture
 def permission_manage_users():
     return Permission.objects.get(codename="manage_users")
+
+
+@pytest.fixture
+def payment_method_ach():
+    return PaymentMethods.objects.create(
+        type=PaymentMethodTypes.ACH, email="test_checkout@example.com"
+    )

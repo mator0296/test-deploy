@@ -1,6 +1,7 @@
 import graphene
 
 from .account.schema import AccountMutations, AccountQueries
+from .checkout.schema import CheckoutMutations
 from .core.schema import CoreMutations, CoreQueries
 from .payment.schema import (
     PaymentMethodsMutations,
@@ -14,7 +15,11 @@ class Queries(AccountQueries, PaymentMethodsQueries, CoreQueries):
 
 
 class Mutations(
-    AccountMutations, CoreMutations, PaymentMutations, PaymentMethodsMutations
+    AccountMutations,
+    CoreMutations,
+    PaymentMutations,
+    PaymentMethodsMutations,
+    CheckoutMutations,
 ):
     pass
 
