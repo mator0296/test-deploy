@@ -11,13 +11,20 @@ from graphql_jwt.shortcuts import get_token
 from requests.exceptions import HTTPError
 
 from ..utils import assert_no_permission
-from ..utils import checkout as Checkout
-from ..utils import payment as Payment
-from ..utils import recipient as Recipient
 
 from mesada.account.models import User
 from mesada.order import OrderStatus
 from mesada.order.models import Order
+
+from djmoney.money import Money
+
+from .conftest import random_numbers, random_string
+
+from mesada.account.models import Recipient
+from mesada.checkout import CheckoutStatus
+from mesada.checkout.models import Checkout
+from mesada.payment import PaymentStatus
+from mesada.payment.models import Payment
 
 API_PATH = reverse("api")
 
@@ -135,6 +142,52 @@ def http_exception(code: int, message: str) -> mock.Mock:
     mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
 
     return mock_response
+
+
+def recipient(user) -> Recipient:
+    recipient = Recipient.objects.create(
+        first_name="Test",
+        last_name="Recipient",
+        user=user,
+        email=random_string(6) + "@mail.com",
+        alias="Recipient alias",
+        clabe=random_numbers(18),
+        bank="Bancomer",
+    )
+
+    return recipient
+
+
+def checkout(user, recipient: Recipient) -> Checkout:
+    checkout = Checkout.objects.create(
+        checkout_token=f"{random_string(4)}-{random_numbers(6)}-{random_string(4)}",
+        user=user,
+        recipient=recipient,
+        status=CheckoutStatus.PENDING,
+        active=True,
+        amount=Money(10.0, "USD"),
+        total_amount=Money(10.0, "USD"),
+        fees=Money(2.0, "USD"),
+        recipient_amount=Money(200.0, "MXN"),
+    )
+
+    return checkout
+
+
+def payment(user) -> Payment:
+    payment = Payment.objects.create(
+        status=PaymentStatus.CONFIRMED,
+        type="payment",
+        merchant_id=random_numbers(6),
+        merchant_wallet_id=random_numbers(12),
+        amount=Money(10.0, "USD"),
+        source={},
+        metadata={},
+        user=user,
+    )
+
+    return payment
+
 
 
 @pytest.fixture

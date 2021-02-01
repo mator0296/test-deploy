@@ -84,7 +84,6 @@ def update_processing_order_status():
     for order in orders:
         if order.operational_status != OrderStatus.PENDING:
             order.status = order.operational_status
-            order.transfer
             order.save(update_fields=["status"])
 
 
