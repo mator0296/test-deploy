@@ -101,7 +101,7 @@ def create_transfer_by_blockchain(amount, user):
 
     data = response.json()["data"]
 
-    CircleTransfer.objects.create(
+    circle_transfer = CircleTransfer.objects.create(
         transfer_id=data["id"],
         source_type=data["source"]["type"],
         source_id=data["source"]["id"],
@@ -114,7 +114,7 @@ def create_transfer_by_blockchain(amount, user):
         user_id=user,
     )
 
-    return data["id"]
+    return circle_transfer
 
 
 def register_ach(processor_token, billing_details):

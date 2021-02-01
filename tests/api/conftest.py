@@ -7,12 +7,20 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
 from django.test.client import MULTIPART_CONTENT, Client
+from djmoney.money import Money
 from graphql_jwt.shortcuts import get_token
 from requests.exceptions import HTTPError
 
+from ..conftest import random_numbers, random_string
 from ..utils import assert_no_permission
 
-from mesada.account.models import User
+from mesada.account.models import Recipient, User
+from mesada.checkout import CheckoutStatus
+from mesada.checkout.models import Checkout
+from mesada.order import OrderStatus
+from mesada.order.models import Order
+from mesada.payment import PaymentStatus
+from mesada.payment.models import Payment
 
 API_PATH = reverse("api")
 
@@ -51,7 +59,7 @@ class ApiClient(Client):
         variables=None,
         permissions=None,
         check_no_permissions=True,
-        **kwargs
+        **kwargs,
     ):
         """Dedicated helper for posting GraphQL queries.
 
@@ -130,3 +138,68 @@ def http_exception(code: int, message: str) -> mock.Mock:
     mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
 
     return mock_response
+
+
+@pytest.fixture
+def recipient(customer_user) -> Recipient:
+    recipient = Recipient.objects.create(
+        first_name="Test",
+        last_name="Recipient",
+        user=customer_user,
+        email=random_string(6) + "@mail.com",
+        alias="Recipient alias",
+        clabe=random_numbers(18),
+        bank="Bancomer",
+    )
+
+    return recipient
+
+
+@pytest.fixture
+def checkout(customer_user, recipient) -> Checkout:
+    checkout = Checkout.objects.create(
+        checkout_token=f"{random_string(4)}-{random_numbers(6)}-{random_string(4)}",
+        user=customer_user,
+        recipient=recipient,
+        status=CheckoutStatus.PENDING,
+        active=True,
+        amount=Money(10.0, "USD"),
+        total_amount=Money(10.0, "USD"),
+        fees=Money(2.0, "USD"),
+        recipient_amount=Money(200.0, "MXN"),
+    )
+
+    return checkout
+
+
+@pytest.fixture
+def payment(customer_user) -> Payment:
+    payment = Payment.objects.create(
+        status=PaymentStatus.CONFIRMED,
+        type="payment",
+        merchant_id=random_numbers(6),
+        merchant_wallet_id=random_numbers(12),
+        amount=Money(10.0, "USD"),
+        source={},
+        metadata={},
+        user=customer_user,
+    )
+
+    return payment
+
+
+@pytest.fixture
+def order(customer_user, payment, recipient, checkout):
+    order = Order.objects.create(
+        checkout=checkout,
+        payment=payment,
+        status=OrderStatus.PENDING,
+        user=customer_user,
+        recipient=recipient,
+        amount=checkout.amount,
+        fees=checkout.fees,
+        total_amount=checkout.total_amount,
+        recipient_amount=checkout.recipient_amount,
+    )
+
+    return order
