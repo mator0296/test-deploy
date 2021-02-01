@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from django.conf import settings
 
-from mesada.checkout.utils import get_amount, HEADERS
+from mesada.checkout.utils import HEADERS, get_amount
 
 
 @pytest.mark.integration
