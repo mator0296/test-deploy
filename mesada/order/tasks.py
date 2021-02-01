@@ -1,6 +1,7 @@
 from djmoney.money import Money
 
 from ..celery import app
+from ..galactus import GalactusStatus
 from ..galactus.models import GalactusTransaction
 from ..payment import PaymentStatus
 from ..payment.circle import create_transfer_by_blockchain
@@ -11,6 +12,13 @@ from .models import Order
 
 
 def confirm_order(checkout_token):
+    return {
+        "status": "success",
+        "response_data": {"message": "The order was confirmed successfully"},
+    }
+
+
+def check_transaction_status(checkout_token):
     return {
         "status": "success",
         "response_data": {"message": "The order was confirmed successfully"},
@@ -78,3 +86,15 @@ def update_processing_order_status():
             order.status = order.operational_status
             order.transfer
             order.save(update_fields=["status"])
+
+
+def update_galactus_transaction_status():
+    """Update all pending galactus_transaction status."""
+    # TODO: Connect to the real Galactus service
+
+    transactions = GalactusTransaction.objects.filter(status=GalactusStatus.PENDING)
+    for transaction in transactions:
+        response = check_transaction_status(transaction.id)
+        transaction.status = response.get("status")
+        transaction.response_data = response.get("response_data")
+        transaction.save()

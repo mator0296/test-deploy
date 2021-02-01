@@ -20,6 +20,7 @@ def setup_periodic_tasks(sender, **kwargs):
     from mesada.order.tasks import (
         update_pending_order_status,
         update_processing_order_status,
+        update_galactus_transaction_status
     )
     from mesada.payment.tasks import (
         check_ach_status,
@@ -57,4 +58,9 @@ def setup_periodic_tasks(sender, **kwargs):
         settings.CELERY_UPDATE_PROCESSING_ORDER_STATUS,
         update_processing_order_status.s(),
         name="Update the status of a PROCESSING order every minute",
+    )
+    sender.add_periodic_task(
+        settings.CELERY_UPDATE_GALACTUS_TRANSACTION_STATUS,
+        update_galactus_transaction_status.s(),
+        name="Update GalactusTransacions status",
     )
