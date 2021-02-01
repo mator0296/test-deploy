@@ -55,8 +55,8 @@ class Order(models.Model):
             return OrderStatus.SUCCESS
 
 
-class Event(models.Model):
-    stage = models.CharField(max_length=20, choices=OrderStage.choices)
-    type = models.CharField(max_length=10, choices=EventType.choices)
+class OrderEvent(models.Model):
+    order_stage = models.CharField(max_length=20, choices=OrderStage.choices)
+    event_type = models.CharField(max_length=10, choices=EventType.choices)
     details = models.JSONField(null=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
