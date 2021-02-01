@@ -69,7 +69,7 @@ class CheckoutCreate(ModelMutation):
             checkout_form.save()
 
         except Checkout.MultipleObjectsReturned as e:
-            raise GraphQLError(f"Internal Server Error:: {e.message}")
+            raise GraphQLError(f"Internal Server Error:: {e}")
 
         return cls(checkout=checkout)
 
@@ -94,7 +94,7 @@ class CheckoutUpdate(ModelMutation):
             checkout_form.save()
 
         except (Checkout.DoesNotExist, Checkout.MultipleObjectsReturned) as e:
-            raise GraphQLError(f"Internal Server Error:: {e.message}")
+            raise GraphQLError(f"Internal Server Error:: {e}")
 
         return cls(checkout=checkout)
 
@@ -127,7 +127,7 @@ class CalculateOrderAmount(ModelMutation):
             payment_method = PaymentMethods.objects.get(pk=payment_method_id)
 
         except PaymentMethods.DoesNotExist as e:
-            return cls(errors=[Error(message=e.message)])
+            return cls(errors=[Error(message=e)])
 
         amount_minus_fees, circle_fee, mesada_fee = calculate_fees(
             initial_amount, payment_method.type
@@ -173,19 +173,11 @@ class CalculateOrderAmount(ModelMutation):
                 checkout = checkout_form.save()
 
             except Checkout.MultipleObjectsReturned as e:
-                raise GraphQLError(f"Internal Server Error:: {e.message}")
-
-            return cls(
-                amount_to_convert=amount_minus_fees,
-                fees_amount=circle_fee,
-                mesada_fee_amount=mesada_fee,
-                total_amount=converted_amount,
-                block_amount=block_amount,
-                checkout=checkout,
-            )
-
-        block_amount = False
-        converted_amount = galactus_call(amount_minus_fees, block_amount)
+                raise GraphQLError(f"Internal Server Error:: {e}")
+        else:
+            block_amount = False
+            checkout = None
+            converted_amount = galactus_call(amount_minus_fees, block_amount)
 
         return cls(
             amount_to_convert=amount_minus_fees,
@@ -193,5 +185,5 @@ class CalculateOrderAmount(ModelMutation):
             mesada_fee_amount=mesada_fee,
             total_amount=converted_amount,
             block_amount=block_amount,
-            checkout=None,
+            checkout=checkout,
         )
