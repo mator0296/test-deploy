@@ -10,6 +10,8 @@ from graphql_jwt.shortcuts import get_token
 from graphql_relay import from_global_id
 from twilio.base.exceptions import TwilioRestException
 
+from ...account import emails
+from ...account import events as account_events
 from ...account import models
 from ...core.permissions import get_permissions
 from ...core.twilio import check_code, send_code
@@ -110,6 +112,8 @@ class CustomerRegister(ModelMutation):
         password = cleaned_input["password"]
         user.set_password(password)
         user.save()
+        emails.send_new_customer_email.delay(user.email, user.pk)
+        account_events.customer_account_created_event(user=user)
         return user
 
     @classmethod
@@ -174,6 +178,7 @@ class CustomerCreate(ModelMutation):
             address = models.Address.objects.create(**address_data)
             user.default_address = address
             user.save()
+        account_events.customer_account_created_event(user=user)
         return cls.success_response(user)
 
 
