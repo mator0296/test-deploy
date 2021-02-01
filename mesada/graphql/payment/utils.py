@@ -12,8 +12,13 @@ def hash_session_id(session_id):
 
 
 def get_default_billing_details(user):
+    if not user.default_address.first_name or not user.default_address.last_name:
+        name = f"{user.first_name} {user.last_name}"
+    else:
+        name = f"{user.default_address.first_name} {user.default_address.last_name}"
+
     return {
-        "name": f"{user.default_address.first_name} {user.default_address.last_name}",
+        "name": name,
         "city": user.default_address.city,
         "country": str(user.default_address.country),
         "line1": user.default_address.street_address_1,

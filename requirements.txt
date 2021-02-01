@@ -5,7 +5,7 @@ attrs==20.3.0
 bitso-py==3.0.1
 black==19.3b0
 click==7.1.2
-Django==3.1.4
+Django==3.1.5
 django-appconf==1.0.4
 django-cache-url==3.1.2
 django-cors-headers==3.6.0
@@ -55,4 +55,4 @@ celery==4.4.7
 gevent==20.12.1
 redis==3.5.3
 flower==0.9.7
-
+pytest-django==4.1.0
