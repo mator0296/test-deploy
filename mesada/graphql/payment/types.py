@@ -1,5 +1,6 @@
 import graphene
 from graphene_django.types import DjangoObjectType
+from graphene import relay
 
 from ...payment.models import Payment, PaymentMethods
 
@@ -7,6 +8,7 @@ from ...payment.models import Payment, PaymentMethods
 class PaymentMethod(DjangoObjectType):
     class Meta:
         description = "Represents a Payment Method"
+        interfaces = [relay.Node]
         model = PaymentMethods
         fields = "__all__"
 
