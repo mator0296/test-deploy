@@ -12,6 +12,7 @@ from django.utils.translation import pgettext_lazy
 from django_countries.fields import Country, CountryField
 from phonenumber_field.modelfields import PhoneNumber, PhoneNumberField
 
+from . import CustomerEvents
 from .enums import Banks
 from .validators import validate_possible_number
 
@@ -207,3 +208,19 @@ class Recipient(models.Model):
 
     def __str__(self):
         return "%s %s" % (self.first_name, self.last_name)
+
+
+class CustomerEvent(models.Model):
+    """Model used to store events that happened during the customer lifecycle."""
+
+    date = models.DateTimeField(default=timezone.now, editable=False)
+    type = models.CharField(max_length=255, choices=CustomerEvents.CHOICES)
+    parameters = models.JSONField(blank=True, default=dict)
+
+    user = models.ForeignKey(User, related_name="events", on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ("date",)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(type={self.type!r}, user={self.user!r})"
