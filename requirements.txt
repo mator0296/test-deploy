@@ -6,7 +6,6 @@ attrs==20.3.0
 billiard==3.6.3.0
 bitso-py==3.0.1
 black==19.3b0
-celery==5.0.5
 certifi==2020.12.5
 cffi==1.14.4
 chardet==4.0.0
@@ -98,3 +97,9 @@ vine==5.0.0
 wcwidth==0.2.5
 websocket-client==0.40.0
 zipp==3.4.0
+celery==4.4.7
+gevent==20.12.1
+redis==3.5.3
+flower==0.9.7
+pytest-django==4.1.0
+
