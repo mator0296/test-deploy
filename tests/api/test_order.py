@@ -3,8 +3,9 @@ from unittest.mock import patch
 import pytest
 from bitso import Withdrawal
 
-from ..utils import random_numbers
+from ..conftest import random_numbers
 
+from mesada.order import OrderStatus
 from mesada.order.tasks import update_pending_order_status
 from mesada.transfer.models import CircleTransfer, CircleTransferStatus
 
@@ -50,3 +51,5 @@ def test_update_pending_order_status(
         order.recipient_amount.amount,
     )
     mock_confirm_order.assert_called_once_with(order.checkout.checkout_token)
+    order.refresh_from_db()
+    assert order.status == OrderStatus.PROCESSING
