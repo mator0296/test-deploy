@@ -196,6 +196,7 @@ class RegisterAchPayment(ModelMutation):
                 city=billing_details.get("city"),
                 district=billing_details.get("district"),
                 country_code=billing_details.get("country"),
+                last_digits=circle_response.get("accountNumber")[-4:],
             )
         except HTTPError as e:
             raise GraphQLError(f"Internal Server Error: {e.message}")
