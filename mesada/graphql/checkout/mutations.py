@@ -9,35 +9,23 @@ from ...core.utils import generate_idempotency_key
 from ...payment.models import PaymentMethods
 from ..core.mutations import ModelMutation
 from ..core.types import Error
-from .enums import CheckoutStatusEnum
 from .types import Checkout as CheckoutType
 
 from mesada.checkout import CheckoutStatus
 from mesada.checkout.utils import calculate_fees, galactus_call
 
 
-class CheckoutCreateInput(graphene.InputObjectType):
-    amount = graphene.String(description="Initial payment amount")
-    fees = graphene.String(description="Circle plus Mesada commission fees")
-    total_amount = graphene.String(description="Payment amount minus fees")
-    recipient_amount = graphene.String(description="Converted payment amount")
+class CheckoutInput(graphene.InputObjectType):
+    amount = graphene.Decimal(description="Initial payment amount")
+    fees = graphene.Decimal(description="Circle plus Mesada commission fees")
+    total_amount = graphene.Decimal(description="Payment amount minus fees")
+    recipient_amount = graphene.Decimal(description="Converted payment amount")
     recipient = graphene.ID(description="ID of the payment's recipient")
     payment_method = graphene.ID(description="ID of the corresponding PaymentMethod")
-
-
-class CheckoutUpdateInput(graphene.InputObjectType):
-    amount = graphene.String(description="Initial payment amount")
-    fees = graphene.String(description="Circle plus Mesada commission fees")
-    total_amount = graphene.String(description="Payment amount minus fees")
-    recipient_amount = graphene.String(description="Converted payment amount")
-    recipient = graphene.ID(description="ID of the payment's recipient")
-    payment_method = graphene.ID(description="ID of the corresponding PaymentMethod")
-    status = graphene.Field(CheckoutStatusEnum)
-    active = graphene.Boolean(description="Current status for the Checkout")
 
 
 class CalculateOrderAmountInput(graphene.InputObjectType):
-    initial_amount = graphene.String(
+    initial_amount = graphene.Decimal(
         description="Initial amount to process", required=True
     )
     payment_method = graphene.ID(description="Payment method ID", required=True)
@@ -47,7 +35,7 @@ class CheckoutCreate(ModelMutation):
     checkout = graphene.Field(CheckoutType)
 
     class Arguments:
-        input = CheckoutCreateInput(required=True)
+        input = CheckoutInput(required=True)
 
     class Meta:
         description = "Create a new Checkout"
@@ -95,7 +83,7 @@ class CheckoutUpdate(ModelMutation):
     checkout = graphene.Field(CheckoutType)
 
     class Arguments:
-        input = CheckoutUpdateInput(required=True)
+        input = CheckoutInput(required=True)
 
     class Meta:
         description = "Update a previous checkout"

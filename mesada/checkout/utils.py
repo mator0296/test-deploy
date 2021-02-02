@@ -13,9 +13,7 @@ HEADERS = {
 }
 
 
-def calculate_fees(
-    initial_amount: str, payment_type: PaymentMethodTypes
-) -> (Decimal, Decimal, Decimal):
+def calculate_fees(initial_amount, payment_type):
     initial_amount = Decimal(initial_amount)
     fee_debit_card = Decimal(settings.COMMISSION_FEE_DEBIT_CARD)
     fee_ach = Decimal(settings.COMMISSION_FEE_ACH)
@@ -47,14 +45,9 @@ def get_amount(body: dict) -> dict:
 
 
 def galactus_call(amount_to_convert, block_amount, checkout_token=None):
-    if checkout_token is None:
-        body = {"amountToConvert": amount_to_convert, "blockAmount": block_amount}
-    else:
-        body = {
-            "amountToConvert": amount_to_convert,
-            "blockAmount": block_amount,
-            "checkoutToken": checkout_token,
-        }
+    body = {"amountToConvert": amount_to_convert, "blockAmount": block_amount}
+    if checkout_token is not None:
+        body["checkoutToken"] = checkout_token
 
     galactus_response = get_amount(body)
     return galactus_response["amount"]

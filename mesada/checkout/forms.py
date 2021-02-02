@@ -5,7 +5,8 @@ from .models import Checkout
 
 class CheckoutForm(ModelForm):
     def save(self, money_fields, user=None):
-        self.instance.user = user
+        if user is not None:
+            self.instance.user = user
         self.instance.save()
         return self.instance
 

@@ -91,7 +91,7 @@ def test_calculate_order_amount_with_previous_checkout(
 
 def test_checkout_create_success(recipient, payment_method_ach, user_api_client):
     query = """
-    mutation checkoutCreate($input: CheckoutCreateInput!) {
+    mutation checkoutCreate($input: CheckoutInput!) {
         checkoutCreate(input: $input) {
             checkout {
                 id
@@ -136,7 +136,7 @@ def test_checkout_update_success(
     recipient, payment_method_ach, checkout, user_api_client
 ):
     query = """
-    mutation checkoutUpdate($input: CheckoutUpdateInput!) {
+    mutation checkoutUpdate($input: CheckoutInput!) {
         checkoutUpdate(input: $input) {
             checkout {
                 id
