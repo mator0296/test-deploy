@@ -34,6 +34,8 @@ SECRET_KEY = "3w4x62a8bdkdv%z@1z7t9y7gf=ircv!bdj9q9rm%6)_f#t3k5t"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+SITE_ID = "1"
+
 ALLOWED_HOSTS = [
     "usa-testing.mesada.io",
     "usa.mesada.io",
@@ -48,8 +50,13 @@ AUTH_USER_MODEL = "account.User"
 # Application definition
 
 INSTALLED_APPS = [
+    "admin_tools",
+    "admin_tools.theming",
+    "admin_tools.menu",
+    "admin_tools.dashboard",
     "django.contrib.admin",
     "django.contrib.auth",
+    "django.contrib.sites",
     "django.contrib.contenttypes",
     "corsheaders",
     "django.contrib.sessions",
@@ -61,6 +68,7 @@ INSTALLED_APPS = [
     "mesada.graphql",
     "mesada.payment",
     "mesada.transfer",
+    "mesada.sendgrid",
     "mesada.withdrawal",
     "django_extensions",
     "graphene_django",
@@ -91,6 +99,8 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [os.path.join(PROJECT_ROOT, "templates")],
+        # "DIRS": [],
+        "APP_DIRS": False,
         "OPTIONS": {
             "debug": DEBUG,
             "context_processors": [
@@ -98,6 +108,11 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+            ],
+            "loaders": [
+                "django.template.loaders.filesystem.Loader",
+                "django.template.loaders.app_directories.Loader",
+                "admin_tools.template_loaders.Loader",
             ],
             "string_if_invalid": '<< MISSING VARIABLE "%s" >>' if DEBUG else "",
         },
@@ -204,3 +219,12 @@ CELERY_CHECK_ACH_STATUS = 60.0
 # Bitso credentials
 BITSO_API_KEY = os.getenv("BITSO_API_KEY")
 BITSO_SECRET = os.getenv("BITSO_SECRET")
+
+# Sengrid Configuration
+
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+
+# Mailing Configuration
+
+DEFAULT_FROM_EMAIL = "info@mesada.io"
+DEFAULT_NAME_EMAIL = "Equipo Mesada"
