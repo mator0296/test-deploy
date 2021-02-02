@@ -7,6 +7,7 @@ from djmoney.money import Money
 
 from mesada.account.models import Recipient, User  # noqa: E402
 from mesada.checkout.models import Checkout  # noqa: E402
+from mesada.core.utils import generate_idempotency_key
 from mesada.payment import PaymentMethodTypes  # noqa: E402
 from mesada.payment.models import PaymentMethods  # noqa: E402
 
@@ -83,6 +84,7 @@ def checkout(user):
         user=user,
     )
     return Checkout.objects.create(
+        checkout_token=generate_idempotency_key(),
         amount=Money(220.0000, "USD"),
         fees=Money(1.2500, "USD"),
         total_amount=Money(221.2500, "USD"),
