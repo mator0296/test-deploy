@@ -14,7 +14,7 @@ class Checkout(models.Model):
     fees = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
     total_amount = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
     recipient_amount = MoneyField(
-        max_digits=19, decimal_places=4, default_currency="USD"
+        max_digits=19, decimal_places=4, default_currency="MXN"
     )
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="checkout", null=True, blank=True

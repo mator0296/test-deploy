@@ -14,10 +14,10 @@ class CheckoutQueries(graphene.ObjectType):
 
     def resolve_checkout(self, info):
         try:
-            checkout = Checkout.objects.get(user_id=info.context.user.id)
+            checkout = Checkout.objects.get(user_id=info.context.user.id, active=True)
 
         except Checkout.DoesNotExist as e:
-            raise GraphQLError(f"Internal Server Error:: {e}")
+            raise GraphQLError(f"Internal Server Error: {e}")
 
         return checkout
 

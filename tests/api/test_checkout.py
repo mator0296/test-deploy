@@ -252,6 +252,6 @@ def test_query_checkout_failure(user_api_client):
     variables_values = {}
     response = user_api_client.post_graphql(query, variables_values)
     content = _get_graphql_content_from_response(response)
-    expected_message = "Internal Server Error:: Checkout matching query does not exist."
+    expected_message = "Internal Server Error: Checkout matching query does not exist."
     assert "errors" in content
     assert content["errors"][0]["message"] == expected_message

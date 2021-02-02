@@ -92,30 +92,29 @@ class CheckoutUpdate(ModelMutation):
     @classmethod
     def perform_mutation(cls, _root, info, input):
         new_values = {key: value for key, value in input.items() if value is not None}
-        try:
-            if "recipient" in new_values:
-                try:
-                    new_recipient = Recipient.objects.get(pk=new_values["recipient"])
-                except Recipient.DoesNotExist:
-                    raise ValidationError({"recipient": "Recipient not found."})
-                new_values["recipient"] = new_recipient
-            if "payment_method" in new_values:
-                try:
-                    new_payment_method = PaymentMethods.objects.get(
-                        pk=new_values["payment_method"]
-                    )
-                except PaymentMethods.DoesNotExist:
-                    raise ValidationError(
-                        {"payment_method": "Payment Method not found."}
-                    )
-                new_values["payment_method"] = new_payment_method
-            Checkout.objects.filter(user_id=info.context.user.id, active=True).update(
-                **new_values
-            )
-            checkout = Checkout.objects.get(user_id=info.context.user.id)
+        checkout_qs = Checkout.objects.filter(user_id=info.context.user.id, active=True)
+        checkout = checkout_qs.first()
+        if checkout is None:
+            error_msg = "Internal Server Error: To-be updated Checkout not found."
+            raise GraphQLError(error_msg)
 
-        except (Checkout.DoesNotExist, Checkout.MultipleObjectsReturned) as e:
-            raise GraphQLError(f"Internal Server Error:: {e}")
+        if "recipient" in new_values:
+            try:
+                new_recipient = Recipient.objects.get(pk=new_values["recipient"])
+            except Recipient.DoesNotExist:
+                raise ValidationError({"recipient": "Recipient not found."})
+            new_values["recipient"] = new_recipient
+        if "payment_method" in new_values:
+            try:
+                new_payment_method = PaymentMethods.objects.get(
+                    pk=new_values["payment_method"]
+                )
+            except PaymentMethods.DoesNotExist:
+                raise ValidationError({"payment_method": "Payment Method not found."})
+            new_values["payment_method"] = new_payment_method
+
+        checkout_qs.update(**new_values)
+        checkout.refresh_from_db()
 
         return cls(checkout=checkout)
 
@@ -154,9 +153,10 @@ class CalculateOrderAmount(ModelMutation):
             initial_amount, payment_method.type
         )
 
-        if not info.context.user.is_anonymous:
+        if info.context.user.is_authenticated:
             # Check if a checkout already exists for this user.
             block_amount = True
+
             try:
                 checkout = Checkout.objects.get(user_id=info.context.user.id)
                 converted_amount = galactus_call(
@@ -165,7 +165,7 @@ class CalculateOrderAmount(ModelMutation):
                 checkout.amount = Money(initial_amount, "USD")
                 checkout.fees = Money(circle_fee + mesada_fee, "USD")
                 checkout.total_amount = Money(amount_minus_fees, "USD")
-                checkout.recipient_amount = Money(converted_amount, "USD")
+                checkout.recipient_amount = Money(converted_amount, "MXN")
                 checkout.payment_method = payment_method
                 checkout.save(
                     update_fields=[
@@ -187,7 +187,7 @@ class CalculateOrderAmount(ModelMutation):
                     "amount": Money(initial_amount, "USD"),
                     "fees": Money(circle_fee + mesada_fee, "USD"),
                     "total_amount": Money(amount_minus_fees, "USD"),
-                    "recipient_amount": Money(converted_amount, "USD"),
+                    "recipient_amount": Money(converted_amount, "MXN"),
                     "user": info.context.user,
                     "payment_method": payment_method,
                 }
