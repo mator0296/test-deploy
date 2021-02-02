@@ -53,3 +53,69 @@ def test_update_pending_order_status(
     mock_confirm_order.assert_called_once_with(order.checkout.checkout_token)
     order.refresh_from_db()
     assert order.status == OrderStatus.PROCESSING
+
+
+@pytest.mark.integration
+@patch("mesada.graphql.order.mutations.CreateOrder.create_order_payment")
+@patch("mesada.graphql.order.mutations.hash_session_id")
+@patch("mesada.graphql.order.mutations.Payment.objects.create")
+@patch("mesada.graphql.order.mutations.Order.objects.create")
+def test_create_order(
+    mock_order,
+    mock_payment,
+    mock_hash_session_id,
+    mock_create_payment,
+    user_api_client,
+    checkout,
+    payment,
+):
+    mock_hash_session_id.return_value = "return_value"
+    mock_payment.return_value = payment
+    mock_create_payment.return_value = {
+        "id": "0620c4dd-eb27-44e9-bb92-35c7ce9deacd",
+        "type": "payment",
+        "merchantId": "8f1a836b-cc7b-4e62-ac76-e89a15e59d76",
+        "merchantWalletId": "1000059237",
+        "source": {"id": "851aab36-006c-4eef-83f1-bb2bd486efaa", "type": "card"},
+        "description": "Description for new payment.",
+        "amount": {"amount": "100.00", "currency": "USD"},
+        "status": "pending",
+        "refunds": [],
+        "createDate": "2021-02-01T18:36:04.504Z",
+        "updateDate": "2021-02-01T18:36:04.504Z",
+        "metadata": {"phoneNumber": "+16167144457", "email": "test@mail.com"},
+    }
+    query = """
+    mutation createOrder {
+        createOrder {
+            order {
+            id
+            }
+            errors{
+            field
+            message
+            }
+        }
+        }
+    """
+    variables_values = {}
+    response = user_api_client.post_graphql(query, variables_values)
+    mock_create_payment.assert_called_once_with(
+        checkout,
+        mock_hash_session_id.return_value,
+        response.wsgi_request.META["REMOTE_ADDR"],
+    )
+    mock_order.assert_called_once_with(
+        checkout_id=checkout.id,
+        status=OrderStatus.PENDING,
+        amount=checkout.amount,
+        fees=checkout.fees,
+        total_amount=checkout.total_amount,
+        recipient_amount=checkout.recipient_amount,
+        user_id=checkout.user_id,
+        recipient_id=checkout.recipient_id,
+        payment_method_id=checkout.payment_method_id,
+        payment_id=payment.id,
+    )
+    checkout.refresh_from_db()
+    assert checkout.active is False
