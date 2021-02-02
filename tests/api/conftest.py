@@ -141,11 +141,11 @@ def http_exception(code: int, message: str) -> mock.Mock:
 
 
 @pytest.fixture
-def recipient(customer_user) -> Recipient:
+def recipient(user) -> Recipient:
     recipient = Recipient.objects.create(
         first_name="Test",
         last_name="Recipient",
-        user=customer_user,
+        user=user,
         email=random_string(6) + "@mail.com",
         alias="Recipient alias",
         clabe=random_numbers(18),
@@ -156,10 +156,10 @@ def recipient(customer_user) -> Recipient:
 
 
 @pytest.fixture
-def checkout(customer_user, recipient) -> Checkout:
+def checkout(user, recipient) -> Checkout:
     checkout = Checkout.objects.create(
         checkout_token=f"{random_string(4)}-{random_numbers(6)}-{random_string(4)}",
-        user=customer_user,
+        user=user,
         recipient=recipient,
         status=CheckoutStatus.PENDING,
         active=True,
@@ -173,7 +173,7 @@ def checkout(customer_user, recipient) -> Checkout:
 
 
 @pytest.fixture
-def payment(customer_user) -> Payment:
+def payment(user) -> Payment:
     payment = Payment.objects.create(
         status=PaymentStatus.CONFIRMED,
         type="payment",
@@ -182,19 +182,19 @@ def payment(customer_user) -> Payment:
         amount=Money(10.0, "USD"),
         source={},
         metadata={},
-        user=customer_user,
+        user=user,
     )
 
     return payment
 
 
 @pytest.fixture
-def order(customer_user, payment, recipient, checkout):
+def order(user, payment, recipient, checkout):
     order = Order.objects.create(
         checkout=checkout,
         payment=payment,
         status=OrderStatus.PENDING,
-        user=customer_user,
+        user=user,
         recipient=recipient,
         amount=checkout.amount,
         fees=checkout.fees,
