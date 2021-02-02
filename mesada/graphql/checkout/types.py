@@ -5,10 +5,10 @@ from ..core.connection import CountableDjangoObjectType
 
 
 class Checkout(CountableDjangoObjectType):
-    amount = graphene.String()
-    fees = graphene.String()
-    total_amount = graphene.String()
-    recipient_amount = graphene.String()
+    amount = graphene.Decimal()
+    fees = graphene.Decimal()
+    total_amount = graphene.Decimal()
+    recipient_amount = graphene.Decimal()
 
     class Meta:
         description = "Represets a Checkout"
@@ -17,13 +17,13 @@ class Checkout(CountableDjangoObjectType):
         fields = "__all__"
 
     def resolve_amount(self, _info):
-        return str(self.amount)
+        return self.amount.amount
 
     def resolve_fees(self, _info):
-        return str(self.fees)
+        return self.fees.amount
 
     def resolve_total_amount(self, _info):
-        return str(self.total_amount)
+        return self.total_amount.amount
 
     def resolve_recipient_amount(self, _info):
-        return str(self.recipient_amount)
+        return self.recipient_amount.amount

@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from ..utils import get_graphql_content
+from ..utils import _get_graphql_content_from_response, get_graphql_content
 
 from mesada.checkout.utils import calculate_fees
 from mesada.payment import PaymentMethodTypes
@@ -171,7 +171,7 @@ def test_checkout_update_success1(
     assert data["checkout"] is not None
     assert data["checkout"]["checkoutToken"] == checkout.checkout_token
     assert data["checkout"]["recipient"]["firstName"] == "Alexander"
-    assert data["checkout"]["recipientAmount"] == "$45.50"
+    assert data["checkout"]["recipientAmount"] == "45.5000"
 
 
 def test_checkout_update_success2(
@@ -205,10 +205,10 @@ def test_checkout_update_success2(
     assert data["checkout"] is not None
     assert data["checkout"]["checkoutToken"] == checkout.checkout_token
     assert data["checkout"]["recipient"]["firstName"] == "Daniel"
-    assert data["checkout"]["recipientAmount"] == "$99.90"
+    assert data["checkout"]["recipientAmount"] == "99.9000"
 
 
-def test_query_checkout(checkout, user_api_client):
+def test_query_checkout_success(checkout, user_api_client):
     query = """
     query checkoutQuery {
         checkout {
@@ -230,3 +230,28 @@ def test_query_checkout(checkout, user_api_client):
     content = get_graphql_content(response)
     data = content["data"]["checkout"]
     assert data["id"]
+
+
+def test_query_checkout_failure(user_api_client):
+    query = """
+    query checkoutQuery {
+        checkout {
+            id
+            amount
+            fees
+            totalAmount
+            user {
+                id
+            }
+            recipient {
+                id
+            }
+        }
+    }
+    """
+    variables_values = {}
+    response = user_api_client.post_graphql(query, variables_values)
+    content = _get_graphql_content_from_response(response)
+    expected_message = "Internal Server Error:: Checkout matching query does not exist."
+    assert "errors" in content
+    assert content["errors"][0]["message"] == expected_message

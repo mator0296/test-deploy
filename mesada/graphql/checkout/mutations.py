@@ -91,17 +91,15 @@ class CheckoutUpdate(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, input):
-        new_values = dict(
-            (key, value) for key, value in input.items() if value is not None
-        )
+        new_values = {key: value for key, value in input.items() if value is not None}
         try:
-            if "recipient" in new_values.keys():
+            if "recipient" in new_values:
                 try:
                     new_recipient = Recipient.objects.get(pk=new_values["recipient"])
                 except Recipient.DoesNotExist:
                     raise ValidationError({"recipient": "Recipient not found."})
                 new_values["recipient"] = new_recipient
-            if "payment_method" in new_values.keys():
+            if "payment_method" in new_values:
                 try:
                     new_payment_method = PaymentMethods.objects.get(
                         pk=new_values["payment_method"]
@@ -111,7 +109,9 @@ class CheckoutUpdate(ModelMutation):
                         {"payment_method": "Payment Method not found."}
                     )
                 new_values["payment_method"] = new_payment_method
-            Checkout.objects.filter(user_id=info.context.user.id).update(**new_values)
+            Checkout.objects.filter(user_id=info.context.user.id, active=True).update(
+                **new_values
+            )
             checkout = Checkout.objects.get(user_id=info.context.user.id)
 
         except (Checkout.DoesNotExist, Checkout.MultipleObjectsReturned) as e:

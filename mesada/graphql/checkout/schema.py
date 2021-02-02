@@ -17,7 +17,7 @@ class CheckoutQueries(graphene.ObjectType):
             checkout = Checkout.objects.get(user_id=info.context.user.id)
 
         except Checkout.DoesNotExist as e:
-            raise GraphQLError(f"Internal Server Error:: {e.message}")
+            raise GraphQLError(f"Internal Server Error:: {e}")
 
         return checkout
 
