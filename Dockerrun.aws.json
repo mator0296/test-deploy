@@ -3,18 +3,9 @@
 
   "containerDefinitions": [
     {
-      "command": [
-        "python",
-        "-m",
-        "celery",
-        "-A",
-        "mesada",
-        "flower",
-        "-B",
-        "--loglevel=DEBUG"
-      ],
+      "command": ["--app mesada", "--broker=redis://redis"],
       "essential": false,
-      "image": "322086058235.dkr.ecr.us-east-1.amazonaws.com/graphql-server-django",
+      "image": "mher/flower",
       "links": ["redis", "celery"],
       "memory": 128,
       "name": "flower",
