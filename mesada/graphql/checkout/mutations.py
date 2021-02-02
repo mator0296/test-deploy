@@ -1,8 +1,9 @@
 import graphene
 from django.core.exceptions import ValidationError
+from djmoney.money import Money
 from graphql.error import GraphQLError
 
-from ...checkout.forms import CheckoutForm
+from ...account.models import Recipient
 from ...checkout.models import Checkout
 from ...core.utils import generate_idempotency_key
 from ...payment.models import PaymentMethods
@@ -11,6 +12,7 @@ from ..core.types import Error
 from .enums import CheckoutStatusEnum
 from .types import Checkout as CheckoutType
 
+from mesada.checkout import CheckoutStatus
 from mesada.checkout.utils import calculate_fees, galactus_call
 
 
@@ -19,8 +21,8 @@ class CheckoutCreateInput(graphene.InputObjectType):
     fees = graphene.String(description="Circle plus Mesada commission fees")
     total_amount = graphene.String(description="Payment amount minus fees")
     recipient_amount = graphene.String(description="Converted payment amount")
-    recipient = graphene.Int(description="ID of the payment's recipient")
-    payment_method = graphene.Int(description="ID of the corresponding PaymentMethod")
+    recipient = graphene.ID(description="ID of the payment's recipient")
+    payment_method = graphene.ID(description="ID of the corresponding PaymentMethod")
 
 
 class CheckoutUpdateInput(graphene.InputObjectType):
@@ -28,8 +30,8 @@ class CheckoutUpdateInput(graphene.InputObjectType):
     fees = graphene.String(description="Circle plus Mesada commission fees")
     total_amount = graphene.String(description="Payment amount minus fees")
     recipient_amount = graphene.String(description="Converted payment amount")
-    recipient = graphene.Int(description="ID of the payment's recipient")
-    payment_method = graphene.Int(description="ID of the corresponding PaymentMethod")
+    recipient = graphene.ID(description="ID of the payment's recipient")
+    payment_method = graphene.ID(description="ID of the corresponding PaymentMethod")
     status = graphene.Field(CheckoutStatusEnum)
     active = graphene.Boolean(description="Current status for the Checkout")
 
@@ -38,7 +40,7 @@ class CalculateOrderAmountInput(graphene.InputObjectType):
     initial_amount = graphene.String(
         description="Initial amount to process", required=True
     )
-    payment_method = graphene.Int(description="Payment method ID", required=True)
+    payment_method = graphene.ID(description="Payment method ID", required=True)
 
 
 class CheckoutCreate(ModelMutation):
@@ -58,15 +60,30 @@ class CheckoutCreate(ModelMutation):
 
         except Checkout.DoesNotExist:
             checkout_token = generate_idempotency_key()
+
+            try:
+                recipient = Recipient.objects.get(pk=input.get("recipient"))
+                payment_method = PaymentMethods.objects.get(
+                    pk=input.get("payment_method")
+                )
+            except Recipient.DoesNotExist:
+                raise ValidationError({"recipient": "Recipient not found."})
+            except PaymentMethods.DoesNotExist:
+                raise ValidationError({"payment_method": "Payment Method not found"})
+
             data = {
                 "checkout_token": checkout_token,
-                **input,
+                "amount": input.get("amount"),
+                "fees": input.get("fees"),
+                "total_amount": input.get("total_amount"),
+                "recipient_amount": input.get("recipient_amount"),
                 "user": info.context.user,
+                "recipient": recipient,
+                "payment_method": payment_method,
+                "status": CheckoutStatus.PENDING,
+                "active": True,
             }
-            checkout_form = CheckoutForm(data)
-            if not checkout_form.is_valid():
-                raise ValidationError(checkout_form.errors)
-            checkout_form.save()
+            checkout = Checkout.objects.create(**data)
 
         except Checkout.MultipleObjectsReturned as e:
             raise GraphQLError(f"Internal Server Error:: {e}")
@@ -86,12 +103,28 @@ class CheckoutUpdate(ModelMutation):
 
     @classmethod
     def perform_mutation(cls, _root, info, input):
+        new_values = dict(
+            (key, value) for key, value in input.items() if value is not None
+        )
         try:
+            if "recipient" in new_values.keys():
+                try:
+                    new_recipient = Recipient.objects.get(pk=new_values["recipient"])
+                except Recipient.DoesNotExist:
+                    raise ValidationError({"recipient": "Recipient not found."})
+                new_values["recipient"] = new_recipient
+            if "payment_method" in new_values.keys():
+                try:
+                    new_payment_method = PaymentMethods.objects.get(
+                        pk=new_values["payment_method"]
+                    )
+                except PaymentMethods.DoesNotExist:
+                    raise ValidationError(
+                        {"payment_method": "Payment Method not found."}
+                    )
+                new_values["payment_method"] = new_payment_method
+            Checkout.objects.filter(user_id=info.context.user.id).update(**new_values)
             checkout = Checkout.objects.get(user_id=info.context.user.id)
-            checkout_form = CheckoutForm(input, instance=checkout)
-            if not checkout_form.is_valid():
-                raise ValidationError(checkout_form.errors)
-            checkout_form.save()
 
         except (Checkout.DoesNotExist, Checkout.MultipleObjectsReturned) as e:
             raise GraphQLError(f"Internal Server Error:: {e}")
@@ -139,38 +172,38 @@ class CalculateOrderAmount(ModelMutation):
             try:
                 checkout = Checkout.objects.get(user_id=info.context.user.id)
                 converted_amount = galactus_call(
-                    amount_minus_fees, block_amount, checkout.checkout_token
+                    str(amount_minus_fees), block_amount, checkout.checkout_token
                 )
-                data = {
-                    "amount": initial_amount,
-                    "fees": circle_fee + mesada_fee,
-                    "total_amount": amount_minus_fees,
-                    "recipient_amount": converted_amount,
-                    "payment_method": payment_method,
-                }
-                checkout_form = CheckoutForm(data, instance=checkout)
-                if not checkout_form.is_valid():
-                    raise ValidationError(checkout_form.errors)
-                checkout = checkout_form.save()
+                checkout.amount = Money(initial_amount, "USD")
+                checkout.fees = Money(circle_fee + mesada_fee, "USD")
+                checkout.total_amount = Money(amount_minus_fees, "USD")
+                checkout.recipient_amount = Money(converted_amount, "USD")
+                checkout.payment_method = payment_method
+                checkout.save(
+                    update_fields=[
+                        "amount",
+                        "fees",
+                        "total_amount",
+                        "recipient_amount",
+                        "payment_method",
+                    ]
+                )
 
             except Checkout.DoesNotExist:
                 checkout_token = generate_idempotency_key()
                 converted_amount = galactus_call(
-                    amount_minus_fees, block_amount, checkout_token
+                    str(amount_minus_fees), block_amount, checkout_token
                 )
                 data = {
                     "checkout_token": checkout_token,
-                    "amount": initial_amount,
-                    "fees": circle_fee + mesada_fee,
-                    "total_amount": amount_minus_fees,
-                    "recipient_amount": converted_amount,
+                    "amount": Money(initial_amount, "USD"),
+                    "fees": Money(circle_fee + mesada_fee, "USD"),
+                    "total_amount": Money(amount_minus_fees, "USD"),
+                    "recipient_amount": Money(converted_amount, "USD"),
                     "user": info.context.user,
                     "payment_method": payment_method,
                 }
-                checkout_form = CheckoutForm(data)
-                if not checkout_form.is_valid():
-                    raise ValidationError(checkout_form.errors)
-                checkout = checkout_form.save()
+                checkout = Checkout.objects.create(**data)
 
             except Checkout.MultipleObjectsReturned as e:
                 raise GraphQLError(f"Internal Server Error:: {e}")
@@ -180,9 +213,9 @@ class CalculateOrderAmount(ModelMutation):
             converted_amount = galactus_call(amount_minus_fees, block_amount)
 
         return cls(
-            amount_to_convert=amount_minus_fees,
-            fees_amount=circle_fee,
-            mesada_fee_amount=mesada_fee,
+            amount_to_convert=str(amount_minus_fees),
+            fees_amount=str(circle_fee),
+            mesada_fee_amount=str(mesada_fee),
             total_amount=converted_amount,
             block_amount=block_amount,
             checkout=checkout,

@@ -1,7 +1,8 @@
-import json
 from unittest.mock import patch
 
 import pytest
+
+from ..utils import get_graphql_content
 
 from mesada.checkout.utils import calculate_fees
 from mesada.payment import PaymentMethodTypes
@@ -13,7 +14,7 @@ from mesada.payment import PaymentMethodTypes
 def test_calculate_order_amount_no_previous_checkout(
     mock_get_amount, mock_idempotency_key, payment_method_ach, user_api_client
 ):
-    mock_get_amount.return_value = {"amount": "123123.0", "blockAmount": True}
+    mock_get_amount.return_value = {"amount": "123.0", "blockAmount": True}
     mock_idempotency_key.return_value = "mocked_idempotency_key"
     query = """
     mutation calculateOrderAmount($input: CalculateOrderAmountInput!) {
@@ -39,9 +40,11 @@ def test_calculate_order_amount_no_previous_checkout(
         "blockAmount": True,
         "checkoutToken": "mocked_idempotency_key",
     }
-    content = json.loads(response.content)
-    assert "errors" not in content
     mock_get_amount.assert_called_once_with(galactus_body)
+    content = get_graphql_content(response)
+    data = content["data"]["calculateOrderAmount"]
+    assert data["amountToConvert"] is not None
+    assert data["checkout"] is not None
 
 
 @pytest.mark.integration
@@ -62,6 +65,8 @@ def test_calculate_order_amount_with_previous_checkout(
             blockAmount
             checkout {
                 id
+                checkoutToken
+                totalAmount
             }
         }
     }
@@ -76,74 +81,80 @@ def test_calculate_order_amount_with_previous_checkout(
         "blockAmount": True,
         "checkoutToken": checkout.checkout_token,
     }
-    content = json.loads(response.content)
-    assert "errors" not in content
     mock_get_amount.assert_called_once_with(galactus_body)
+    content = get_graphql_content(response)
+    data = content["data"]["calculateOrderAmount"]
+    assert data["amountToConvert"] is not None
+    assert data["checkout"] is not None
+    assert data["checkout"]["checkoutToken"] == checkout.checkout_token
 
 
 def test_checkout_create_success(recipient, payment_method_ach, user_api_client):
     query = """
-        mutation checkoutCreate($input: CheckoutCreateInput!) {
-            checkoutCreate(input: $input) {
-                checkout {
+    mutation checkoutCreate($input: CheckoutCreateInput!) {
+        checkoutCreate(input: $input) {
+            checkout {
+                id
+                checkoutToken
+                amount
+                fees
+                totalAmount
+                recipientAmount
+                user {
                     id
-                    checkoutToken
-                    amount
-                    fees
-                    totalAmount
-                    recipientAmount
-                    user {
-                        id
-                    }
-                    recipient {
-                        id
-                    }
-                    paymentMethod {
-                        id
-                    }
-                    status
-                    active
                 }
+                recipient {
+                    id
+                }
+                paymentMethod {
+                    id
+                }
+                status
+                active
             }
         }
+    }
     """
     variables_values = {
         "input": {
-            "amount": "1000.0",
-            "fees": "1.50",
-            "totalAmount": "1001.5",
-            "recipientAmount": "50.25",
+            "amount": "200.0",
+            "fees": "1.25",
+            "totalAmount": "201.25",
+            "recipientAmount": "55.5",
             "recipient": recipient.pk,
             "paymentMethod": payment_method_ach.pk,
         }
     }
     response = user_api_client.post_graphql(query, variables_values)
-    content = json.loads(response.content)
-    assert "errors" not in content
+    content = get_graphql_content(response)
+    data = content["data"]["checkoutCreate"]
+    assert data["checkout"] is not None
+    assert data["checkout"]["checkoutToken"] is not None
 
 
 def test_checkout_update_success(
     recipient, payment_method_ach, checkout, user_api_client
 ):
     query = """
-        mutation checkoutUpdate($input: CheckoutUpdateInput!) {
-            checkoutUpdate(input: $input) {
-                checkout {
+    mutation checkoutUpdate($input: CheckoutUpdateInput!) {
+        checkoutUpdate(input: $input) {
+            checkout {
+                id
+                checkoutToken
+                amount
+                fees
+                totalAmount
+                recipientAmount
+                user {
                     id
-                    checkoutToken
-                    amount
-                    fees
-                    totalAmount
-                    recipientAmount
-                    user {
-                        id
-                    }
-                    recipient {
-                        id
-                    }
+                }
+                recipient {
+                    id
+                    firstName
                 }
             }
         }
+    }
     """
     variables_values = {
         "input": {
@@ -155,5 +166,32 @@ def test_checkout_update_success(
         }
     }
     response = user_api_client.post_graphql(query, variables_values)
-    content = json.loads(response.content)
-    assert "errors" not in content
+    content = get_graphql_content(response)
+    data = content["data"]["checkoutUpdate"]
+    assert data["checkout"] is not None
+    assert data["checkout"]["checkoutToken"] == checkout.checkout_token
+    assert data["checkout"]["recipient"]["firstName"] == "Alexander"
+
+
+def test_query_checkout(checkout, user_api_client):
+    query = """
+    query checkoutQuery {
+        checkout {
+            id
+            amount
+            fees
+            totalAmount
+            user {
+                id
+            }
+            recipient {
+                id
+            }
+        }
+    }
+    """
+    variables_values = {}
+    response = user_api_client.post_graphql(query, variables_values)
+    content = get_graphql_content(response)
+    data = content["data"]["checkout"]
+    assert data["id"]

@@ -3,6 +3,7 @@ import string
 
 import pytest
 from django.contrib.auth.models import Permission  # noqa: E402
+from djmoney.money import Money
 
 from mesada.account.models import Recipient, User  # noqa: E402
 from mesada.checkout.models import Checkout  # noqa: E402
@@ -82,10 +83,10 @@ def checkout(user):
         user=user,
     )
     return Checkout.objects.create(
-        amount="220.0",
-        fees="1.25",
-        total_amount="221.25",
-        recipient_amount="45.50",
+        amount=Money(220.0000, "USD"),
+        fees=Money(1.2500, "USD"),
+        total_amount=Money(221.2500, "USD"),
+        recipient_amount=Money(45.5000, "USD"),
         recipient=checkout_recipient,
         payment_method=checkout_payment_method,
         user=user,
