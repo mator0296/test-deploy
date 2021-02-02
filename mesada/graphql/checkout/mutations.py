@@ -156,7 +156,40 @@ class CalculateOrderAmount(ModelMutation):
         if info.context.user.is_authenticated:
             # Check if a checkout already exists for this user.
             block_amount = True
+            try:
+                checkout, created = Checkout.objects.get_or_create(
+                    user_id=info.context.user.id,
+                    active=True,
+                    defaults={
+                        "checkout_token": generate_idempotency_key(),
+                        "amount": Money(0.0, "USD"),
+                        "fees": Money(0.0, "USD"),
+                        "total_amount": Money(0.0, "USD"),
+                        "recipient_amount": Money(0.0, "MXN"),
+                    },
+                )
+            except Checkout.MultipleObjectsReturned as e:
+                raise GraphQLError(f"Internal Server Error:: {e}")
 
+            converted_amount = galactus_call(
+                str(amount_minus_fees), block_amount, checkout.checkout_token
+            )
+
+            checkout.amount = Money(initial_amount, "USD")
+            checkout.fees = Money(circle_fee + mesada_fee, "USD")
+            checkout.total_amount = Money(amount_minus_fees, "USD")
+            checkout.recipient_amount = Money(converted_amount, "MXN")
+            checkout.payment_method = payment_method
+            checkout.save(
+                update_fields=[
+                    "amount",
+                    "fees",
+                    "total_amount",
+                    "recipient_amount",
+                    "payment_method",
+                ]
+            )
+            """
             try:
                 checkout = Checkout.objects.get(user_id=info.context.user.id)
                 converted_amount = galactus_call(
@@ -192,9 +225,7 @@ class CalculateOrderAmount(ModelMutation):
                     "payment_method": payment_method,
                 }
                 checkout = Checkout.objects.create(**data)
-
-            except Checkout.MultipleObjectsReturned as e:
-                raise GraphQLError(f"Internal Server Error:: {e}")
+            """
         else:
             block_amount = False
             checkout = None
