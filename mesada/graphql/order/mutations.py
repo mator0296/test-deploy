@@ -69,8 +69,6 @@ class CreateOrder(BaseMutation):
                 "error_code": response.pop("errorCode", None),
                 "risk_evaluation": response.pop("riskEvaluation", None),
                 "user": info.context.user,
-                "create_date": response.pop("createDate"),
-                "update_date": response.pop("updateDate"),
                 "payment_token": response.pop("id"),
                 **response,
             }
