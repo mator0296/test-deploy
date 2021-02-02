@@ -6,7 +6,7 @@ https://plaid.com/docs/api/
 """
 
 from django.conf import settings
-from plaid import Client as ClientPlaid
+from plaid.client import Client as ClientPlaid
 from plaid.errors import PlaidError
 
 client = ClientPlaid(
