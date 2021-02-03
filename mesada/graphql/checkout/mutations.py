@@ -7,11 +7,11 @@ from ...account.models import Recipient
 from ...checkout.models import Checkout
 from ...core.utils import generate_idempotency_key
 from ...payment.models import PaymentMethods
+from ..core.auth import login_required
 from ..core.mutations import ModelMutation
 from ..core.types import Error
 from .types import Checkout as CheckoutType
 
-from mesada.checkout import CheckoutStatus
 from mesada.checkout.utils import calculate_fees, galactus_call
 
 
@@ -34,47 +34,20 @@ class CalculateOrderAmountInput(graphene.InputObjectType):
 class CheckoutCreate(ModelMutation):
     checkout = graphene.Field(CheckoutType)
 
-    class Arguments:
-        input = CheckoutInput(required=True)
-
     class Meta:
         description = "Create a new Checkout"
         model = Checkout
 
     @classmethod
-    def perform_mutation(cls, _root, info, input):
-        try:
-            checkout = Checkout.objects.get(user_id=info.context.user.id)
-
-        except Checkout.DoesNotExist:
-            checkout_token = generate_idempotency_key()
-
-            try:
-                recipient = Recipient.objects.get(pk=input.get("recipient"))
-                payment_method = PaymentMethods.objects.get(
-                    pk=input.get("payment_method")
-                )
-            except Recipient.DoesNotExist:
-                raise ValidationError({"recipient": "Recipient not found."})
-            except PaymentMethods.DoesNotExist:
-                raise ValidationError({"payment_method": "Payment Method not found"})
-
-            data = {
-                "checkout_token": checkout_token,
-                "amount": input.get("amount"),
-                "fees": input.get("fees"),
-                "total_amount": input.get("total_amount"),
-                "recipient_amount": input.get("recipient_amount"),
+    @login_required
+    def perform_mutation(cls, _root, info):
+        checkout, created = Checkout.objects.get_or_create(
+            user_id=info.context.user.id,
+            defaults={
+                "checkout_token": generate_idempotency_key(),
                 "user": info.context.user,
-                "recipient": recipient,
-                "payment_method": payment_method,
-                "status": CheckoutStatus.PENDING,
-                "active": True,
-            }
-            checkout = Checkout.objects.create(**data)
-
-        except Checkout.MultipleObjectsReturned as e:
-            raise GraphQLError(f"Internal Server Error:: {e}")
+            },
+        )
 
         return cls(checkout=checkout)
 
