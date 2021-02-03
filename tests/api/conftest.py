@@ -141,41 +141,8 @@ def http_exception(code: int, message: str) -> mock.Mock:
 
 
 @pytest.fixture
-def recipient(user) -> Recipient:
-    recipient = Recipient.objects.create(
-        first_name="Test",
-        last_name="Recipient",
-        user=user,
-        email=random_string(6) + "@mail.com",
-        alias="Recipient alias",
-        clabe=random_numbers(18),
-        bank="Bancomer",
-    )
-
-    return recipient
-
-
-@pytest.fixture
 def payment_method() -> PaymentMethods:
     return PaymentMethods.objects.create()
-
-
-@pytest.fixture
-def checkout(user, recipient, payment_method) -> Checkout:
-    checkout = Checkout.objects.create(
-        checkout_token=f"{random_string(4)}-{random_numbers(6)}-{random_string(4)}",
-        user=user,
-        recipient=recipient,
-        status=CheckoutStatus.PENDING,
-        active=True,
-        amount=Money(10.0, "USD"),
-        total_amount=Money(10.0, "USD"),
-        fees=Money(2.0, "USD"),
-        recipient_amount=Money(200.0, "MXN"),
-        payment_method=payment_method,
-    )
-
-    return checkout
 
 
 @pytest.fixture
