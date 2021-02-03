@@ -52,4 +52,5 @@ def galactus_call(amount_to_convert, block_amount, checkout_token=None):
     # TODO: Call Galactus
     # galactus_response = get_amount(body)
     # return galactus_response["amount"]
+    get_amount(body)
     return amount_to_convert * 19.3
