@@ -10,6 +10,7 @@ from ...payment.models import (
     VerificationAvsEnum,
     VerificationCvvEnum,
 )
+from ..core.auth import login_required
 from ..core.mutations import BaseMutation, ModelMutation
 from ..core.types import Error
 from .types import BillingDetailsInput
@@ -48,6 +49,7 @@ class CreateCard(ModelMutation):
         input = CardInput(description="Card input", required=True)
 
     @classmethod
+    @login_required
     def perform_mutation(cls, _root, info, **data):
         """Perform the card creation and insert the model into  the DB.
 
@@ -121,6 +123,7 @@ class CreateLinkToken(BaseMutation):
         description = "Request a link token."
 
     @classmethod
+    @login_required
     def perform_mutation(cls, _root, info, **data):
         response = create_link_token(info.context.user)
 
@@ -144,6 +147,7 @@ class CreatePublicKey(BaseMutation):
         description = "Request for a public encryption key from the Circle API."
 
     @classmethod
+    @login_required
     def perform_mutation(cls, _root, info, **data):
         key_id, public_key = request_encryption_key()
         return cls(key_id=key_id, public_key=public_key)
@@ -173,6 +177,7 @@ class RegisterAchPayment(ModelMutation):
         model = PaymentMethods
 
     @classmethod
+    @login_required
     def perform_mutation(cls, _root, info, input):
         public_token = input.get("public_token")
         account_id = input.get("accounts")[0]["account_id"]
@@ -234,6 +239,7 @@ class CreatePayment(ModelMutation):
         model = Payment
 
     @classmethod
+    @login_required
     def perform_mutation(
         cls, _root, info, amount, currency, description, payment_method, type
     ):
