@@ -1,6 +1,7 @@
 import graphene
 
 from .account.schema import AccountMutations, AccountQueries
+from .checkout.schema import CheckoutMutations, CheckoutQueries
 from .core.schema import CoreMutations, CoreQueries
 from .payment.schema import (
     PaymentMethodsMutations,
@@ -9,12 +10,16 @@ from .payment.schema import (
 )
 
 
-class Queries(AccountQueries, PaymentMethodsQueries, CoreQueries):
+class Queries(AccountQueries, PaymentMethodsQueries, CoreQueries, CheckoutQueries):
     node = graphene.Node.Field()
 
 
 class Mutations(
-    AccountMutations, CoreMutations, PaymentMutations, PaymentMethodsMutations
+    AccountMutations,
+    CoreMutations,
+    PaymentMutations,
+    PaymentMethodsMutations,
+    CheckoutMutations,
 ):
     pass
 

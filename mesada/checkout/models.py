@@ -9,12 +9,18 @@ from . import CheckoutStatus
 
 
 class Checkout(models.Model):
-    checkout_token = models.CharField(max_length=256, blank=True)
-    amount = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
-    fees = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
-    total_amount = MoneyField(max_digits=19, decimal_places=4, default_currency="USD")
+    checkout_token = models.CharField(max_length=256, blank=True, editable=False)
+    amount = MoneyField(
+        max_digits=19, decimal_places=4, default_currency="USD", null=True
+    )
+    fees = MoneyField(
+        max_digits=19, decimal_places=4, default_currency="USD", null=True
+    )
+    total_amount = MoneyField(
+        max_digits=19, decimal_places=4, default_currency="USD", null=True
+    )
     recipient_amount = MoneyField(
-        max_digits=19, decimal_places=4, default_currency="USD"
+        max_digits=19, decimal_places=4, default_currency="MXN", null=True
     )
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="checkout", null=True, blank=True
@@ -29,6 +35,9 @@ class Checkout(models.Model):
         null=True,
     )
     status = models.CharField(
-        max_length=50, choices=CheckoutStatus.choices, default=CheckoutStatus.PENDING
+        max_length=50,
+        choices=CheckoutStatus.choices,
+        default=CheckoutStatus.PENDING,
+        null=True,
     )
-    active = models.BooleanField(default=False)
+    active = models.BooleanField(default=True, null=True)
