@@ -49,5 +49,7 @@ def galactus_call(amount_to_convert, block_amount, checkout_token=None):
     if checkout_token is not None:
         body["checkoutToken"] = checkout_token
 
-    galactus_response = get_amount(body)
-    return galactus_response["amount"]
+    # TODO: Call Galactus
+    # galactus_response = get_amount(body)
+    # return galactus_response["amount"]
+    return amount_to_convert * 19.3
