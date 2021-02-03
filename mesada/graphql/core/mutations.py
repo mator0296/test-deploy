@@ -499,7 +499,7 @@ class ModelBulkDeleteMutation(BaseBulkMutation):
         queryset.delete()
 
 
-class CreateToken(ObtainJSONWebToken):
+class Login(ObtainJSONWebToken):
     """Mutation that authenticates a user and returns token and user data.
 
     It overrides the default graphql_jwt.ObtainJSONWebToken to wrap potential
@@ -518,7 +518,7 @@ class CreateToken(ObtainJSONWebToken):
             message = pgettext_lazy(
                 "CreateToken Error", "Please, enter valid credentials"
             )
-            return CreateToken(errors=[Error(message=message)], token="")
+            return Login(errors=[Error(message=message)], token="")
         else:
             return result
 

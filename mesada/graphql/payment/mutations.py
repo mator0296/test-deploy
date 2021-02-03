@@ -184,6 +184,8 @@ class RegisterAchPayment(ModelMutation):
 
         try:
             circle_response = register_ach(processor_token, billing_details)
+            last_digits = circle_response.get("accountNumber", "0001")[-4:]
+            # TODO: Delete default
             payment_method = PaymentMethods.objects.create(
                 type=PaymentMethodTypes.ACH,
                 payment_method_token=circle_response.get("id"),
@@ -196,7 +198,7 @@ class RegisterAchPayment(ModelMutation):
                 city=billing_details.get("city"),
                 district=billing_details.get("district"),
                 country_code=billing_details.get("country"),
-                last_digits=circle_response.get("accountNumber")[-4:],
+                last_digits=last_digits,
             )
         except HTTPError as e:
             raise GraphQLError(f"Internal Server Error: {e.message}")

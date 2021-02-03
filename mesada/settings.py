@@ -233,3 +233,6 @@ SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 
 DEFAULT_FROM_EMAIL = "info@mesada.io"
 DEFAULT_NAME_EMAIL = "Equipo Mesada"
+
+# Enable o Disable email
+EMAIL_ENGINE_ON = os.getenv("EMAIL_ENGINE_ON")
