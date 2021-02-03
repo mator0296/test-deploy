@@ -184,9 +184,8 @@ class RegisterAchPayment(ModelMutation):
 
         try:
             circle_response = register_ach(processor_token, billing_details)
-            last_digits = (
-                circle_response.get("accountNumber", "0001")[-4:],
-            )  # TODO: Delete default
+            last_digits = circle_response.get("accountNumber", "0001")[-4:]
+            # TODO: Delete default
             payment_method = PaymentMethods.objects.create(
                 type=PaymentMethodTypes.ACH,
                 payment_method_token=circle_response.get("id"),
