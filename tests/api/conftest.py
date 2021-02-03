@@ -11,12 +11,10 @@ from djmoney.money import Money
 from graphql_jwt.shortcuts import get_token
 from requests.exceptions import HTTPError
 
-from ..conftest import random_numbers, random_string
+from ..conftest import random_numbers
 from ..utils import assert_no_permission
 
-from mesada.account.models import Recipient, User
-from mesada.checkout import CheckoutStatus
-from mesada.checkout.models import Checkout
+from mesada.account.models import User
 from mesada.order import OrderStatus
 from mesada.order.models import Order
 from mesada.payment import PaymentStatus
