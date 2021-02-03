@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 import pytest
 from bitso.errors import ApiError
+from graphql import GraphQLError
 
 from mesada.withdrawal.bitso import make_bitso_spei_withdrawal
 
@@ -21,7 +22,5 @@ def test_bitso_spei_withdrawal_success(mock_api):
 def test_bitso_spei_withdrawal_failure(mock_api):
 
     mock_api.Api.side_effect = ApiError("Test")
-    withdrawal = make_bitso_spei_withdrawal(
-        "012345678901234567", "Satoshi", "Nakamoto", "1.0"
-    )
-    assert withdrawal is None
+    with pytest.raises(GraphQLError):
+        make_bitso_spei_withdrawal("012345678901234567", "Satoshi", "Nakamoto", "1.0")

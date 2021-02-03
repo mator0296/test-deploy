@@ -7,12 +7,18 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
 from django.test.client import MULTIPART_CONTENT, Client
+from djmoney.money import Money
 from graphql_jwt.shortcuts import get_token
 from requests.exceptions import HTTPError
 
+from ..conftest import random_numbers
 from ..utils import assert_no_permission
 
 from mesada.account.models import User
+from mesada.order import OrderStatus
+from mesada.order.models import Order
+from mesada.payment import PaymentStatus
+from mesada.payment.models import Payment, PaymentMethods
 
 API_PATH = reverse("api")
 
@@ -51,7 +57,7 @@ class ApiClient(Client):
         variables=None,
         permissions=None,
         check_no_permissions=True,
-        **kwargs
+        **kwargs,
     ):
         """Dedicated helper for posting GraphQL queries.
 
@@ -130,3 +136,41 @@ def http_exception(code: int, message: str) -> mock.Mock:
     mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
 
     return mock_response
+
+
+@pytest.fixture
+def payment_method() -> PaymentMethods:
+    return PaymentMethods.objects.create()
+
+
+@pytest.fixture
+def payment(user) -> Payment:
+    payment = Payment.objects.create(
+        status=PaymentStatus.CONFIRMED,
+        type="payment",
+        merchant_id=random_numbers(6),
+        merchant_wallet_id=random_numbers(12),
+        amount=Money(10.0, "USD"),
+        source={},
+        metadata={},
+        user=user,
+    )
+
+    return payment
+
+
+@pytest.fixture
+def order(user, payment, recipient, checkout):
+    order = Order.objects.create(
+        checkout=checkout,
+        payment=payment,
+        status=OrderStatus.PENDING,
+        user=user,
+        recipient=recipient,
+        amount=checkout.amount,
+        fees=checkout.fees,
+        total_amount=checkout.total_amount,
+        recipient_amount=checkout.recipient_amount,
+    )
+
+    return order

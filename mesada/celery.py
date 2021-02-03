@@ -17,6 +17,11 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
     # tasks imports
+    from mesada.order.tasks import (
+        update_galactus_transaction_status,
+        update_pending_order_status,
+        update_processing_order_status,
+    )
     from mesada.payment.tasks import (
         check_ach_status,
         check_payment_paid_status,
@@ -43,4 +48,19 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(hour=7, minute=0),
         check_payment_paid_status.s(),
         name="check the status every day",
+    )
+    sender.add_periodic_task(
+        settings.CELERY_UPDATE_PENDING_ORDER_STATUS,
+        update_pending_order_status.s(),
+        name="Update the status of a PENDING order every minute",
+    )
+    sender.add_periodic_task(
+        settings.CELERY_UPDATE_PROCESSING_ORDER_STATUS,
+        update_processing_order_status.s(),
+        name="Update the status of a PROCESSING order every minute",
+    )
+    sender.add_periodic_task(
+        settings.CELERY_UPDATE_GALACTUS_TRANSACTION_STATUS,
+        update_galactus_transaction_status.s(),
+        name="Update GalactusTransacions status",
     )
