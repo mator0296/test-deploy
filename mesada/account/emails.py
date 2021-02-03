@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from ..celery import app
@@ -18,5 +19,6 @@ def collect_data_for_email(recipient, user_id):
 
 @app.task
 def send_new_customer_email(recipient, user_id):
-    ctx = collect_data_for_email(recipient, user_id)
-    send_sendgrid_email(SendgridTemplatesIDs.NEW_CUSTOMER_TEMPLATE, ctx)
+    if settings.EMAIL_ENGINE_ON:
+        ctx = collect_data_for_email(recipient, user_id)
+        send_sendgrid_email(SendgridTemplatesIDs.NEW_CUSTOMER_TEMPLATE, ctx)
