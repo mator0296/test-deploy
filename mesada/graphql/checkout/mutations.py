@@ -66,6 +66,7 @@ class CheckoutUpdate(ModelMutation):
         model = Checkout
 
     @classmethod
+    @login_required
     def perform_mutation(cls, _root, info, input):
         new_values = {key: value for key, value in input.items() if value is not None}
         checkout_qs = Checkout.objects.filter(user_id=info.context.user.id, active=True)
