@@ -157,9 +157,7 @@ def recipient(user) -> Recipient:
 
 @pytest.fixture
 def payment_method() -> PaymentMethods:
-    payment_method = PaymentMethods.objects.create()
-
-    return payment_method
+    return PaymentMethods.objects.create()
 
 
 @pytest.fixture
