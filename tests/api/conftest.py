@@ -20,7 +20,7 @@ from mesada.checkout.models import Checkout
 from mesada.order import OrderStatus
 from mesada.order.models import Order
 from mesada.payment import PaymentStatus
-from mesada.payment.models import Payment
+from mesada.payment.models import Payment, PaymentMethods
 
 API_PATH = reverse("api")
 
@@ -156,7 +156,14 @@ def recipient(user) -> Recipient:
 
 
 @pytest.fixture
-def checkout(user, recipient) -> Checkout:
+def payment_method() -> PaymentMethods:
+    payment_method = PaymentMethods.objects.create()
+
+    return payment_method
+
+
+@pytest.fixture
+def checkout(user, recipient, payment_method) -> Checkout:
     checkout = Checkout.objects.create(
         checkout_token=f"{random_string(4)}-{random_numbers(6)}-{random_string(4)}",
         user=user,
@@ -167,6 +174,7 @@ def checkout(user, recipient) -> Checkout:
         total_amount=Money(10.0, "USD"),
         fees=Money(2.0, "USD"),
         recipient_amount=Money(200.0, "MXN"),
+        payment_method=payment_method,
     )
 
     return checkout

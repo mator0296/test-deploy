@@ -1,4 +1,5 @@
 import graphene
+from django.core.exceptions import ValidationError
 from djmoney.money import Money
 from graphql import GraphQLError
 
@@ -23,7 +24,9 @@ class CreateOrder(BaseMutation):
         description = "Creates a new order."
 
     @classmethod
-    def create_order_payment(cls, checkout, hashed_session_id, ip_address):
+    def create_order_payment(
+        cls, checkout: Checkout, hashed_session_id: str, ip_address: str
+    ):
 
         body = {
             "idempotencyKey": generate_idempotency_key(),
@@ -48,7 +51,18 @@ class CreateOrder(BaseMutation):
         return response
 
     @classmethod
-    def perform_mutation(cls, _root, info, **data):
+    def validate_checkout(cls, checkout: Checkout):
+        is_checkout_valid = (
+            checkout.amount and checkout.recipient and checkout.payment_method
+        )
+
+        if not is_checkout_valid:
+            raise ValidationError(
+                "User's current checkout does not have valid amount, recipient or payment method"  # noqa: E501
+            )
+
+    @classmethod
+    def perform_mutation(cls, _root, info):
         user = info.context.user.id
 
         try:
@@ -59,8 +73,11 @@ class CreateOrder(BaseMutation):
             ip_address = info.context.META.get("REMOTE_ADDR")
             hashed_session_id = hash_session_id(info.context.session.session_key)
 
+            cls.validate_checkout(checkout)
             response = cls.create_order_payment(checkout, hashed_session_id, ip_address)
             amount = response.pop("amount")
+            response.pop("createDate", None)
+            response.pop("updateDate", None)
             data = {
                 "merchant_id": response.pop("merchantId"),
                 "merchant_wallet_id": response.pop("merchantWalletId"),
