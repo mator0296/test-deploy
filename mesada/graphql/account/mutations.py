@@ -29,14 +29,15 @@ ADDRESS_FIELD = "default_address"
 
 
 def send_user_password_reset_email(user, site):
-    context = {  # noqa: F841
-        "email": user.email,
-        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-        "token": default_token_generator.make_token(user),
-        "site_name": site.name,
-        "domain": site.domain,
-        "protocol": "https" if settings.ENABLE_SSL else "http",
-    }
+    if settings.EMAIL_ENGINE_ON:
+        context = {  # noqa: F841
+            "email": user.email,
+            "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+            "token": default_token_generator.make_token(user),
+            "site_name": site.name,
+            "domain": site.domain,
+            "protocol": "https" if settings.ENABLE_SSL else "http",
+        }
 
 
 def can_edit_address(user, address, check_user_permission=True):
@@ -112,7 +113,8 @@ class CustomerRegister(ModelMutation):
         password = cleaned_input["password"]
         user.set_password(password)
         user.save()
-        emails.send_new_customer_email.delay(user.email, user.pk)
+        if settings.EMAIL_ENGINE_ON:
+            emails.send_new_customer_email.delay(user.email, user.pk)
         account_events.customer_account_created_event(user=user)
         return user
 
@@ -387,7 +389,8 @@ class PasswordReset(BaseMutation):
         except ObjectDoesNotExist:
             raise ValidationError({"email": "User with this email doesn't exist"})
         site = info.context.site
-        send_user_password_reset_email(user, site)
+        if settings.EMAIL_ENGINE_ON:
+            send_user_password_reset_email(user, site)
         return PasswordReset()
 
 
@@ -465,7 +468,8 @@ class CustomerPasswordReset(BaseMutation):
         except ObjectDoesNotExist:
             raise ValidationError({"email": "User with this email doesn't exist"})
         site = info.context.site
-        send_user_password_reset_email(user, site)
+        if settings.EMAIL_ENGINE_ON:
+            send_user_password_reset_email(user, site)
         return CustomerPasswordReset()
 
 

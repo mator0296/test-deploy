@@ -63,21 +63,21 @@ class SendGrid:
         message = Mail()
         message.to = To(to)
         message.subject = subject
+        if settings.EMAIL_ENGINE_ON:
+            if from_email:
+                message.from_email = from_email
+            else:
+                message.from_email = From(
+                    email=settings.DEFAULT_FROM_EMAIL, name=settings.DEFAULT_NAME_EMAIL
+                )
 
-        if from_email:
-            message.from_email = from_email
-        else:
-            message.from_email = From(
-                email=settings.DEFAULT_FROM_EMAIL, name=settings.DEFAULT_NAME_EMAIL
-            )
+            if text:
+                message.content = Content("text/plain", text)
 
-        if text:
-            message.content = Content("text/plain", text)
+            if attachment:
+                message.attachment = attachment
 
-        if attachment:
-            message.attachment = attachment
-
-        return cls._get_client().send(message)
+            return cls._get_client().send(message)
 
 
 class SendgridTemplatesManager(models.Manager):
@@ -109,17 +109,18 @@ class SendgridTemplates(models.Model):
         recipient_list = kwargs.get("recipient_list")
         sg = self._client()
         message = Mail()
-        message.from_email = From(
-            email=settings.DEFAULT_FROM_EMAIL, name=settings.DEFAULT_NAME_EMAIL
-        )
-        message.to = To(recipient_list)
-        message.template_id = TemplateId(self.template_id)
-        message.dynamic_template_data = DynamicTemplateData(kwargs)
-        try:
-            response = sg.send(message)
-            return True, response.status_code
-        except Exception as e:
-            return False, e
+        if settings.EMAIL_ENGINE_ON:
+            message.from_email = From(
+                email=settings.DEFAULT_FROM_EMAIL, name=settings.DEFAULT_NAME_EMAIL
+            )
+            message.to = To(recipient_list)
+            message.template_id = TemplateId(self.template_id)
+            message.dynamic_template_data = DynamicTemplateData(kwargs)
+            try:
+                response = sg.send(message)
+                return True, response.status_code
+            except Exception as e:
+                return False, e
 
 
 class SendEmailSendgridEvent(models.Model):

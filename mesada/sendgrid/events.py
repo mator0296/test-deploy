@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from .models import SendEmailSendgridEvent
 
 EVENT_NO_RECIPIENT = "No found recipient"
@@ -15,6 +17,7 @@ def send_sendgrid_email_event(success, template_id, event=EVENT_NO_TEMPLATE):
     if success:
         event = EVENT_SEND_GOOD
 
-    SendEmailSendgridEvent.objects.create(
-        success=success, causes=event, template_id=template_id
-    )
+    if settings.EMAIL_ENGINE_ON:
+        SendEmailSendgridEvent.objects.create(
+            success=success, causes=event, template_id=template_id
+        )
