@@ -1,16 +1,20 @@
+from django.db import transaction
+
 from ..celery import app
 from . import PaymentMethodStatus, PaymentMethodTypes, PaymentStatus
 from .circle import get_ach_status, get_payment_status
 from .models import Payment as PaymentModel
 from .models import PaymentMethods as PaymentMethodsModel
-from django.db import transaction
+
 
 @app.task
 def check_payment_status():
     """
     Get all pending payments, and update their state according to Circle
     """
-    pending_payments = PaymentModel.objects.select_for_update().filter(status=PaymentStatus.PENDING)
+    pending_payments = PaymentModel.objects.select_for_update().filter(
+        status=PaymentStatus.PENDING
+    )
 
     with transaction.atomic():
         for payment in pending_payments:
@@ -40,8 +44,10 @@ def check_ach_status():
 
 @app.task
 def check_payment_paid_status():
-    payments = PaymentModel.objects.select_for_update().filter(status=PaymentStatus.CONFIRMED)
-    
+    payments = PaymentModel.objects.select_for_update().filter(
+        status=PaymentStatus.CONFIRMED
+    )
+
     with transaction.atomic():
         for payment in payments:
             status = get_payment_status(payment.payment_token)

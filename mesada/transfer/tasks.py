@@ -1,15 +1,17 @@
+from django.db import transaction
+
 from ..celery import app
 from .enums import TransferStatus
 from .models import CircleTransfer
-from django.db import transaction
 
 from mesada.payment.circle import get_circle_transfer_status
-from django.db import transaction
 
 
 @app.task
 def check_transfer_status():
-    transfers = CircleTransfer.objects.select_for_update().filter(status=TransferStatus.PENDING)
+    transfers = CircleTransfer.objects.select_for_update().filter(
+        status=TransferStatus.PENDING
+    )
 
     with transaction.atomic():
         for transfer in transfers:
