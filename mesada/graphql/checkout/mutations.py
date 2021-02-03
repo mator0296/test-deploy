@@ -120,10 +120,10 @@ class CheckoutUpdate(ModelMutation):
 
 
 class CalculateOrderAmount(ModelMutation):
-    amount_to_convert = graphene.String(description="Payment amount to convert")
-    fees_amount = graphene.String(description="Circle transaction fee")
-    mesada_fee_amount = graphene.String(description="Mesada transaction fee")
-    total_amount = graphene.String(description="Total amount after conversion")
+    amount_to_convert = graphene.Decimal(description="Payment amount to convert")
+    fees_amount = graphene.Decimal(description="Circle transaction fee")
+    mesada_fee_amount = graphene.Decimal(description="Mesada transaction fee")
+    total_amount = graphene.Decimal(description="Total amount after conversion")
     block_amount = graphene.Boolean(
         description="Denotes if the amount has been blocked"
     )
@@ -189,43 +189,6 @@ class CalculateOrderAmount(ModelMutation):
                     "payment_method",
                 ]
             )
-            """
-            try:
-                checkout = Checkout.objects.get(user_id=info.context.user.id)
-                converted_amount = galactus_call(
-                    str(amount_minus_fees), block_amount, checkout.checkout_token
-                )
-                checkout.amount = Money(initial_amount, "USD")
-                checkout.fees = Money(circle_fee + mesada_fee, "USD")
-                checkout.total_amount = Money(amount_minus_fees, "USD")
-                checkout.recipient_amount = Money(converted_amount, "MXN")
-                checkout.payment_method = payment_method
-                checkout.save(
-                    update_fields=[
-                        "amount",
-                        "fees",
-                        "total_amount",
-                        "recipient_amount",
-                        "payment_method",
-                    ]
-                )
-
-            except Checkout.DoesNotExist:
-                checkout_token = generate_idempotency_key()
-                converted_amount = galactus_call(
-                    str(amount_minus_fees), block_amount, checkout_token
-                )
-                data = {
-                    "checkout_token": checkout_token,
-                    "amount": Money(initial_amount, "USD"),
-                    "fees": Money(circle_fee + mesada_fee, "USD"),
-                    "total_amount": Money(amount_minus_fees, "USD"),
-                    "recipient_amount": Money(converted_amount, "MXN"),
-                    "user": info.context.user,
-                    "payment_method": payment_method,
-                }
-                checkout = Checkout.objects.create(**data)
-            """
         else:
             block_amount = False
             checkout = None
