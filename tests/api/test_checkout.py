@@ -97,9 +97,21 @@ def test_checkout_create_success(user_api_client):
             checkout {
                 id
                 checkoutToken
+                amount
+                fees
+                totalAmount
+                recipientAmount
                 user {
                     id
                 }
+                recipient {
+                    id
+                }
+                paymentMethod {
+                    id
+                }
+                status
+                active
             }
         }
     }
@@ -111,6 +123,7 @@ def test_checkout_create_success(user_api_client):
     assert data["checkout"] is not None
     assert data["checkout"]["checkoutToken"] is not None
     assert data["checkout"]["user"] is not None
+    assert data["checkout"]["amount"] is None
 
 
 def test_checkout_update_success1(
