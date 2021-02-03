@@ -17,17 +17,15 @@ class Checkout(CountableDjangoObjectType):
         fields = "__all__"
 
     def resolve_amount(self, _info):
-        if self.amount is not None:
-            return self.amount.amount
+        return self.amount.amount if self.amount is not None else None
 
     def resolve_fees(self, _info):
-        if self.amount is not None:
-            return self.fees.amount
+        return self.fees.amount if self.fees is not None else None
 
     def resolve_total_amount(self, _info):
-        if self.amount is not None:
-            return self.total_amount.amount
+        return self.total_amount.amount if self.total_amount is not None else None
 
     def resolve_recipient_amount(self, _info):
-        if self.amount is not None:
-            return self.recipient_amount.amount
+        return (
+            self.recipient_amount.amount if self.recipient_amount is not None else None
+        )
