@@ -221,7 +221,7 @@ class CreatePayment(ModelMutation):
             description="Type of the transfer. Possible values are CARD or ACH.",
             required=True,
         )
-        payment_method = graphene.Int(description="Payment method ID.", required=True)
+        payment_method = graphene.ID(description="Payment method ID.", required=True)
         amount = graphene.Float(description="Amount of the payment.", required=True)
         currency = graphene.String(
             description="Payment currency. Defaults to USD.", default_value="USD"
@@ -249,7 +249,8 @@ class CreatePayment(ModelMutation):
         ip_address = info.context.META.get("REMOTE_ADDR")
         hashed_session_id = hash_session_id(info.context.session.session_key)
 
-        payment_method = PaymentMethods.objects.get(pk=payment_method)
+        _, payment_id = graphene.Node.from_global_id(payment_method)
+        payment_method = PaymentMethods.objects.get(pk=payment_id)
 
         body = {
             "idempotencyKey": generate_idempotency_key(),
