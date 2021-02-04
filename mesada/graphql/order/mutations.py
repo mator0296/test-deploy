@@ -41,7 +41,7 @@ class CreateOrder(BaseMutation):
             "description": "New Payment for checkout " + str(checkout.id),
             "metadata": {
                 "email": checkout.user.email,
-                "phoneNumber": checkout.user.phone,
+                "phoneNumber": str(checkout.user.phone),
                 "sessionId": hashed_session_id,
                 "ipAddress": ip_address,
             },
