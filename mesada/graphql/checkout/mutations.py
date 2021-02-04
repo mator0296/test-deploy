@@ -77,15 +77,19 @@ class CheckoutUpdate(ModelMutation):
 
         if "recipient" in new_values:
             try:
-                new_recipient = Recipient.objects.get(pk=new_values["recipient"])
+                _, recipient_id = graphene.relay.Node.from_global_id(
+                    new_values["recipient"]
+                )
+                new_recipient = Recipient.objects.get(pk=recipient_id)
                 new_values["recipient"] = new_recipient
             except Recipient.DoesNotExist:
                 raise ValidationError({"recipient": "Recipient not found."})
         if "payment_method" in new_values:
             try:
-                new_payment_method = PaymentMethods.objects.get(
-                    pk=new_values["payment_method"]
+                _, payment_id = graphene.relay.Node.from_global_id(
+                    new_values["payment_method"]
                 )
+                new_payment_method = PaymentMethods.objects.get(pk=payment_id)
                 new_values["payment_method"] = new_payment_method
             except PaymentMethods.DoesNotExist:
                 raise ValidationError({"payment_method": "Payment Method not found."})
