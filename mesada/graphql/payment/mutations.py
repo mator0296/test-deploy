@@ -249,7 +249,7 @@ class CreatePayment(ModelMutation):
         ip_address = info.context.META.get("REMOTE_ADDR")
         hashed_session_id = hash_session_id(info.context.session.session_key)
 
-        _, payment_id = graphene.Node.from_global_id(payment_method)
+        _, payment_id = graphene.relay.Node.from_global_id(payment_method)
         payment_method = PaymentMethods.objects.get(pk=payment_id)
 
         body = {
