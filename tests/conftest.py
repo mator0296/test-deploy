@@ -9,7 +9,9 @@ from mesada.account.models import Recipient, User  # noqa: E402
 from mesada.checkout.models import Checkout  # noqa: E402
 from mesada.core.utils import generate_idempotency_key
 from mesada.payment import PaymentMethodTypes  # noqa: E402
+from mesada.payment import PaymentMethodStatus, PaymentStatus
 from mesada.payment.models import PaymentMethods  # noqa: E402
+from mesada.payment.models import Payment
 
 pytestmark = pytest.mark.django_db
 
@@ -92,4 +94,44 @@ def checkout(user):
         recipient=checkout_recipient,
         payment_method=checkout_payment_method,
         user=user,
+    )
+
+
+@pytest.fixture
+def pending_payment(user):
+    return Payment.objects.create(
+        type="card",
+        merchant_id="dummy",
+        merchant_wallet_id="dummy",
+        amount=Money("100.0", "USD"),
+        source={},
+        metadata={},
+        status=PaymentStatus.PENDING,
+        payment_token="token",
+        user=user,
+    )
+
+
+@pytest.fixture
+def confirmed_payment(user):
+    return Payment.objects.create(
+        type="card",
+        merchant_id="dummy",
+        merchant_wallet_id="dummy",
+        amount=Money("100.0", "USD"),
+        source={},
+        metadata={},
+        status=PaymentStatus.CONFIRMED,
+        payment_token="token",
+        user=user,
+    )
+
+
+@pytest.fixture
+def pending_ach_payment_method(user):
+    return PaymentMethods.objects.create(
+        type=PaymentMethodTypes.ACH,
+        status=PaymentMethodStatus.PENDING,
+        user=user,
+        payment_method_token="dummy token",
     )

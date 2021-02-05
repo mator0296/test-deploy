@@ -7,6 +7,14 @@ from .models import Payment as PaymentModel
 from .models import PaymentMethods as PaymentMethodsModel
 
 
+def _transition_to_status(model_obj, status, status_enum):
+    if status not in status_enum:
+        raise ValueError("Circle returned unknown status")
+
+    model_obj.status = status_enum(status)
+    model_obj.save(update_fields=["status"])
+
+
 @app.task
 def check_payment_status():
     """
@@ -20,8 +28,7 @@ def check_payment_status():
         for payment in pending_payments:
             status = get_payment_status(payment.payment_token)
             if status != PaymentStatus.PENDING:
-                payment.status = status
-                payment.save(update_fields=["status"])
+                _transition_to_status(payment, status, PaymentStatus)
 
 
 @app.task
@@ -35,11 +42,10 @@ def check_ach_status():
     )
 
     with transaction.atomic():
-        for payment_methods in pending_ach:
-            status = get_ach_status(payment_methods.payment_method_token)
+        for payment_method in pending_ach:
+            status = get_ach_status(payment_method.payment_method_token)
             if status != PaymentMethodStatus.PENDING:
-                payment_methods.status = status
-                payment_methods.save(update_fields=["status"])
+                _transition_to_status(payment_method, status, PaymentMethodStatus)
 
 
 @app.task
@@ -52,4 +58,4 @@ def check_payment_paid_status():
         for payment in payments:
             status = get_payment_status(payment.payment_token)
             if status == PaymentStatus.PAID:
-                payment.save(update_fields=["status"])
+                _transition_to_status(payment, PaymentStatus.PAID, PaymentStatus)
