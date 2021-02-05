@@ -104,7 +104,7 @@ def test_create_payment(
         email="test@mail.com",
     )
     query = """
-    mutation createPayment($type: String!, $paymentMethod: Int!, $amount: Float!, $currency: String, $description: String){  # noqa: E501
+    mutation createPayment($type: String!, $paymentMethod: ID!, $amount: Float!, $currency: String, $description: String){  # noqa: E501
         createPayment(type: $type, paymentMethod: $paymentMethod, amount: $amount, currency: $currency, description: $description) {  # noqa: E501
             payment{
                 id
@@ -114,7 +114,7 @@ def test_create_payment(
     """
     variables_values = {
         "type": "CARD",
-        "paymentMethod": 1,
+        "paymentMethod": "UGF5bWVudE1ldGhvZHM6MQ==",
         "amount": 100,
         "currency": "USD",
         "description": "Description for new payment.",

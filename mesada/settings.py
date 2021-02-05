@@ -65,7 +65,9 @@ INSTALLED_APPS = [
     "mesada.account",
     "mesada.checkout",
     "mesada.core",
+    "mesada.galactus",
     "mesada.graphql",
+    "mesada.order",
     "mesada.payment",
     "mesada.transfer",
     "mesada.sendgrid",
@@ -185,6 +187,14 @@ CIRCLE_WALLET_ID = env("CIRCLE_WALLET_ID")
 CIRCLE_BLOCKCHAIN_CHAIN = env("CIRCLE_BLOCKCHAIN_CHAIN")
 BITSO_BLOCKCHAIN_ADDRESS = env("BITSO_BLOCKCHAIN_ADDRESS")
 
+# GALACTUS
+GALACTUS_URL = env("GALACTUS_URL")
+
+# Fees
+COMMISSION_FEE_DEBIT_CARD = 6.5
+COMMISSION_FEE_ACH = 1.5
+COMMISSION_FEE_MESADA = 1.0
+
 # Verify Twilio
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
@@ -214,7 +224,10 @@ CELERY_TIMEZONE = "America/Mexico_City"
 
 CELERY_CHECK_PAYMENT_STATUS = 60.0
 CELERY_CHECK_TRANSFER_STATUS = 60.0
+CELERY_UPDATE_PENDING_ORDER_STATUS = 60.0
+CELERY_UPDATE_PROCESSING_ORDER_STATUS = 60.0
 CELERY_CHECK_ACH_STATUS = 60.0
+CELERY_UPDATE_GALACTUS_TRANSACTION_STATUS = 60.0
 
 # Bitso credentials
 BITSO_API_KEY = os.getenv("BITSO_API_KEY")
